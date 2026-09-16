@@ -40,16 +40,16 @@
     <div class="spine">
       <div class="spine__pct reveal"><b><span id="spine-pct" data-count="72">72</span><i class="u">%</i></b><span class="lbl">整体交付进度</span></div>
       <div class="spine__track">
-        <div class="spine__step is-done"><div class="seg"><i style="width:100%"></i></div><span>需求接收 ✓</span></div>
-        <div class="spine__step is-done"><div class="seg"><i style="width:100%"></i></div><span>方案确认 ✓</span></div>
+        <div class="spine__step is-done"><div class="seg"><i class="seg-fill--full"></i></div><span>需求接收 ✓</span></div>
+        <div class="spine__step is-done"><div class="seg"><i class="seg-fill--full"></i></div><span>方案确认 ✓</span></div>
         <div class="spine__step is-now"><div class="seg"><i id="spine-prod" class="flow-sheen" style="width:72%"></i></div><span>并行生产</span></div>
         <div class="spine__step"><div class="seg"><i id="spine-accept" class="flow-sheen" style="width:0%"></i></div><span>交付验收</span></div>
         <div class="spine__step"><div class="seg"><i id="spine-settle" class="flow-sheen" style="width:0%"></i></div><span>交付归档</span></div>
       </div>
       <div class="spine__stats">
         <span><b id="st-total">48</b>任务</span>
-        <span><b id="st-done" style="color:var(--pine)">31</b>已完成</span>
-        <span><b id="st-doing" style="color:var(--clay)">9</b>进行中</span>
+        <span><b id="st-done" class="s1-num--pine">31</b>已完成</span>
+        <span><b id="st-doing" class="s1-num--clay">9</b>进行中</span>
         <span><b id="st-ontime">96.4%</b>准时率</span>
       </div>
     </div>
@@ -117,18 +117,18 @@
     <aside class="folio folio--l reveal" aria-hidden="true">
       <span class="folio__word">AI OUTPUT · 06/18</span>
       <span class="folio__dots">
-        <i style="background:var(--pine)"></i>
-        <i style="background:var(--pine)"></i>
-        <i style="background:var(--pine)"></i>
-        <i style="background:var(--clay); opacity:.75"></i>
-        <i style="background:var(--clay); opacity:.75"></i>
-        <i class="dot--busy" style="width:0.6rem; height:0.6rem"></i>
+        <i class="s1-lamp--pine"></i>
+        <i class="s1-lamp--pine"></i>
+        <i class="s1-lamp--pine"></i>
+        <i class="s1-lamp--clay"></i>
+        <i class="s1-lamp--clay"></i>
+        <i class="dot--busy dot--tiny"></i>
       </span>
     </aside>
 
     <main class="mosaic">
     <!-- 00 · 主角：发布方案整合稿 -->
-    <article class="tile tile--hero reveal" style="--rc: var(--pine)">
+    <article class="tile tile--hero reveal rc--pine">
       <i class="tile__no">00</i>
       <div class="tile__thumb">
         <svg viewBox="0 0 400 300" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
@@ -172,7 +172,7 @@
     </article>
 
     <!-- 01 · 规格书 -->
-    <article class="tile t-spec reveal" style="--rc: var(--c-planner)">
+    <article class="tile t-spec reveal rc--planner">
       <i class="tile__no">01</i>
       <div class="tile__thumb">
         <svg viewBox="0 0 400 300" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
@@ -213,7 +213,7 @@
     </article>
 
     <!-- 02 · 数据报告 -->
-    <article class="tile t-data reveal" style="--rc: var(--c-writer)">
+    <article class="tile t-data reveal rc--writer">
       <i class="tile__no">02</i>
       <div class="tile__thumb">
         <svg viewBox="0 0 400 300" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
@@ -258,7 +258,7 @@
     </article>
 
     <!-- 03 · 视觉规范 -->
-    <article class="tile t-visual reveal" style="--rc: var(--c-designer)">
+    <article class="tile t-visual reveal rc--designer">
       <i class="tile__no">03</i>
       <div class="tile__thumb">
         <svg viewBox="0 0 400 300" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
@@ -299,7 +299,7 @@
     </article>
 
     <!-- 04 · 落地页 -->
-    <article class="tile t-web reveal" style="--rc: var(--c-engineer)">
+    <article class="tile t-web reveal rc--engineer">
       <i class="tile__no">04</i>
       <div class="tile__thumb">
         <svg viewBox="0 0 400 300" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
@@ -364,7 +364,7 @@
       <span class="sched__range num">09.01 – 09.30</span>
       <span class="sched__meta">全 5 项任务 · 4 个渠道 · 月度周期</span>
     </div>
-    <i class="tile__no" style="--rc: var(--c-planner)" aria-hidden="true">05</i>
+    <i class="tile__no rc--planner" aria-hidden="true">05</i>
     <div class="sched__body">
       <div class="sched__weeks" aria-hidden="true">
         <span style="left:12.5%">W1</span><span style="left:37.5%">W2</span>

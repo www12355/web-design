@@ -112,7 +112,18 @@
         ".rider__orb",
         ".track",
         ".board",
-        ".kpi"
+        ".kpi",
+        ".spine__step .seg i",
+        ".s1-num--pine",
+        ".s1-num--clay",
+        ".s1-lamp--pine",
+        ".s1-lamp--clay",
+        ".dot--tiny",
+        ".spine__stats b",
+        ".tile__no",
+        ".bar",
+        ".lane__track",
+        ".lane__track span"
       ]
     },
     "window2.html": {
@@ -158,7 +169,14 @@
         ".r-dot--planner",
         ".atlas-catalog",
         ".shelf-row",
-        ".sphere-pop"
+        ".sphere-pop",
+        ".chat__head b",
+        ".chat__head > div",
+        ".pill--push",
+        ".eb-sec",
+        ".eb-res",
+        ".num--md",
+        ".row-wrap"
       ],
       "groups": {
         "docreview": {

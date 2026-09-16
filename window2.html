@@ -26,10 +26,10 @@
             <span class="win-dots"><i></i><i></i><i></i></span>
             <div class="bot bot-white" id="chat-main"></div>
             <div>
-              <b style="font-size:1.4rem;">主 AI 经营群</b>
-              <div style="font-size:1.1rem; color:var(--muted);">6 名成员 · 全自主经营 · 无人值守</div>
+              <b class="chat-title">主 AI 经营群</b>
+              <div class="chat-sub">6 名成员 · 全自主经营 · 无人值守</div>
             </div>
-            <span class="pill pill--sage" style="margin-left:auto;"><i class="dot dot--run"></i>全员在线</span>
+            <span class="pill pill--sage pill--push"><i class="dot dot--run"></i>全员在线</span>
             <span class="pill" id="chat-pool">任务池 48 · 进行 9</span>
             <span class="pill pill--pine">自动运转中</span>
           </div>
@@ -120,7 +120,7 @@
             </div>
           </div>
           <div class="pane" id="pane-status">
-            <div class="eb-sec" style="margin-top:0.2rem;">
+            <div class="eb-sec eb-sec--tight">
               <h4><svg viewBox="0 0 24 24"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>经营指标 · 实时</h4>
               <div class="eb-kpi"><span>在产订单</span><b id="ls-orders">5 个</b></div>
               <div class="eb-kpi"><span>并行任务</span><b id="ls-doing">9 项</b></div>
@@ -130,7 +130,7 @@
             </div>
             <div class="eb-sec">
               <h4><svg viewBox="0 0 24 24"><path d="M14.7 6.3a5 5 0 10-7 7l-4 4V21h3.7l4-4a5 5 0 103.3-10.7z"/></svg>运行中的技能</h4>
-              <div style="display:flex; flex-wrap:wrap; gap:0.5rem;">
+              <div class="row-wrap">
                 <span class="pill">订单接签 · auto</span>
                 <span class="pill">任务编排 · loop</span>
                 <span class="pill">依赖解析 · DAG</span>
@@ -141,7 +141,7 @@
             <div class="eb-sec">
               <h4><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M9 4v16M4 9h16"/></svg>资源占用</h4>
               <div class="eb-res"><span>算力</span><div class="track load-track"><i id="cpu-track" style="width:63%"></i></div><b id="cpu-val">63%</b></div>
-              <div class="eb-res" style="margin-top:0.6rem;"><span>内存</span><div class="track track--amber load-track"><i id="mem-track" style="width:41%"></i></div><b id="mem-val">41%</b></div>
+              <div class="eb-res eb-sec--loose"><span>内存</span><div class="track track--amber load-track"><i id="mem-track" style="width:41%"></i></div><b id="mem-val">41%</b></div>
             </div>
             <div class="eb-sec">
               <h4><svg viewBox="0 0 24 24"><path d="M3 21h18M5 21V7l7-4 7 4v14"/></svg>在产订单</h4>
@@ -149,7 +149,7 @@
             </div>
           </div>
           <div class="pane" id="pane-events" hidden>
-            <div class="eb-sec" style="margin-top:0.2rem;">
+            <div class="eb-sec eb-sec--tight">
               <h4><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>经营事件流</h4>
               <div id="event-log"></div>
             </div>
@@ -169,7 +169,7 @@
             <div class="eb-sec">
               <h4><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>自主行为</h4>
               <div class="set-row"><span>自动巡检播报</span><input type="checkbox" class="set-switch" id="patrol-chk" checked></div>
-              <div class="set-row"><span>本页运行时长</span><b class="num" id="runtime-val" style="font-size:1.2rem;">0 分钟</b></div>
+              <div class="set-row"><span>本页运行时长</span><b class="num num--md" id="runtime-val">0 分钟</b></div>
             </div>
             <div class="eb-sec">
               <h4><svg viewBox="0 0 24 24"><path d="M9 18h6M10 21h4M12 3a6 6 0 00-4 10.5c.6.5 1 1.2 1 2h6c0-.8.4-1.5 1-2A6 6 0 0012 3z"/></svg>关于本引擎</h4>
@@ -224,7 +224,7 @@
             <div id="event-log2"></div>
           </div>
           <div class="pane" id="pane-ctx" hidden>
-            <div class="eb-sec" style="margin-top:0.2rem;">
+            <div class="eb-sec eb-sec--tight">
               <h4><svg viewBox="0 0 24 24"><path d="M3 21h18M5 21V7l7-4 7 4v14"/></svg>经营上下文</h4>
               <div class="eb-kpi"><span>在产订单</span><b id="ctx-orders">5 个</b></div>
               <div class="eb-kpi"><span>任务池</span><b id="ctx-tasks">48 项</b></div>

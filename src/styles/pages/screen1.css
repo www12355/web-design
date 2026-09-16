@@ -845,3 +845,17 @@ body.screen1-page #aic-miniscreen {
   .tpl-chip, .tpl-pop, .s1-step, .s1-bridge__dot, .s1-bridge__open, .s1-seg button,
   .s1-bridge__field, .s1-bridge__field button { transition:none; animation:none; }
 }
+
+/* ---------- 由内联样式收敛而来的语义类（P2-2） ---------- */
+.seg-fill--full { width:100%; }
+/* 需压过 `.spine__stats b { color:var(--ink) }`（原为行内样式，优先级最高），故带上下文 */
+.spine__stats b.s1-num--pine { color:var(--pine); }
+.spine__stats b.s1-num--clay { color:var(--clay); }
+.s1-lamp--pine { background:var(--pine); }
+.s1-lamp--clay { background:var(--clay); opacity:.75; }
+.dot--tiny { width:.6rem; height:.6rem; }
+.rc--pine { --rc:var(--pine); }
+.rc--planner { --rc:var(--c-planner); }
+.rc--writer { --rc:var(--c-writer); }
+.rc--designer { --rc:var(--c-designer); }
+.rc--engineer { --rc:var(--c-engineer); }
