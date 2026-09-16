@@ -36,9 +36,21 @@ document.querySelectorAll('.launch-card[role="link"]').forEach(card => {
   });
 });
 
-// index.html 的按钮使用内联 onclick，必须把模块内函数显式暴露到 window 才能被调用
-window.openBoth = openBoth;
-window.openSized = openSized;
+// 由 data-action 驱动事件绑定，避免内联 onclick 与 window 全局污染（P2-1）
+document.querySelectorAll('[data-action]').forEach(el => {
+  el.addEventListener('click', () => {
+    const act = el.dataset.action;
+    if (act === 'open-both') {
+      openBoth();
+    } else if (act === 'open-sized') {
+      const [w, h] = String(el.dataset.size || '').split('x').map(Number);
+      if (w && h) openSized(w, h);
+    } else if (act === 'open-window') {
+      const t = el.dataset.target;
+      if (t) window.open(t + '.html', t);
+    }
+  });
+});
 
 // 页脚版权年份取真实时间
 const copyEl = document.querySelector('.launch__foot .num');

@@ -96,3 +96,9 @@
   .launch-card, .launch-card::before, .bot-demo, .btn--ghost { transition:none; }
   .launch-card:hover, .launch-card:focus-visible { transform:none; }
 }
+
+/* ---------- 由内联样式收敛而来的工具类（P2-1/P2-2） ---------- */
+.launch__spacer { flex:1; }
+.launch__lede { font-size:1.5rem; max-width:48rem; }
+.launch__cta { display:flex; gap:1.4rem; margin-top:.8rem; align-items:center; }
+.launch__sizes { display:flex; gap:.8rem; flex-wrap:wrap; }

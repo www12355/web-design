@@ -13,7 +13,7 @@
   <header class="launch__head">
     <span class="h-eyebrow">AI AUTONOMOUS OPERATIONS</span>
     <span class="pill pill--sage">设计稿 v2.0 · 世界引擎</span>
-    <span style="flex:1"></span>
+    <span class="launch__spacer"></span>
     <span class="t-muted">Soft-Editorial · 企业级 · 无人值守</span>
   </header>
 
@@ -21,13 +21,13 @@
     <section class="launch__hero">
       <span class="h-eyebrow">运行入口</span>
       <h1 class="h-display">打开两个窗口，<br>观看全自主经营体运转。</h1>
-      <p class="t-soft" style="font-size:1.5rem; max-width: 48rem;">
+      <p class="t-soft launch__lede">
         这是一套未来形态的全自主 AI 数字公司：接单 → 需求拆解 → 并行生产 → 交付验收 → 归档入库，全程无人力接入，产出自动沉淀为组织资产。
         第一屏为运营驾驶舱（交付节律 / 任务管线 / 交付资产）；第 2 / 3 / 4 屏组成横向卷轴，进入默认停在第 3 屏（主 AI 中枢）。
         世界引擎驱动所有数字实时演化，两窗口自动同步。
       </p>
-      <div style="display:flex; gap:1.4rem; margin-top:0.8rem; align-items:center;">
-        <button class="btn btn--primary" onclick="openBoth()">
+      <div class="launch__cta">
+        <button class="btn btn--primary" data-action="open-both">
           <svg class="ic" viewBox="0 0 24 24"><path d="M5 3l14 9-14 9V3z"/></svg>
           <span>运行并打开两个窗口</span>
         </button>
@@ -35,17 +35,17 @@
       </div>
       <div class="size-row">
         <span class="h-eyebrow">按桌面尺寸预览第一屏</span>
-        <div style="display:flex; gap:0.8rem; flex-wrap:wrap;">
-          <button class="btn btn--ghost" onclick="openSized(1280, 800)">1280 × 800</button>
-          <button class="btn btn--ghost" onclick="openSized(1440, 900)">1440 × 900</button>
-          <button class="btn btn--ghost" onclick="openSized(1920, 1080)">1920 × 1080</button>
-          <button class="btn btn--ghost" onclick="openSized(2560, 1300)">2560 × 1300</button>
+        <div class="launch__sizes">
+          <button class="btn btn--ghost" data-action="open-sized" data-size="1280x800">1280 × 800</button>
+          <button class="btn btn--ghost" data-action="open-sized" data-size="1440x900">1440 × 900</button>
+          <button class="btn btn--ghost" data-action="open-sized" data-size="1920x1080">1920 × 1080</button>
+          <button class="btn btn--ghost" data-action="open-sized" data-size="2560x1300">2560 × 1300</button>
         </div>
       </div>
     </section>
 
     <section class="launch__cards">
-      <div class="launch-card" onclick="window.open('screen1.html','screen1')" role="link" tabindex="0" aria-label="打开第一屏运营驾驶舱">
+      <div class="launch-card" data-action="open-window" data-target="screen1" role="link" tabindex="0" aria-label="打开第一屏运营驾驶舱">
         <span class="launch-card__no">01</span>
         <div class="bot-demo bot-white" id="bot-demo-main"></div>
         <div class="launch-card__txt">
@@ -53,7 +53,7 @@
           <span>运营驾驶舱 · 交付节律与任务管线 · 交付资产 · 团队状态</span>
         </div>
       </div>
-      <div class="launch-card" onclick="window.open('window2.html','window2')" role="link" tabindex="0" aria-label="打开横向卷轴屏">
+      <div class="launch-card" data-action="open-window" data-target="window2" role="link" tabindex="0" aria-label="打开横向卷轴屏">
         <span class="launch-card__no">02</span>
         <div class="bot-demo" id="bot-demo-reel"></div>
         <div class="launch-card__txt">

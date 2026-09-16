@@ -50,10 +50,10 @@
   /* 渐变与辉光：浅色下收敛为淡影，不用霓虹 */
   --brand-grad:linear-gradient(100deg, #1f6f5c 0%, #2fbfa0 52%, #8b5cf6 100%);
   --glow:0 0.6rem 1.6rem rgba(31, 111, 92, 0.12);
-  --glow-cyan:0 0.6rem 1.6rem rgba(47, 191, 160, 0.14);
+  --glow-cyan:0 0.6rem 1.6rem var(--primary-lt-a14);
   --glow-rose:0 0.6rem 1.6rem rgba(139, 92, 246, 0.12);
   --glow-strong:0 1rem 2.6rem rgba(31, 111, 92, 0.16);
-  --grid:rgba(43, 42, 38, 0.05);
+  --grid:var(--ink-a05);
   --glass:rgba(251, 249, 244, 0.74);
   --glass-brd:rgba(207, 201, 186, 0.75);
 
@@ -67,8 +67,8 @@
   --c-danger-soft:rgba(184, 59, 44, 0.09);
 
   /* 纸感阴影（替代深色硬投影） */
-  --shadow-soft:0 0.1rem 0.2rem rgba(43, 42, 38, 0.04), 0 0.8rem 2.4rem rgba(43, 42, 38, 0.06);
-  --shadow-lift:0 0.2rem 0.4rem rgba(43, 42, 38, 0.05), 0 1.6rem 4rem rgba(43, 42, 38, 0.09);
+  --shadow-soft:0 0.1rem 0.2rem var(--ink-a04), 0 0.8rem 2.4rem var(--ink-a06);
+  --shadow-lift:0 0.2rem 0.4rem var(--ink-a05), 0 1.6rem 4rem var(--ink-a09);
   --shadow-inset:inset 0 1px 0 rgba(255, 255, 255, 0.7);
 
   /* 文档表面 */
@@ -76,6 +76,27 @@
   --doc-line:#e0dcd1;
   --doc-ink:#55524a;
   --doc-ink-strong:#2b2a26;
+
+  /* ---------- 透明度 token（P2-4）----------
+     浅色主题下 --ink 即 rgb(43,42,38)，此前散落十余处 rgba(43,42,38,α) 硬编码；
+     此处按 α 分档收口为 token（取值逐一相同，仅统一来源，视觉零变化）。 */
+  --ink-a04:rgba(43, 42, 38, 0.04);
+  --ink-a05:rgba(43, 42, 38, 0.05);
+  --ink-a06:rgba(43, 42, 38, 0.06);
+  --ink-a07:rgba(43, 42, 38, 0.07);
+  --ink-a09:rgba(43, 42, 38, 0.09);
+  --ink-a10:rgba(43, 42, 38, 0.10);
+  --ink-a14:rgba(43, 42, 38, 0.14);
+  --ink-a16:rgba(43, 42, 38, 0.16);
+  --ink-a22:rgba(43, 42, 38, 0.22);
+  /* 主色亮调（--brand-grad 中段 #2fbfa0）分档 */
+  --primary-lt-a10:rgba(47, 191, 160, 0.10);
+  --primary-lt-a14:rgba(47, 191, 160, 0.14);
+  /* 遗留靛蓝（非 --neon-violet #8b5cf6）：同值收口，待设计统一时再合并 */
+  --indigo:#4f46e5;
+  --indigo-a10:rgba(79, 70, 229, 0.10);
+  --indigo-a18:rgba(79, 70, 229, 0.18);
+  --indigo-a30:rgba(79, 70, 229, 0.30);
 }
 
 /* components.css 的全局背景层是「近黑底 + 青紫光晕 + 暗格栅」，
@@ -83,7 +104,7 @@
    不在 .screen 内，所以必须用 body.screen1-page 直接接管。 */
 body.screen1-page {
   background:
-    radial-gradient(104rem 44rem at 88% -10%, rgba(47, 191, 160, 0.10), transparent 62%),
+    radial-gradient(104rem 44rem at 88% -10%, var(--primary-lt-a10), transparent 62%),
     radial-gradient(84rem 40rem at 4% 108%, rgba(201, 111, 74, 0.07), transparent 60%),
     var(--paper);
 }
@@ -118,16 +139,16 @@ body.screen1-page .screen::before {
 .screen1-page .bar--writer,
 .screen1-page .bar--analyst,
 .screen1-page .bar--designer,
-.screen1-page .bar--engineer { box-shadow:0 0.1rem 0.2rem rgba(43, 42, 38, 0.10); }
-.screen1-page .lane:hover .bar { box-shadow:0 0.5rem 1.4rem rgba(43, 42, 38, 0.14); }
+.screen1-page .bar--engineer { box-shadow:0 0.1rem 0.2rem var(--ink-a10); }
+.screen1-page .lane:hover .bar { box-shadow:0 0.5rem 1.4rem var(--ink-a14); }
 .screen1-page .rider:not(.rider--main) .rider__orb {
-  box-shadow:0 0 0 7px var(--paper), 0 0 0 8px rgba(43, 42, 38, 0.06);
+  box-shadow:0 0 0 7px var(--paper), 0 0 0 8px var(--ink-a06);
 }
-.screen1-page .rider__orb svg { filter:drop-shadow(0 0.1rem 0.1rem rgba(43, 42, 38, 0.16)); }
+.screen1-page .rider__orb svg { filter:drop-shadow(0 0.1rem 0.1rem var(--ink-a16)); }
 .screen1-page .rider--main .rider__orb svg {
-  filter:drop-shadow(0 0.1rem 0.2rem rgba(43, 42, 38, 0.22)) drop-shadow(0 1.2rem 2.2rem rgba(43, 42, 38, 0.10));
+  filter:drop-shadow(0 0.1rem 0.2rem var(--ink-a22)) drop-shadow(0 1.2rem 2.2rem var(--ink-a10));
 }
-.screen1-page .tile__thumb svg { filter:drop-shadow(0 0.1rem 0.3rem rgba(43, 42, 38, 0.07)); }
+.screen1-page .tile__thumb svg { filter:drop-shadow(0 0.1rem 0.3rem var(--ink-a07)); }
 .screen1-page .track > i { box-shadow:none; }
 .screen1-page .flow-sheen::after {
   background:linear-gradient(100deg, transparent, rgba(255, 255, 255, 0.7) 50%, transparent);
@@ -297,7 +318,7 @@ body.screen1-page #aic-miniscreen {
 .tile__thumb { flex:1; min-height:0; display:grid; place-items:center; }
 .tile__thumb svg {
   width:100%; height:100%; min-height:0; display:block;
-  filter:drop-shadow(0 0 5px rgba(79, 70, 229, 0.10));
+  filter:drop-shadow(0 0 5px var(--indigo-a10));
   transition:transform 0.25s ease, filter 0.25s ease;
 }
 .tile:hover .tile__thumb svg { transform:scale(1.015); }
@@ -432,7 +453,7 @@ body.screen1-page #aic-miniscreen {
 }
 .rider--main .rider__orb { box-shadow:0 0 0 7px var(--paper), 0 0 0 8.5px var(--pine); }
 .rider--main .rider__orb svg {
-  filter:drop-shadow(0 0 1px rgba(79, 70, 229, 0.30)) drop-shadow(0 12px 20px rgba(79, 70, 229, 0.18));
+  filter:drop-shadow(0 0 1px var(--indigo-a30)) drop-shadow(0 12px 20px var(--indigo-a18));
 }
 /* 主 AI 领跑圈：轻呼吸，呼应"统筹中" */
 .rider--main::after {
@@ -455,8 +476,8 @@ body.screen1-page #aic-miniscreen {
   position:absolute; top:0.3rem; right:0.3rem;
   width:1.3rem; height:1.3rem; border-radius:50%;
   border:3px solid var(--paper);
-  box-shadow:0 1px 3px rgba(43, 42, 38, 0.22),
-    0 0 0 1px rgba(43, 42, 38, 0.05);
+  box-shadow:0 1px 3px var(--ink-a22),
+    0 0 0 1px var(--ink-a05);
   transition:transform 0.18s ease;
 }
 /* 主 AI 状态点：靛蓝细光环，与领跑圈同语言 */
@@ -497,7 +518,7 @@ body.screen1-page #aic-miniscreen {
 /* 甘特条带 hover：提亮 + 上浮 */
 .lane .bar { cursor:help; transition:opacity 0.18s ease, transform 0.18s ease, box-shadow 0.18s ease; }
 .lane:hover .bar { opacity:1; }
-.bar:hover { transform:translateY(-1px); box-shadow:0 4px 12px rgba(43, 42, 38, 0.16); }
+.bar:hover { transform:translateY(-1px); box-shadow:0 4px 12px var(--ink-a16); }
 .lane .tip { white-space:nowrap; }
 .lane:hover .tip { opacity:1; transform:translate(-50%, 0); }
 
@@ -682,7 +703,7 @@ body.screen1-page #aic-miniscreen {
 }
 .s1-step.is-queued::before  { background:var(--sage); }    /* 待派发 · 灰绿 */
 .s1-step.is-doing::before   { background:var(--clay); }    /* 进行中 · 陶土橙 */
-.s1-step.is-blocked::before { background:#f08a24; }        /* 阻塞 · 琥珀 */
+.s1-step.is-blocked::before { background:var(--neon-amber); }        /* 阻塞 · 琥珀 */
 .s1-step.is-done::before    { background:var(--pine); }    /* 已交付 · 深松绿 */
 /* 箭头：胶囊之间 45° 细线折角 */
 .s1-step::after {
@@ -703,7 +724,7 @@ body.screen1-page #aic-miniscreen {
 }
 .s1-step.is-queued b  { color:var(--sage); }
 .s1-step.is-doing b   { color:var(--clay); }
-.s1-step.is-blocked b { color:#f08a24; }
+.s1-step.is-blocked b { color:var(--neon-amber); }
 .s1-step.is-done b    { color:var(--pine); }
 
 /* ============================================================
@@ -724,7 +745,7 @@ body.screen1-page #aic-miniscreen {
 .s1-bridge__dot {
   width:1.1rem; height:1.1rem; border-radius:50%; flex:none;
   background:var(--sage);
-  box-shadow:0 0 0 4px rgba(43, 42, 38, 0.05);
+  box-shadow:0 0 0 4px var(--ink-a05);
   transition:background 0.2s ease, box-shadow 0.2s ease;
 }
 .s1-bridge__dot.is-lead { background:var(--c-planner); box-shadow:0 0 0 4px rgba(59, 147, 240, 0.16); }

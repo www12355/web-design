@@ -143,11 +143,13 @@
 - **证据**：`index.html` 7 处内联 `onclick`(`30/39/40/41/42/48/56`)；`src/controllers/index.js:35-36` 被迫 `window.openBoth = openBoth; window.openSized = openSized;` 才能被调用。
 - **影响**：破坏 ES 模块封装，全局命名空间污染；`index.js` 的"模块性"名存实亡。
 - **建议（仅描述）**：在 `index.js` 内 `querySelector` 绑定事件，去掉 `onclick` 与 `window.*` 挂载。
+- ✅ **已修复（批 E）**：`index.html` 7 处内联 `onclick` 全部移除，改为 `data-action` / `data-size` / `data-target` 声明；`src/controllers/index.js` 新增统一的 `[data-action]` 事件绑定，并**删除 `window.openBoth` / `window.openSized` 全局挂载**（模块封装恢复）。全仓 `onclick` 现为 0 处。
 
 #### P2-2 大量内联 `style`
 - **证据**：`screen1.html` 31 处（如 `43/44/45/394`）、`window2.html` 22 处（如 `30/31/33/537-542`）。
 - **影响**：样式散落 HTML，与 `pages/*.css` 形成"双份真值"，响应式/主题切换难以统一。
 - **建议（仅描述）**：把内联尺寸/颜色抽到 CSS 类或 `var(--token)`；仅保留真正动态计算的行内值。
+- 🟡 **部分修复（批 E）**：`index.html` 4 处静态内联 `style` 已收敛为 `.launch__spacer/__lede/__cta/__sizes`（`index.css`）；`window2.html` 10 处角色色内联 `style="background:#hex"` 收敛为 `.r-dot--*` 类（`window2.css` 单一定义）。**其余内联 style 经核查多为 JS 运行时驱动的动态值**（`width:`/`left:` 由引擎每拍改写，如 `#cpu-track`/`#spine-prod`/甘特条），按"仅保留真正动态行内值"原则**有意保留**；纯静态布局类（`font-size`/`margin-top`/`display:flex`）位于 `screen1.html`/`window2.html`，因缺少浏览器视觉回归手段暂未批量迁移，避免不可验证的布局漂移。
 
 #### P2-3 `tokens.css` 名不副实
 - **证据**：`src/styles/tokens.css` 仅 1 行 `@import url("./components.css")`；三个页面却都 `link` 它（`index.html:8`、`screen1.html:8`、`window2.html:8`）。
@@ -159,6 +161,7 @@
 - **证据**：含 `rgba(`/`#hex` 的行数 `components.css` 101、`window2.css` 133、`screen1.css` 104（如 `screen1.css:105`、`window2.css:1230-1257`）；JS 中 `screen1.js:315`（`rgba(31,111,92,0.10)`）、`window2.js:69`（`RING_C = 245.04`）、`screen1.js:96`（`W=260,H=48,PAD=4`）。
 - **影响**：主题切换 / 明暗对比（驾驶舱浅色 vs 卷轴深色）时，硬编码值不会随之变化，出现"补丁盖补丁"。
 - **建议（仅描述）**：把颜色收口到 `tokens.css` 的 CSS 变量；几何常量提到模块顶部具名常量。
+- 🟡 **部分修复（批 E）**：`screen1.css` 新增**同值透明度 token**（`--ink-a04/05/06/07/09/10/14/16/22`、`--primary-lt-a10/a14`、`--indigo/a10/a18/a30`），并把散落 16 处 `rgba(43,42,38,…)`／`rgba(47,191,160,…)`／`rgba(79,70,229,…)` 与 2 处阻塞色 `#f08a24` 全部替换为 token 引用（**取值逐一相同，视觉零变化**）；`window2.css` 角色色 10 处内联 hex 收敛为 6 个 `.r-dot--*` 类。仍待处理：`window2.css` 主题叠层中的其余约百处 rgba（需主题层收敛后再动，见 P2-6）、JS 内几何常量（`RING_C=245.04` 等）。
 
 #### P2-5 巨型单文件
 - **证据**：`src/controllers/window2.js` 1310 行（承担 6 个屏 3 的功能 + docgen 集成）、`src/styles/pages/window2.css` 1341 行（含 5 层主题补丁）、`bloub.js` 1706 行。

@@ -1343,6 +1343,13 @@ body { text-rendering:optimizeLegibility; }
    交付审阅工作台（原 window2-review.css 已合并至此，P1-4）
    本块为 doc-review 的最终权威层：加载顺序与原「window2.css → window2-review.css」一致。
    ============================================================ */
+/* 角色标识色点：原先 10 处内联 hex 收敛为单一定义（P2-2），色值保持不变 */
+.r-dot--main{background:#22d3ee}
+.r-dot--planner{background:#38bdf8}
+.r-dot--writer{background:#2dd4bf}
+.r-dot--analyst{background:#fbbf24}
+.r-dot--designer{background:#f472b6}
+.r-dot--engineer{background:#a78bfa}
 .doc-review{position:fixed;inset:0;z-index:1000;background:var(--paper);color:var(--ink);font-family:var(--sans);--sans:var(--font-sans);--mono:var(--font-mono)}
 .doc-review[hidden]{display:none}
 .doc-review__backdrop{display:none}
