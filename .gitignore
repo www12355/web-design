@@ -9,3 +9,8 @@ node_modules/
 
 # 注意：_backup_*/.rem_backup/ 等备份目录在本仓库首提交中作为「修复前安全快照」被纳入版本控制，
 # 以便后续删除死代码时可 git 还原。待批 B 删除完成后，可再将它们加入本文件忽略。
+
+# 视觉回归基座的快照输出与工具缓存
+tools/visual/out/
+.eslintcache
+
