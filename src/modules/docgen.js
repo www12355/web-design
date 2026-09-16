@@ -186,36 +186,8 @@ function fileName(content) {
 }
 
 export async function downloadDocx(content) {
-  const D = window.docx;
-  if (D && D.Packer && D.Document) {
-    try {
-      const rows = (content.sections.find(s => s.id === 'deliverables') || {}).table || [];
-      const children = [];
-      /* docx 文本不经 HTML 转义，需显式脱敏：保证下载件同样不含金额与价格字眼 */
-      const tx = v => AIC.stripMoney(String(v == null ? '' : v));
-      children.push(new D.Paragraph({ heading: D.HeadingLevel.TITLE, children: [new D.TextRun({ text: tx(content.title) })] }));
-      children.push(new D.Paragraph({ children: [new D.TextRun({ text: `客户：${tx(content.meta.client)}   需求：${tx(content.meta.demand)}   交付：${tx(content.meta.delivery)}` })] }));
-      children.push(new D.Paragraph({ children: [new D.TextRun({ text: `文档编号：${tx(content.meta.docNo)}   版本：${tx(content.meta.version)}   日期：${tx(content.meta.date)}` })] }));
-      (content.sections || []).forEach(sec => {
-        children.push(new D.Paragraph({ heading: D.HeadingLevel.HEADING_1, children: [new D.TextRun({ text: tx(sec.h) })] }));
-        (sec.body || []).forEach(t => children.push(new D.Paragraph({ children: [new D.TextRun({ text: tx(t) })] })));
-        if (sec.id === 'deliverables' && rows.length) {
-          children.push(new D.Table({
-            width: { size: 100, type: D.WidthType.PERCENTAGE },
-            rows: [
-              new D.TableRow({ children: ['序号', '交付物', '格式', '责任'].map(h => new D.TableCell({ children: [new D.Paragraph({ children: [new D.TextRun({ text: h, bold: true })] })] })) }),
-              ...rows.map((r, i) => new D.TableRow({ children: [i + 1, r.item, r.fmt, r.owner].map(c => new D.TableCell({ children: [new D.Paragraph({ children: [new D.TextRun({ text: tx(c) })] })] })) }))
-            ].filter(Boolean)
-          }));
-        }
-      });
-      children.push(new D.Paragraph({ children: [new D.TextRun({ text: tx(`— ${content.footer.author} · ${content.footer.date}`) })] }));
-      const doc = new D.Document({ sections: [{ children }] });
-      const blob = await D.Packer.toBlob(doc);
-      saveBlob(blob, fileName(content) + '.docx');
-      return true;
-    } catch (err) { /* 忽略，走降级 */ }
-  }
+  /* 真实 .docx 生成依赖外部 docx 库（window.docx），当前零依赖构建未引入，
+     统一降级为 Word 兼容 .doc（见 ARCHITECTURE-REVIEW.md P1-8） */
   /* 降级：Word 兼容 HTML，作为 .doc 下载 */
   const html = (() => {
     let h = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word"><head><meta charset="utf-8"><title>${esc(content.title)}</title></head><body><h1>${esc(content.title)}</h1>`;

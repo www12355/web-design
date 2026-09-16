@@ -1688,18 +1688,10 @@
     });
   }
 
+  // 仅导出被外部调用的 API；fill/RAYON/DEMI_VIEWBOX/SHAPES/COLORS/EXPRESSIONS/STATES/SEQUENCE/POSES/BotEngine
+  // 为内部实现细节，不再挂到 window.Bloub（见 ARCHITECTURE-REVIEW.md P1-10）
   window.Bloub = {
     mount,
-    static: staticSvg,
-    fill,
-    RAYON,
-    DEMI_VIEWBOX,
-    SHAPES,
-    COLORS,
-    EXPRESSIONS,
-    STATES,
-    SEQUENCE,
-    POSES,
-    BotEngine
+    static: staticSvg
   };
 })();

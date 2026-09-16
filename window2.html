@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>第 2 / 3 / 4 屏 · 横向卷轴 ｜ AI 自主经营中枢</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='13' fill='%2322d3ee'/%3E%3Ccircle cx='16' cy='15' r='6.5' fill='%230d1524'/%3E%3Ccircle cx='13.4' cy='13.8' r='1.5' fill='%2322d3ee'/%3E%3Ccircle cx='18.6' cy='13.8' r='1.5' fill='%2322d3ee'/%3E%3Cpath d='M13 18.5q3 2.4 6 0' stroke='%2322d3ee' stroke-width='1.4' fill='none' stroke-linecap='round'/%3E%3C/svg%3E">
-<link rel="stylesheet" href="src/styles/tokens.css">
+<link rel="stylesheet" href="src/styles/components.css">
 <link rel="stylesheet" href="src/styles/pages/window2.css">
 <link rel="stylesheet" href="src/styles/pages/window2-review.css">
 </head>
@@ -283,7 +283,7 @@
           </div>
           <label class="cat-search field">
             <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
-            <input id="cat-search" type="text" placeholder="搜索知识条目，回车聚焦星图…" aria-label="搜索知识条目" data-i18n-title="screen2.searchKnowledge">
+            <input id="cat-search" type="text" placeholder="搜索知识条目，回车聚焦星图…" aria-label="搜索知识条目">
           </label>
           <div class="cat-scroll">
             <div class="shelf-group">
@@ -567,11 +567,7 @@
 
 
 
-<script src="src/data/i18n/zh-CN.js"></script>
-<script src="src/data/i18n/en-US.js"></script>
-<script src="src/data/i18n/ja-JP.js"></script>
-<script src="src/data/i18n/ko-KR.js"></script>
-<script src="src/data/i18n/ru-RU.js"></script>
+<!-- i18n 语言包已移除：5 个文件加载却无任何消费方（见 ARCHITECTURE-REVIEW.md P1-7） -->
 <script src="src/modules/bloub.js"></script>
 <script src="src/modules/emotionball/rings.js"></script>
 <script src="src/modules/emotionball/emotions.js"></script>

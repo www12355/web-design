@@ -99,7 +99,8 @@ import { dateKey } from './time.js';
   seed();resize();
   const page=cv.closest('.reel__page');new IntersectionObserver(es=>es.forEach(e=>{visible=e.isIntersecting;if(visible){kick();}}),{threshold:.05}).observe(page||cv);
   window.addEventListener('resize',resize);
-  window.Nebula={addKnowledge:(key,title,meta)=>addPoint(key,title,meta?.sourceTask||title),pulse,inspect,inspectNext,improve,getPoint,stats,on:fn=>{events.add(fn);return()=>events.delete(fn);},focus:pulse,unfocus:()=>{inspecting=null;hidePop();},docs:()=>DOCS,debug:()=>stats()};
+  // 仅导出被外部调用的 API；inspectNext/improve/focus/unfocus/debug 为内部实现（见 ARCHITECTURE-REVIEW.md P1-10）
+  window.Nebula={addKnowledge:(key,title,meta)=>addPoint(key,title,meta?.sourceTask||title),pulse,inspect,getPoint,stats,on:fn=>{events.add(fn);return()=>events.delete(fn);},docs:()=>DOCS};
   updateReadout();render(performance.now());
 })();
 const Nebula=window.Nebula;export{Nebula};

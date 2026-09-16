@@ -21,12 +21,6 @@ export function nowHM() {
   return `${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
-/** 当前真实时间 HH:MM:SS（供每秒刷新的实时读数） */
-export function nowHMS() {
-  const d = new Date();
-  return `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
-}
-
 /** N 分钟前的真实时间 HH:MM */
 export function hmAgo(minAgo) {
   return hmWallMin(wallMin() - minAgo);
@@ -36,12 +30,6 @@ export function hmAgo(minAgo) {
 export function dateKey() {
   const d = new Date();
   return d.getFullYear() * 10000 + (d.getMonth() + 1) * 100 + d.getDate();
-}
-
-/** 今日 MM.DD */
-export function todayMMDD() {
-  const d = new Date();
-  return `${pad(d.getMonth() + 1)}.${pad(d.getDate())}`;
 }
 
 /** 当月内某一天 MM.DD（day 越界自动收敛到月末） */
@@ -70,12 +58,6 @@ export function monthRange() {
   const m = d.getMonth() + 1;
   const last = new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate();
   return `${pad(m)}.01 – ${pad(m)}.${pad(last)}`;
-}
-
-/** 每月每 N 秒（或立即）调用一次的 tick */
-export function tick(fn, interval = 1000) {
-  fn();
-  setInterval(fn, interval);
 }
 
 /** 把 epoch ms 格式化为相对/绝对时间文案
