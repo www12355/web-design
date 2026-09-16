@@ -4,13 +4,18 @@
  * ============================================================ */
 import { year } from '../modules/time.js';
 
-// 两颗示例球：白色主 AI + 靛蓝员工
-Bloub.mount(document.getElementById('bot-demo-main'), {
-  size: 88, shape: 'cercle', ink: '#ffffff', expression: 'attentif', state: 'idle', paper: '#0d1524'
-});
-Bloub.mount(document.getElementById('bot-demo-reel'), {
-  size: 88, shape: 'hexagone', color: 'bleu', expression: 'neutre', state: 'idle', paper: '#0d1524'
-});
+// 两颗示例球：白色主 AI + 靛蓝员工（持有 mount 返回值，卸载/隐藏时 stop 以取消 rAF，P0-1）
+const demoOrbs = [
+  Bloub.mount(document.getElementById('bot-demo-main'), {
+    size: 88, shape: 'cercle', ink: '#ffffff', expression: 'attentif', state: 'idle', paper: '#0d1524'
+  }),
+  Bloub.mount(document.getElementById('bot-demo-reel'), {
+    size: 88, shape: 'hexagone', color: 'bleu', expression: 'neutre', state: 'idle', paper: '#0d1524'
+  })
+];
+function stopDemoOrbs() { demoOrbs.forEach(h => h && h.stop && h.stop()); }
+window.addEventListener('pagehide', stopDemoOrbs);
+window.addEventListener('visibilitychange', () => { if (document.hidden) stopDemoOrbs(); });
 
 // 同一手势内同步双开，降低拦截概率；被拦截时给出降级提示
 function openBoth() {

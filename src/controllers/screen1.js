@@ -6,6 +6,11 @@ import { AIC } from '../modules/common.js';
 import { World } from '../modules/world.js';
 import { monthRange, monthDay, yearMonth } from '../modules/time.js';
 
+/* 定时器统一登记：pagehide 时集中清理，避免长会话泄漏（P0-3） */
+const _scrIntervals = new Set();
+const every = (fn, ms) => { const id = setInterval(fn, ms); _scrIntervals.add(id); return id; };
+window.addEventListener('pagehide', () => { _scrIntervals.forEach(id => clearInterval(id)); _scrIntervals.clear(); });
+
 // ============================================================
 // 真实时间：把模板里的静态日期标签替换为当前日期口径
 // ============================================================
@@ -336,7 +341,7 @@ function drawRhythm(slots) {
 
   // 甘特「今日」线随世界时钟推进（09.01–09.30 周期）
   function moveToday() { if (todayLine) todayLine.style.left = (World.dayFrac() / 30 * 100).toFixed(2) + '%'; }
-  setInterval(moveToday, 30000);
+  every(moveToday, 30000);
 
   updateHero(); updateRelay(); moveToday();
   setTimeout(() => { updateLedger(); updateSpine(); }, 1600);
@@ -618,6 +623,6 @@ function drawRhythm(slots) {
     function renderAll() { syncTplUI(); syncSpeedUI(); renderSync(); renderEvents(); }
     World.on(renderAll);
     window.addEventListener('storage', e => { if (e && e.key === LEADER_KEY) renderSync(); });
-    setInterval(renderSync, 3000);   /* 仅用于刷新「对方心跳新鲜度」文案 */
+    every(renderSync, 3000);   /* 仅用于刷新「对方心跳新鲜度」文案 */
     renderAll();
   })();

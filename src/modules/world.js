@@ -299,6 +299,10 @@ let tickTimer = 0, orderTimer = 0, patrolTimer = 0, beatTimer = 0, pollTimer = 0
 
 function pickNextQueued() { const q = taskQueued(); return q.length ? q[0].id : null; }
 
+/* 一次性延时任务登记：stopEngine 时可统一取消，避免 leader 退位后旧 setTimeout 仍改写状态（P0-2/P0-3） */
+const pending = new Set();
+function later(fn, ms) { const id = setTimeout(() => { pending.delete(id); fn(); }, ms); pending.add(id); return id; }
+
 function tick() {
   const sp = state.time.speed;
   const tpl = tplOf();
@@ -334,7 +338,7 @@ function tick() {
       const t = pick(doing);
       applyBatch([{ type: 'block', id: t.id, reason: pick(BLOCK_REASONS) }]);
       const bid = t.id;
-      setTimeout(() => { if (leader) applyBatch([{ type: 'unblock', id: bid }]); }, (9000 + rnd() * 12000) / Math.max(1, sp));
+      later(() => { if (leader) applyBatch([{ type: 'unblock', id: bid }]); }, (9000 + rnd() * 12000) / Math.max(1, sp));
     }
   }
 
@@ -344,7 +348,7 @@ function tick() {
     const ready = mine.length ? mine.every(t => t.status === 'done') : true;
     if (ready) {
       o.status = 'settling';
-      setTimeout(() => { if (leader) applyBatch([{ type: 'settle', id: o.id }]); }, 5000 + rnd() * 9000);
+      later(() => { if (leader) applyBatch([{ type: 'settle', id: o.id }]); }, 5000 + rnd() * 9000);
     }
   });
 
@@ -528,9 +532,14 @@ function startEngine() {
 function stopEngine() {
   clearTimeout(tickTimer); clearTimeout(orderTimer); clearTimeout(patrolTimer);
   clearInterval(costTimer); clearInterval(flowTimer);
+  pending.forEach(id => clearTimeout(id)); pending.clear();
   engineOn = false;
 }
+let synced = false;
+const syncRemovers = [];
 function startSync() {
+  if (synced) return;            // 幂等：防止重复注册 interval + 监听器（P0-5）
+  synced = true;
   beatTimer = setInterval(beat, 2000);
   pollTimer = setInterval(pull, 1500);   /* 兜底轮询：后台窗口会被节流，故不能作为唯一通道 */
 
@@ -538,26 +547,41 @@ function startSync() {
 
   /* 推送通道：同源其它窗口写入快照 / 指令 / 租约时立即响应。
    * storage 事件只投递给其它文档，因此不会自触发；也不受 rAF 暂停与定时器节流影响。 */
-  window.addEventListener('storage', e => {
+  const onStorage = e => {
     if (!e || !e.key) return;
     if (e.key === STORE_KEY || e.key === CMD_KEY) pull();
     else if (e.key === LEADER_KEY) beat();
-  });
-
+  };
   /* 窗口恢复可见 / 重新获得焦点 / 从往返缓存恢复：立即拉取 + 心跳，并通知各页重绘 */
   const wake = () => { pull(); beat(); notify([{ type: 'wake' }]); };
-  document.addEventListener('visibilitychange', () => { if (!document.hidden) wake(); });
-  window.addEventListener('focus', wake);
-  window.addEventListener('pageshow', wake);
-
-  /* 页面卸载（刷新 / 关闭 / 跳转）时主动作废租约：
-   * 刷新后新页面不必等租约自然过期，立刻接管并继续驱动世界。 */
-  window.addEventListener('pagehide', () => {
+  const onVis = () => { if (!document.hidden) wake(); };
+  /* 页面卸载（刷新 / 关闭 / 跳转）时主动作废租约并彻底拆除同步（P0-2/P0-5） */
+  const onHide = () => {
     if (!leader) return;
     leader = false;
     stopEngine();
+    stopSync();
     if (syncOK) lsSet(LEADER_KEY, { id: MY_ID, prio: PRIO, ts: 0 });
-  });
+  };
+  window.addEventListener('storage', onStorage);
+  document.addEventListener('visibilitychange', onVis);
+  window.addEventListener('focus', wake);
+  window.addEventListener('pageshow', wake);
+  window.addEventListener('pagehide', onHide);
+  syncRemovers.push(
+    () => window.removeEventListener('storage', onStorage),
+    () => document.removeEventListener('visibilitychange', onVis),
+    () => window.removeEventListener('focus', wake),
+    () => window.removeEventListener('pageshow', wake),
+    () => window.removeEventListener('pagehide', onHide)
+  );
+}
+/* 彻底拆除同步：清除 beat/poll 定时器与全部监听器（页面卸载时调用，避免 interval 泄漏） */
+function stopSync() {
+  clearInterval(beatTimer); clearInterval(pollTimer);
+  beatTimer = pollTimer = null;
+  while (syncRemovers.length) { const rm = syncRemovers.pop(); try { rm(); } catch (e) {} }
+  synced = false;
 }
 
 /* ---------------- 对外 API ---------------- */

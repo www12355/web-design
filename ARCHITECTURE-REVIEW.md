@@ -3,7 +3,7 @@
 > 评审对象：`d:/Users/15372/Desktop/h5/网页设计3`
 > 评审性质：静态架构走查（不运行、不改动源码）。方法镜头取自 impeccable `critique` / `audit` 维度：复杂度、可维护性、性能与资源生命周期、耦合/重复、可访问性、工程化。
 > 证据来源：对仓库的全量静态侦察，所有结论均附 `文件:行号`。
-> 本轮交付：仅本报告，不动任何 `.html / .js / .css / 配置`。
+> 本轮交付：本报告为修复基线；**已进入修复阶段（批 A–G）**，逐批在对应条目标注「✅ 已修复 — 文件:行号 + 提交哈希」。所有改动均可经 `git` 回退至首提交 `6b57ec7`。
 
 ---
 
@@ -39,11 +39,13 @@
 - **证据**：`src/modules/bloub.js:1641`（mount 内部无限 rAF，需调用方保留 `stop()` 取消）；调用方 `src/controllers/index.js:8,11`、`src/controllers/window2.js:168,216` **均丢弃返回值**。
 - **影响**：`window2` 同时挂载 5 张工牌 + 1 个群聊头 = **6 个永不停止的 rAF**。即便用 `innerHTML` 覆盖 DOM（如 `window2.js:225` 用 `Bloub.static(...)` 替换 `.avatar-slot`），底层 rAF 仍持有对旧节点的引用并继续跑，造成 CPU 空转与潜在内存泄漏。
 - **建议（仅描述）**：让 `mount()` 返回句柄（已具备 `stop()`），在工牌重建 / 翻面 / 卸载路径显式调用；或改为 `IntersectionObserver` 暂停（可借鉴 `engine.js` 的 `ticker` + `visible` 门控思路）。
+- ✅ **已修复（批 C）**：`index.js` 持有两颗 demo 球句柄并在 `pagehide` 时 `stop()`；`window2.js` 持有 `badgeAvatars` 与 `chatOrb` 句柄，统一在 `pagehide` 调 `stopOrbs()` 取消 rAF（常驻球已可卸载）。
 
 #### P0-2 世界引擎心跳 / 轮询定时器永不清理
 - **证据**：`src/modules/world.js:534-535` 注册 `beatTimer`(2s) 与 `pollTimer`(1.5s)；`stopEngine`(`world.js:528-532`) 只清另 5 个定时器，漏掉这两个。
 - **影响**：`stopEngine` 名不副实；若未来有 leader 让位 / 页面卸载调用 `stopEngine`，仍残留两个常驻定时器；当前虽仅 `boot` 调用一次，属结构性隐患。
 - **建议（仅描述）**：在 `stopEngine` 中 `clearInterval(beatTimer)` / `clearInterval(pollTimer)`；leader 选举与引擎循环统一用一组句柄登记 + 统一销毁。
+- ✅ **已修复（批 C）**：`world.js` 新增 `pending`/`later` 登记一次性延时任务（`tick` 内 block/settle 的 `setTimeout`）并由 `stopEngine` 统一 `clearTimeout`；`beatTimer`/`pollTimer` 改由新增 `stopSync()` 清理（不与 follower 的 `pollTimer` 轮询冲突），`startSync` 加 `synced` 幂等守护。
 
 #### P0-3 多处 `setInterval` 永不清理
 - **证据**：
@@ -53,16 +55,19 @@
   - `src/modules/nebula.js:98`（`setInterval(..., 5200/9000)`）
 - **影响**：演示站虽是单页长驻，但定时器散落、无集中登记，难以在保证不重复注册的前提下安全重启；多窗口各跑一份，叠加负载。
 - **建议（仅描述）**：抽出统一的 `intervalRegistry`（登记 + 全部 `clear`），或将"实时玩具"类定时器收敛进 `World` 的 ticker，由引擎统一驱动。
+- ✅ **已修复（批 C）**：`world.js` 一次性延时登记 `later` 由 `stopEngine` 取消；`window2.js` 加 `intervals`/`timeouts` 登记 + `pagehide` 集中清理（含 `runDispatch`/`queueChat` 的 `setTimeout` 链与两处 `setInterval`）；`screen1.js` 加 `_scrIntervals` 登记 + `pagehide` 清理；`nebula.js` 隐藏页跳过工作 + `pagehide` 清 `setInterval`；`time.js` `mountTimeTicker` 的 interval 登记 + `pagehide` 清理。
 
 #### P0-4 `docRefs` Map 只增不减
 - **证据**：`src/controllers/window2.js:27` `docRefs`（`docNo → context`）只有 `set`，无 `delete` / 上限。
 - **影响**：长时间运行（演示挂机）后 Map 单调增长，且 key 为业务文档号，理论上无界。
 - **建议（仅描述）**：在文档审阅关闭 / 归档后 `delete` 对应 key；或改 `WeakMap` + 弱引用，或加 LRU 上限。
+- ✅ **已修复（批 C）**：`window2.js` 的 `docRefs` 改用 `setDocRef`，超 `DOC_REFS_MAX(64)` 时淘汰最早写入项（无界增长已根治）；跨模块 close 删除成本较高，采用上限淘汰等价解决泄漏。
 
 #### P0-5 全局监听器永不解绑 + 可重复注册
 - **证据**：`src/modules/world.js:541-560` 注册 `storage` / `visibilitychange` / `focus` / `pageshow` / `pagehide` 监听，无对应 `removeEventListener`；`startSync`(`533`) 若被再次调用会重复注册。
 - **影响**：单页内可接受，但 `startSync` 缺少"幂等"保护，未来任何二次调用都会叠加事件处理；与 P0-2 同源。
 - **建议（仅描述）**：`startSync` 首行加 `if (started) return;` 守护；卸载路径统一 `removeEventListener`。
+- ✅ **已修复（批 C）**：`world.js` `startSync` 首行 `if (synced) return;` 幂等守护；5 个监听器统一登记到 `syncRemovers`，`stopSync()` 内 `removeEventListener` 全部解绑，并在 `pagehide` 时调用。
 
 ---
 
@@ -105,15 +110,18 @@
 - **证据**：`window2.html:570-574` 加载 5 个语言文件，定义 `window.AIC_I18N`；全仓无任何文件读取 `AIC_I18N`；`window.L10n` 从未定义，却被 `common.js:18,21,37`、`screen1.js:440`、`window2.js` 经 `AIC` 当可选能力做三元探测（永久走 fallback）。全站 `data-i18n` 仅 6 处（`index.html:6,14,32`、`screen1.html:23,24`、`window2.html:286`）。
 - **影响**：约 9.3KB 语言包 + 5 个 `<script>` 加载成本纯浪费；且 `screen1` / `index` 用了 `data-i18n` 却**根本没加载 i18n 脚本** → 这两页的 `data-i18n` 永不生效。
 - **建议（仅描述）**：要么接线上线（`window2` 独占消费、`screen1`/`index` 补加载 + 运行时 `L10n`），要么连同 5 个语言文件一起删除，去掉 `data-i18n` 占位。
+- ✅ **已修复（批 B，提交 `845eb80`）**：删除 `src/data/i18n/` 5 个语言文件与 `window2.html:570-574` 的 5 个 `<script>` 加载；清除 `index.html`/`screen1.html`/`window2.html` 的 `data-i18n` / `data-i18n-title` 占位属性（可见文案不变）。`window.L10n` 三元探测（`common.js` 等）因恒为 `undefined` 仍走 fallback，属正常降级，无需改动。
 
 #### P1-8 未加载的 `docx` 分支（不可达代码）
 - **证据**：`src/modules/docgen.js:189` 探测 `window.docx`，但该库从未引入（全仓仅此一处引用）；`downloadDocx` 实际永远走 `.doc` 降级路径(`docgen.js:220-234`)。
 - **建议（仅描述）**：若不需要真实 `.docx`，删掉 `window.docx` 分支；若需要，补 CDN 引入并测试闭环。
+- ✅ **已修复（批 B，提交 `845eb80`）**：`docgen.js:188` 起删除 `window.docx` 探测与不可达的 `.docx` 生成分支，仅保留 Word 兼容 `.doc` 降级路径（`downloadDocx` 行为不变）。
 
 #### P1-9 备份目录死代码（约 45 文件 / ~400KB）
 - **证据**：`_backup_light/`、`_backup_softeditorial/`（内含 `modules/modules/` 双层错误目录）、`.rem_backup/` 均 0 引用，且与 `src/` 中同名文件已分叉（如 `bloub.js` 大小 53.63KB vs 53.27KB）。
 - **影响**：严重干扰"哪里是真相源"的判断；仓库体积与认知负担无意义膨胀。
 - **建议（仅描述）**：确认无需回滚后整体删除；误删风险低（无引用）。
+- ✅ **已修复（批 B，提交 `845eb80`）**：整体删除 `_backup_light/`、`_backup_softeditorial/`、`.rem_backup/`（含其中 `base.css`），已纳入 git 首提交 `6b57ec7` 作为可回退快照。
 
 #### P1-10 未引用的导出 / 函数
 - **证据**：
@@ -121,6 +129,7 @@
   - `src/modules/time.js`：`nowHMS`(25)、`todayMMDD`(42)、`tick`(76) 无调用
   - `src/modules/nebula.js`：`inspectNext / improve / focus / unfocus / debug` 无外部调用
 - **建议（仅描述）**：清点后删除，或保留为有意公开 API 时在文件头注明用途。
+- ✅ **已修复（批 B，提交 `845eb80`）**：`bloub.js:1691-1704` 仅保留 `mount`/`static` 导出（删除 `fill`/`RAYON`/`DEMI_VIEWBOX`/`SHAPES`/`COLORS`/`EXPRESSIONS`/`STATES`/`SEQUENCE`/`POSES`/`BotEngine`）；`time.js` 删除 `nowHMS`/`todayMMDD`/`tick`；`nebula.js:102` `window.Nebula` 仅保留外部调用的 `addKnowledge/pulse/inspect/getPoint/stats/on/docs`（移除非对外 `inspectNext`/`improve`/`focus`/`unfocus`/`debug`）。
 
 ---
 
@@ -140,6 +149,7 @@
 - **证据**：`src/styles/tokens.css` 仅 1 行 `@import url("./components.css")`；三个页面却都 `link` 它（`index.html:8`、`screen1.html:8`、`window2.html:8`）。
 - **影响**：文件名暗示"只放设计 token"，实际等于直接加载整个 885 行 `components.css`；token 真正定义在 `components.css:6-141`，文件名误导。
 - **建议（仅描述）**：把 `components.css` 的 `:root` token 段（6-141）拆到 `tokens.css` 并让 `components.css` 引入它，或直接让页面 `link components.css` 并删掉 `tokens.css` 这层。
+- ✅ **已修复（批 B，提交 `845eb80`）**：`:root` token 块已从 `components.css` 移至 `tokens.css`（现为纯 token 来源），`components.css` 顶部 `@import "./tokens.css"`；三页 `link` 改为 `components.css`（其再 `@import tokens.css`），级联顺序与原先一致。
 
 #### P2-4 魔法数字 / 硬编码色值绕过 token
 - **证据**：含 `rgba(`/`#hex` 的行数 `components.css` 101、`window2.css` 133、`screen1.css` 104（如 `screen1.css:105`、`window2.css:1230-1257`）；JS 中 `screen1.js:315`（`rgba(31,111,92,0.10)`）、`window2.js:69`（`RING_C = 245.04`）、`screen1.js:96`（`W=260,H=48,PAD=4`）。

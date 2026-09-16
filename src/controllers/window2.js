@@ -25,6 +25,27 @@ import { DOCS } from '../data/documents.js';
   let taskBusy = false;
   /* docNo → { content, order, context }：交付文件气泡复看时反查文档上下文 */
   const docRefs = new Map();
+  /* 防止长会话 Map 无界增长（P0-4）：超出上限时淘汰最早写入项 */
+  const DOC_REFS_MAX = 64;
+  function setDocRef(key, val) {
+    setDocRef(key, val);
+    if (docRefs.size > DOC_REFS_MAX) { const k = docRefs.keys().next().value; if (k !== undefined) docRefs.delete(k); }
+  }
+  let chatOrb = null;
+  /* 定时器统一登记：pagehide 时集中清理，避免热重载/翻面遗留野定时器（P0-3/P0-5） */
+  const intervals = new Set();
+  const timeouts = new Set();
+  function every(fn, ms) { const id = setInterval(fn, ms); intervals.add(id); return id; }
+  function later(fn, ms) { const id = setTimeout(() => { timeouts.delete(id); fn(); }, ms); timeouts.add(id); return id; }
+  function clearPageTimers() {
+    intervals.forEach(id => clearInterval(id)); intervals.clear();
+    timeouts.forEach(id => clearTimeout(id)); timeouts.clear();
+  }
+  function stopOrbs() {
+    if (typeof badgeAvatars !== 'undefined') Object.values(badgeAvatars).forEach(h => h && h.stop && h.stop());
+    if (chatOrb && chatOrb.stop) chatOrb.stop();
+  }
+  window.addEventListener('pagehide', () => { clearPageTimers(); stopOrbs(); });
 
   /* ================= 真实时间：把模板里静态的时间标签对齐到当前时钟，并挂 data-ts 自动刷新 ================= */
   (function normalizeStaticTimes() {
@@ -212,8 +233,8 @@ import { DOCS } from '../data/documents.js';
     });
   }
 
-  /* 聊天头部主 AI（白色小球，暖底可读） */
-  Bloub.mount(document.getElementById('chat-main'), {
+  /* 聊天头部主 AI（白色小球，暖底可读）；持有句柄以便卸载时 stop（P0-1） */
+  chatOrb = Bloub.mount(document.getElementById('chat-main'), {
     size: 40, shape: 'cercle', ink: '#ffffff', expression: 'attentif', state: 'idle', paper: '#0d1524'
   });
 
@@ -255,7 +276,7 @@ import { DOCS } from '../data/documents.js';
     draining = true;
     const m = chatQ.shift();
     showTyping(m.who);
-    setTimeout(() => {
+    later(() => {
       hideTyping();
       const row = addChatRow(m.who, m.text, m.isMain, m.think, m.meta);
       draining = false;
@@ -324,7 +345,7 @@ import { DOCS } from '../data/documents.js';
   });
   function addReact(row, txt) {
     if (!row || !row.after) return;
-    setTimeout(() => {
+    later(() => {
       const r = document.createElement('span');
       r.className = 'msg-react';
       r.textContent = txt;
@@ -568,7 +589,7 @@ import { DOCS } from '../data/documents.js';
     if (silent) return;
     queueChat('analyst', `已整理「${demand}」交付记录，初稿《${content.title}》已生成。`, false,
       `先盘点订单字段与各章节结构；对照验收口径逐节抽查，把「格式与完整性」先跑一遍再报结论。`);
-    setTimeout(() => {
+    later(() => {
       queueChat('main', `《${content.title}》已进入审阅流程，数据分析逐节核查并据实指出不足。`, true,
         `收到成稿通知；审阅由数据分析发起，我汇总其意见后定稿——有不足则回退修订，无不足则准予归档。`, {
           kind: 'file', fileName: `${content.title}.docx`, fileType: 'DOCX', docId: content.meta.docNo,
@@ -621,7 +642,7 @@ import { DOCS } from '../data/documents.js';
       ], { prio: 9, tone: 'risk' });
       queueChat('analyst', `审阅回来：先说第 1 节「${top.section}」——${top.issue}。`, false,
         `对照验收口径逐节比对，「${top.section}」是阻断项：${top.issue}；建议 ${top.suggestion}，其余先通过，不阻塞整体节奏。`);
-      setTimeout(() => {
+      later(() => {
         queueChat('main', `已汇总审阅：共 ${res.findings.length} 处不足，反馈修订后再复审；其余通过。`, true,
           `本次审阅命中的不足：${res.findings.map(f => f.section).join('、')}。逐条回写修订清单，修完复审判定收尾。`, {
             kind: 'review', fileName: `${title}.docx`, fileType: 'DOCX', docId: content.meta.docNo,
@@ -644,10 +665,10 @@ import { DOCS } from '../data/documents.js';
     const context = { order: o, tasks, discussion, chatRows };
     const content = buildDocContent(o, { tasks });
     /* 登记文档上下文：群聊里的交付文件气泡据此可点开复看 */
-    docRefs.set(content.meta.docNo, { content, order: o, context });
+    setDocRef(content.meta.docNo, { content, order: o, context });
     docChatDriven(o, content, silent);
     if (!silent) {
-      setTimeout(() => {
+      later(() => {
         const result = reviewDoc(content, context);
         postReviewToChat(result, o, content);
       }, 4200);
@@ -702,7 +723,7 @@ import { DOCS } from '../data/documents.js';
     if (sleeping) {
       sleeping = false;
       ebBall.setEmotion('01');
-      setTimeout(() => { if (!sleeping && !taskBusy) ebBall.setEmotion('02'); }, 900);
+      later(() => { if (!sleeping && !taskBusy) ebBall.setEmotion('02'); }, 900);
     }
     armIdle();
   }
@@ -751,7 +772,7 @@ import { DOCS } from '../data/documents.js';
     ebBall.setEmotion('10');
     if (ebBall.burst) ebBall.burst();
     queueChat('main', reply, true);
-    setTimeout(() => { if (!taskBusy) ebBall.setEmotion('02'); }, 3400);
+    later(() => { if (!taskBusy) ebBall.setEmotion('02'); }, 3400);
   }
 
   const taskInput = document.getElementById('task-input');
@@ -810,8 +831,8 @@ import { DOCS } from '../data/documents.js';
       { p: 'sim',   t: `参数拆解：验收口径、依赖输入与交付格式已生成，纳入任务池第 ${s0.st.counters.total + 1} 项。` },
       { p: 'concl', t: `「${title}」已派发至 ${emp.name}，预计 ${eta} 分钟出初稿。` }
     ], { prio: 9 });
-    setTimeout(() => { ebBall.setEmotion('30'); }, 900);
-    setTimeout(() => {
+    later(() => { ebBall.setEmotion('30'); }, 900);
+    later(() => {
       ebBall.setGaze(-1.1, 0.05);
       World.dispatch({ id, title, owner, value: 6000 + Math.floor(Math.random() * 9000) });
     }, 2200);
@@ -819,26 +840,26 @@ import { DOCS } from '../data/documents.js';
       `切换上下文至「${title}」；先盘点依赖输入与验收口径，再并行推进产出。`);
     const stuck = Math.random() < 0.45;
     if (stuck) {
-      setTimeout(() => {
+      later(() => {
         ebBall.setEmotion('21');
         World.blockTask(id, '依赖方接口时序响应超时');
       }, 5400);
-      setTimeout(() => { World.unblockTask(id); }, 8300);
+      later(() => { World.unblockTask(id); }, 8300);
     }
     const doneAt = stuck ? 10800 : 7200;
-    setTimeout(() => {
+    later(() => {
       ebBall.clearGaze();
       ebBall.setEmotion('33');
       if (ebBall.burst) ebBall.burst();
       World.completeTask(id);
       addShelfRow(`${title} · 已入知识库`);
       AIC.toast({ title: '监管指令完成', body: `「${title}」已交付并写入知识库`, color: emp.color, tag: nowHM() });
-      setTimeout(() => {
+      later(() => {
         const nxt = World.pickNextQueued();
         if (nxt) World.applyClaim(nxt, owner);
       }, 1600);
     }, doneAt);
-    setTimeout(() => {
+    later(() => {
       taskBusy = false;
       taskSend.classList.remove('loading'); taskSend.disabled = false;
       ebBall.setEmotion('02'); ebBall.clearGaze();
@@ -1043,7 +1064,7 @@ import { DOCS } from '../data/documents.js';
           AIC.toast({ title: '交付验收完成', body: `${o.client} · ${o.demand} · 已归档`, color: 'var(--pine)', tag: nowHM() });
           if (!taskBusy && !sleeping) { ebBall.setEmotion('33'); if (ebBall.burst) ebBall.burst(); setTimeout(() => { if (!taskBusy) ebBall.setEmotion('02'); }, 3600); }
           /* 交付后自动织一份 Word 交付文档并弹窗审阅（只做加法，不影响既有分支） */
-          setTimeout(() => { generateDeliverableDoc(o, false, { openReview: true }); }, 4200);
+          later(() => { generateDeliverableDoc(o, false, { openReview: true }); }, 4200);
           break;
         }
         case 'block': {
@@ -1152,7 +1173,7 @@ import { DOCS } from '../data/documents.js';
 
 
   const bootAt = Date.now();
-  setInterval(() => setTxt('#runtime-val', Math.max(1, Math.round((Date.now() - bootAt) / 60000)) + ' 分钟'), 15000);
+  every(() => setTxt('#runtime-val', Math.max(1, Math.round((Date.now() - bootAt) / 60000)) + ' 分钟'), 15000);
 
   /* 资源占用：由世界引擎真实负载推导（在产任务数 / 进度 / 阻塞），随生产波动 */
   const cpuTrack = $('#cpu-track'), cpuVal = $('#cpu-val'), memTrack = $('#mem-track'), memVal = $('#mem-val');
@@ -1162,7 +1183,7 @@ import { DOCS } from '../data/documents.js';
     cpuTrack.style.width = L.cpu + '%'; cpuVal.textContent = L.cpu + '%';
     memTrack.style.width = L.mem + '%'; memVal.textContent = L.mem + '%';
   }
-  setInterval(updateLoad, 3000);
+  every(updateLoad, 3000);
 
   /* ================= 第 4 屏：知识统计 + 搜索联动 ================= */
   const catSearch = document.getElementById('cat-search');
@@ -1210,7 +1231,7 @@ import { DOCS } from '../data/documents.js';
     row.title = '单击打开交付审阅 · 双击定位知识图谱';
     row.addEventListener('click', () => {
       const { order, context, content } = docContentFromCatalog(d);
-      docRefs.set(content.meta.docNo, { content, order, context });
+      setDocRef(content.meta.docNo, { content, order, context });
       wakeIdle();
       openDocReview(content, order, { context });
     });
@@ -1283,7 +1304,7 @@ import { DOCS } from '../data/documents.js';
       els.forEach(el => { el.style.opacity = 1; el.style.transform = 'none'; });
     } else if (gsapOK() && els.length) {
       gsap.fromTo(els, { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.55, stagger: 0.07, ease: 'power2.out', clearProps: 'transform' });
-      setTimeout(() => {
+      later(() => {
         els.forEach(el => { if (getComputedStyle(el).opacity === '0') { el.style.opacity = 1; el.style.transform = 'none'; } });
       }, 1200);
     } else {

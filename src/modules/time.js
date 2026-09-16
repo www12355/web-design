@@ -79,6 +79,7 @@ export function fmtAgo(ts) {
 /** 幂等全局时间刷新器：每 interval ms 遍历所有带 data-ts 的元素，
  *  将其 textContent 重算为 fmtAgo(epoch)。多次调用只启动一次定时器。 */
 let _tickerStarted = false;
+let _tickerId = 0;
 export function mountTimeTicker(interval = 15000) {
   if (_tickerStarted) return;
   _tickerStarted = true;
@@ -89,5 +90,6 @@ export function mountTimeTicker(interval = 15000) {
     });
   };
   refresh();
-  setInterval(refresh, interval);
+  _tickerId = setInterval(refresh, interval);
+  window.addEventListener('pagehide', () => clearInterval(_tickerId));
 }
