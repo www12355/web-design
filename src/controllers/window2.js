@@ -9,6 +9,7 @@ import { Nebula } from '../modules/nebula.js';
 import { hmAgo, nowHM, fmtAgo, mountTimeTicker } from '../modules/time.js';
 import { buildDocContent, reviewDoc, openDocReview } from '../modules/docgen.js';
 import { DOCS } from '../data/documents.js';
+import { EV_LABEL } from '../modules/linkage.js';
 
 /* ================= 基础：数据源 / 工具 ================= */
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -868,7 +869,7 @@ import { DOCS } from '../data/documents.js';
 
   /* ================= 世界引擎订阅：一切数字与消息的源头 ================= */
   const eventLogEls = [document.getElementById('event-log'), document.getElementById('event-log2')].filter(Boolean);
-  const EV_TAG = { order: '受理', settle: '归档', done: '交付', risk: '风险', dispatch: '派发', mode: '模板', info: '巡检' };
+  const EV_TAG = EV_LABEL;   /* 事件标签统一取自共享层 linkage.js（P1-3）；info 由「巡检」收敛为「动态」 */
   /* 日志降噪：关键事件优先占位；巡检类按语义去重合并（同指标只留最新一条 + ×N） */
   const EV_KEY_KINDS = new Set(['order', 'settle', 'done', 'risk', 'dispatch', 'mode']);
   function evNorm(text) {

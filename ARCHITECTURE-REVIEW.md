@@ -87,6 +87,7 @@
 - **证据**：协议 key 定义在 `src/modules/world.js:17-30`（`aic-world-state-v2` / `aic-world-leader-v1` / `aic-world-cmd-v1`）；`src/controllers/screen1.js:429-522` **另写一份**租约解读逻辑（`readLease / renderSync`），并复制 `LEASE_MS`（与 `world.js:23` 手工同步，注释"与 world.js 保持一致"）。
 - **影响**：协议真相出现两处，改一处易漏另一处；`screen1` 直读 `localStorage` 绕过了 `World` 的封装。
 - **建议（仅描述）**：把"租约读取/解析"作为 `World` 的只读派生 API（如 `World.leaderInfo()`），`screen1` 只消费，不再各自读 `localStorage`。
+- ✅ **已修复（批 D）**：`world.js` 新增只读派生 `World.leaderInfo()`（`syncOK/isLeader/lease/ageMs/live/prio`）与 `World.leaderKey`；`screen1.js` 删除 `readLease()` 与复制的 `LEASE_MS`，`renderSync()` 改为只消费 `World.leaderInfo()`，storage 监听改用 `World.leaderKey`。协议真相现仅存于 `world.js` 一处。
 
 #### P1-4 模板切换 / 派发路由 / 事件标签 各两份
 - **证据**：
@@ -95,16 +96,19 @@
   - 事件类型→标签：`screen1.js:432` `EV_KIND` vs `window2.js:850` `EV_TAG`
 - **影响**：两控制器平行重复，"联动是否一致"无法保证；新增一个事件类型要改两处。
 - **建议（仅描述）**：把联动 UI（模板切换、流速、派发、事件流渲染）抽出为共享模块（如 `src/modules/linkage.js` + 对应 UI 片段），两页共用。
+- 🟡 **部分修复（批 D）**：新增 `src/modules/linkage.js` 导出统一 `EV_LABEL`，`screen1.js` 的 `EV_KIND` 与 `window2.js` 的 `EV_TAG` 双份已消除（`window2` 的 `info` 标签由「巡检」收敛为「动态」）。**模板切换器与派发语义路由（`routeRole`/`normalizeTitle`/`CONVERSE` 正则）仍各两份**，因两页交互/呈现差异较大，留待批 F 评估抽取，避免高风险合并破坏交互。
 
 #### P1-5 `doc-review` 样式两份且互相覆盖
 - **证据**：`src/styles/pages/window2.css:977-1131`（居中弹窗版）与 `src/styles/pages/window2-review.css:1-21`（全屏工作台版），**两份都被 `window2.html:9-10` 加载**，后者覆盖前者；`window2-review.css:15` 用 `!important`。
 - **影响**：同一组 `.doc-review__*` / `.dr-*` 两套数值，维护时改 A 被 B 盖掉，调试困难。
 - **建议（仅描述）**：二选一（保留"全屏工作台"版更符合第 3 屏语境），删除另一份；或合并为带 `data-variant` 的单文件。
+- ✅ **已修复（批 D）**：`window2-review.css` 内容已合并进 `window2.css` 末尾（作为 doc-review 的最终权威层，加载顺序与原「window2.css → window2-review.css」完全一致，**视觉零变化**）；删除 `window2-review.css` 文件与 `window2.html` 的 `<link>`。doc-review 样式现为单文件来源。
 
 #### P1-6 同名不同实现：`data/world.js` vs `modules/world.js`
 - **证据**：`src/data/world.js`（168 行，纯数据：`CLIENTS / DEMAND_POOL / TEMPLATES / INIT`）vs `src/modules/world.js`（619 行，引擎）。仅靠目录层级区分。
 - **影响**：新人极易混淆；`import` 时路径写错会拿到错误对象且无任何报错。
 - **建议（仅描述）**：重命名其一（如数据层 `world.data.js` 或引擎层 `worldEngine.js`），或在 `data/` 与 `modules/` 间划清"静态数据"vs"运行时引擎"的边界约定。
+- ✅ **已修复（批 D）**：`git mv src/data/world.js src/data/worldData.js`，并更新唯一引用方 `src/modules/world.js` 的 import 路径与文件头注释。同名歧义消除。
 
 #### P1-7 i18n 脚本加载却无消费方（死数据）
 - **证据**：`window2.html:570-574` 加载 5 个语言文件，定义 `window.AIC_I18N`；全仓无任何文件读取 `AIC_I18N`；`window.L10n` 从未定义，却被 `common.js:18,21,37`、`screen1.js:440`、`window2.js` 经 `AIC` 当可选能力做三元探测（永久走 fallback）。全站 `data-i18n` 仅 6 处（`index.html:6,14,32`、`screen1.html:23,24`、`window2.html:286`）。

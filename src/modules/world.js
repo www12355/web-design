@@ -5,13 +5,13 @@
    leader 选举 + localStorage 快照同步（storage 事件推送 + 轮询兜底 + 可见即刷）；
    存储不可用时各窗口独立演化
 
-   所有经营参数 / 初始状态来自 src/data/world.js（纯数据模块）。
+   所有经营参数 / 初始状态来自 src/data/worldData.js（纯数据模块）。
    时间戳取自真实系统时钟（src/modules/time.js）。
    ============================================================ */
 import {
   DEMAND_POOL, ROLE_BY_NAME, BLOCK_REASONS,
   TEMPLATES, INIT
-} from '../data/world.js';
+} from '../data/worldData.js';
 import { hmAgo, dateKey, wallMin } from '../modules/time.js';
 
 const STORE_KEY = 'aic-world-state-v2';
@@ -592,6 +592,22 @@ const World = {
   get templates() { return TEMPLATES; },
   get isLeader() { return leader; },
   get syncOK() { return syncOK; },
+  /* 协议 key 单一来源：页面订阅 storage 时使用，避免各自复制字面量（P1-2） */
+  get leaderKey() { return LEADER_KEY; },
+  /* 只读派生：租约解读统一在引擎侧，页面不再直读 localStorage / 复制 LEASE_MS（P1-2） */
+  leaderInfo() {
+    if (!syncOK) return { syncOK: false, isLeader: leader, lease: null, ageMs: Infinity, live: false, prio: 0 };
+    const lease = lsGet(LEADER_KEY);
+    const ageMs = lease && lease.ts ? Date.now() - lease.ts : Infinity;
+    return {
+      syncOK: true,
+      isLeader: leader,
+      lease,
+      ageMs,
+      live: !!lease && !!lease.id && ageMs < LEASE_MS,
+      prio: (lease && (lease.prio | 0)) || 0
+    };
+  },
   load: () => systemLoad(),
   on(fn) { listeners.add(fn); return () => listeners.delete(fn); },
   timeHM,

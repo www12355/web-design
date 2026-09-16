@@ -5,6 +5,7 @@
 import { AIC } from '../modules/common.js';
 import { World } from '../modules/world.js';
 import { monthRange, monthDay, yearMonth } from '../modules/time.js';
+import { EV_LABEL } from '../modules/linkage.js';
 
 /* 定时器统一登记：pagehide 时集中清理，避免长会话泄漏（P0-3） */
 const _scrIntervals = new Set();
@@ -431,10 +432,8 @@ function drawRhythm(slots) {
      ============================================================ */
   (function linkage() {
     const TPL = World.templates;
-    const LEADER_KEY = 'aic-world-leader-v1';
-    const LEASE_MS = 8000;          /* 与 world.js 的心跳新鲜期保持一致 */
     const EV_MAX = 3;
-    const EV_KIND = { order: '受理', settle: '归档', done: '交付', risk: '风险', dispatch: '派发', mode: '模板', info: '动态' };
+    /* 事件标签统一取自共享层 linkage.js；租约解读改由 World.leaderInfo() 提供（P1-2/P1-3） */
     /* 事件文本可能带上监管派发的原始输入，进 innerHTML 前统一转义 */
     const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => (
       { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]
@@ -491,29 +490,25 @@ function drawRhythm(slots) {
 
     /* ---------------- 2. 跨屏同步状态（读领导者租约） ---------------- */
     const dot = $('#link-dot'), stateEl = $('#link-state'), subEl = $('#link-sub'), openBtn = $('#link-open');
-    function readLease() {
-      try { return JSON.parse(localStorage.getItem(LEADER_KEY)); } catch (e) { return null; }
-    }
     function renderSync() {
       if (!dot || !stateEl || !subEl) return;
-      const lease = World.syncOK ? readLease() : null;
-      const age = lease && lease.ts ? Date.now() - lease.ts : Infinity;
-      const live = !!lease && !!lease.id && age < LEASE_MS;
+      /* 租约解读统一由 World.leaderInfo() 提供，本页不再直读 localStorage / 复制 LEASE_MS（P1-2） */
+      const info = World.leaderInfo();
       let cls, state, sub;
-      if (!World.syncOK) {
+      if (!info.syncOK) {
         cls = 'is-warn';
         state = '本地模式 · 未联动';
         sub = '浏览器禁用了 localStorage，两个窗口各演各的';
-      } else if (World.isLeader) {
+      } else if (info.isLeader) {
         /* 卷轴窗 prio=2 更高：本页能拿到领导权，就说明它不在场 —— 即「独屏」。
            这里必须说清楚，避免单独打开时误以为联动已生效。 */
         cls = 'is-lead';
         state = '本页主导 · 未检测到联动窗口';
         sub = '本页持有领导者租约并在驱动世界；点右侧「打开联动窗口」双开后会自动让位、改为跟随';
-      } else if (live) {
+      } else if (info.live) {
         cls = 'is-sync';
-        state = `已同步 · 跟随 ${(lease.prio | 0) >= 2 ? 'window2' : '另一窗口'}`;
-        sub = `领导者 P${lease.prio} · ${Math.max(0, Math.round(age / 1000))}s 前心跳`;
+        state = `已同步 · 跟随 ${info.prio >= 2 ? 'window2' : '另一窗口'}`;
+        sub = `领导者 P${info.prio} · ${Math.max(0, Math.round(info.ageMs / 1000))}s 前心跳`;
       } else {
         cls = 'is-idle';
         state = '未联动 · 独屏运行';
@@ -539,7 +534,7 @@ function drawRhythm(slots) {
         ? evts.map(e => {
             const tx = esc(AIC.stripMoney(e.text));   /* 事件原文含金额：统一脱敏后再入 DOM */
             return `<li class="s1-ev">
-            <span class="ev-tag ev-tag--${esc(e.kind || 'info')}">${esc(EV_KIND[e.kind] || '动态')}</span>
+            <span class="ev-tag ev-tag--${esc(e.kind || 'info')}">${esc(EV_LABEL[e.kind] || '动态')}</span>
             <b class="num">${esc(e.t)}</b>
             <span class="s1-ev__tx" title="${tx}">${tx}</span>
           </li>`;
@@ -622,7 +617,7 @@ function drawRhythm(slots) {
     /* ---------------- 6. 刷新节奏：不轮询快照，只读一个租约 key ---------------- */
     function renderAll() { syncTplUI(); syncSpeedUI(); renderSync(); renderEvents(); }
     World.on(renderAll);
-    window.addEventListener('storage', e => { if (e && e.key === LEADER_KEY) renderSync(); });
+    window.addEventListener('storage', e => { if (e && e.key === World.leaderKey) renderSync(); });
     every(renderSync, 3000);   /* 仅用于刷新「对方心跳新鲜度」文案 */
     renderAll();
   })();
