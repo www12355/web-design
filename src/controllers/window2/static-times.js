@@ -30,12 +30,13 @@ export function initStaticTimes() {
     el.dataset.ts = ts;
     el.textContent = fmtAgo(ts);
   });
-  /* 焦点卡「已验收 · 写入知识库 · HH:MM」 */
-  document.querySelectorAll('p').forEach(p => {
-    if (p.textContent.indexOf('写入知识库') >= 0) {
-      const ts = Date.now() - 60000;
-      p.innerHTML = p.innerHTML.replace(/(写入知识库 · )\d{2}:\d{2}/, `$1<span data-ts="${ts}">${fmtAgo(ts)}</span>`);
-    }
+  /* 焦点卡「已验收 · 写入知识库 · HH:MM」：
+     原先遍历全文档 <p> 并按中文文案匹配（文案一改即失效），
+     改为 data-stamp-at 锚点定位（P3-4）。 */
+  document.querySelectorAll('[data-stamp-at]').forEach((el) => {
+    const ts = Date.now() - 60000;
+    el.dataset.ts = ts;
+    el.textContent = fmtAgo(ts);
   });
   /* 启动全局真实时间刷新器（幂等，doc-review 弹窗复用同一实例） */
   mountTimeTicker();
