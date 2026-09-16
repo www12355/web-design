@@ -1,0 +1,100 @@
+/* ============================================================
+   启动页 · 运行入口（index.html 独有样式）
+   柔和编辑部 Soft-Editorial · 无导航栏 · 暖调纸感
+   依赖 src/styles/components.css 的设计 token
+   ============================================================ */
+
+.launch {
+  height: 100vh; height: 100dvh;
+  display: flex; flex-direction: column;
+  background:
+    radial-gradient(900px 420px at 12% -8%, rgba(168, 181, 160, 0.14), transparent 60%),
+    radial-gradient(900px 460px at 92% 110%, rgba(201, 111, 74, 0.08), transparent 62%);
+}
+
+.launch__head {
+  display: flex; align-items: center; gap: 18px;
+  padding: 24px 48px;
+  border-bottom: 1px solid var(--line);
+}
+.launch__head .t-muted { font-size: 12px; }
+
+.launch__body {
+  flex: 1;
+  display: flex; align-items: center; justify-content: center;
+  gap: clamp(48px, 5vw, 88px);
+  padding: 32px 48px;
+}
+
+.launch__hero { max-width: 560px; display: flex; flex-direction: column; gap: 20px; }
+.launch__hero .h-display { font-size: clamp(34px, 2.6vw, 46px); line-height: 1.14; letter-spacing: -0.02em; }
+.launch__hero p { line-height: 1.7; }
+
+.launch__cards { display: flex; flex-direction: column; gap: 0; min-width: 420px; }
+
+/* 卡片：hairline 分隔，hover 上浮 + 左侧强调 */
+.launch-card {
+  position: relative;
+  display: flex; align-items: center; gap: 18px;
+  padding: 24px 16px 24px 20px;
+  border-bottom: 1px solid var(--line);
+  border-radius: 6px;
+  margin-left: -12px;
+  transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+  cursor: pointer;
+}
+.launch-card::before {
+  content: ""; position: absolute; left: 0; top: 50%;
+  width: 3px; height: 0; transform: translateY(-50%);
+  border-radius: 999px; background: var(--pine);
+  opacity: 0; transition: height 0.2s ease, opacity 0.2s ease;
+}
+.launch-card:hover, .launch-card:focus-visible {
+  background: var(--cream);
+  transform: translateX(4px);
+  box-shadow: var(--shadow-soft);
+}
+.launch-card:hover::before { height: 70%; opacity: 1; }
+.launch-card:last-child { border-bottom: none; }
+.launch-card__no {
+  font-family: var(--font-display);
+  font-size: 13px; letter-spacing: 0.1em;
+  color: var(--muted); width: 30px; flex: none;
+}
+.launch-card:hover .launch-card__no { color: var(--pine); }
+.launch-card__txt { flex: 1; }
+.launch-card__txt b { display: block; font-size: 16px; font-weight: 650; }
+.launch-card__txt span { font-size: 12.5px; color: var(--muted); line-height: 1.6; display: block; margin-top: 3px; }
+
+.bot-demo { width: 88px; height: 88px; flex: none; filter: drop-shadow(0 6px 14px rgba(43, 42, 38, 0.08)); }
+.bot-demo { transition: transform 0.2s ease; }
+.launch-card:hover .bot-demo { transform: scale(1.05); }
+
+/* 幽灵按钮（尺寸预览） */
+.btn--ghost {
+  padding: 10px 15px; font-size: 12.5px; border-radius: 10px;
+  background: var(--paper-3); font-weight: 550; color: var(--ink-soft);
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+}
+.btn--ghost:hover { background: var(--cream); border-color: var(--line-strong); }
+.btn--ghost:active { transform: translateY(0); }
+
+.size-row { display: flex; flex-direction: column; gap: 12px; margin-top: 6px; }
+
+@media (max-width: 1100px) {
+  .launch__body { flex-direction: column; gap: 40px; padding: 0 24px; align-items: stretch; }
+  .launch__cards { min-width: 0; width: min(560px, 100%); }
+  .launch__head, .launch__foot { padding-left: 24px; padding-right: 24px; }
+}
+
+.launch__foot {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 16px 48px;
+  border-top: 1px solid var(--line);
+  font-size: 12px; color: var(--muted);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .launch-card, .launch-card::before, .bot-demo, .btn--ghost { transition: none; }
+  .launch-card:hover, .launch-card:focus-visible { transform: none; }
+}

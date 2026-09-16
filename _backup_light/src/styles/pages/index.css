@@ -1,0 +1,98 @@
+/* ============================================================
+   启动页 · 运行入口（index.html 独有样式）
+   柔和编辑部 Soft-Editorial · 无导航栏 · 暖调纸感
+   依赖 src/styles/components.css 的设计 token
+   ============================================================ */
+
+.launch {
+  height:100vh; height:100dvh;
+  display:flex; flex-direction:column;
+  background:var(--paper);
+}
+
+.launch__head {
+  display:flex; align-items:center; gap:1.8rem;
+  padding:2.4rem 4.8rem;
+  border-bottom:1px solid var(--line);
+}
+.launch__head .t-muted { font-size:1.2rem; }
+
+.launch__body {
+  flex:1;
+  display:flex; align-items:center; justify-content:center;
+  gap:clamp(4.8rem, 5vw, 8.8rem);
+  padding:3.2rem 4.8rem;
+}
+
+.launch__hero { max-width:56rem; display:flex; flex-direction:column; gap:2rem; }
+.launch__hero .h-display { font-size:clamp(3.4rem, 2.6vw, 4.6rem); line-height:1.14; letter-spacing:-0.02em; }
+.launch__hero p { line-height:1.7; }
+
+.launch__cards { display:flex; flex-direction:column; gap:0; min-width:42rem; }
+
+/* 卡片：hairline 分隔，hover 上浮 + 左侧强调 */
+.launch-card {
+  position:relative;
+  display:flex; align-items:center; gap:1.8rem;
+  padding:2.4rem 1.6rem 2.4rem 2rem;
+  border-bottom:1px solid var(--line);
+  border-radius:0.6rem;
+  margin-left:-1.2rem;
+  transition:background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+  cursor:pointer;
+}
+.launch-card::before {
+  content:""; position:absolute; left:0; top:50%;
+  width:0.3rem; height:0; transform:translateY(-50%);
+  border-radius:99.9rem; background:var(--primary);
+  opacity:0; transition:height 0.2s ease, opacity 0.2s ease;
+}
+.launch-card:hover, .launch-card:focus-visible {
+  background:var(--paper-2);
+  transform:translateX(4px);
+  box-shadow:var(--shadow-soft);
+}
+.launch-card:hover::before { height:70%; opacity:1; }
+.launch-card:last-child { border-bottom:none; }
+.launch-card__no {
+  font-family:var(--font-display);
+  font-size:1.3rem; letter-spacing:0.1em;
+  color:var(--muted); width:3rem; flex:none;
+}
+.launch-card:hover .launch-card__no { color:var(--primary); }
+.launch-card__txt { flex:1; }
+.launch-card__txt b { display:block; font-size:1.6rem; font-weight:650; }
+.launch-card__txt span { font-size:1.25rem; color:var(--muted); line-height:1.6; display:block; margin-top:0.3rem; }
+
+.bot-demo { width:8.8rem; height:8.8rem; flex:none; filter:drop-shadow(0 12px 20px rgba(79,70,229,.16)); }
+.bot-demo { transition:transform 0.2s ease; }
+.launch-card:hover .bot-demo { transform:scale(1.05); }
+
+/* 幽灵按钮（尺寸预览） */
+.btn--ghost {
+  padding:1rem 1.5rem; font-size:1.25rem; border-radius:1rem;
+  background:var(--paper-3); font-weight:550; color:var(--ink-soft);
+  transition:transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+}
+.btn--ghost:hover { background:var(--cream); border-color:var(--line-strong); }
+.btn--ghost:active { transform:translateY(0); }
+
+.size-row { display:flex; flex-direction:column; gap:1.2rem; margin-top:0.6rem; }
+
+@media (max-width: 1100px) {
+  .launch__body { flex-direction:column; gap:4rem; padding:0 2.4rem; align-items:stretch; }
+  .launch__cards { min-width:0; width:min(56rem, 100%); }
+  .launch__head, .launch__foot { padding-left:2.4rem; padding-right:2.4rem; }
+}
+
+.launch__foot {
+  display:flex; justify-content:space-between; align-items:center;
+  padding:1.6rem 4.8rem;
+  border-top:1px solid var(--line);
+  font-size:1.2rem; color:var(--muted);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .launch-card, .launch-card::before, .bot-demo, .btn--ghost { transition:none; }
+  .launch-card:hover, .launch-card:focus-visible { transform:none; }
+}

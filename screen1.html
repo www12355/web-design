@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第一屏 · 运营驾驶舱 ｜ AI 自主经营中枢</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='13' fill='%2322d3ee'/%3E%3Ccircle cx='16' cy='15' r='6.5' fill='%230d1524'/%3E%3Ccircle cx='13.4' cy='13.8' r='1.5' fill='%2322d3ee'/%3E%3Ccircle cx='18.6' cy='13.8' r='1.5' fill='%2322d3ee'/%3E%3Cpath d='M13 18.5q3 2.4 6 0' stroke='%2322d3ee' stroke-width='1.4' fill='none' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="src/styles/tokens.css">
+<link rel="stylesheet" href="src/styles/pages/screen1.css">
+</head>
+<body class="screen1-page" data-world-prio="1">
+<!-- screen1-page：第一屏专属浅色「柔和编辑部」主题作用域（见 pages/screen1.css）。
+     深色卷轴窗 window2 不受影响，两屏形成「驾驶舱 vs 卷轴」明暗对比。 -->
+
+
+<!-- 文件类型图标精灵由 src/modules/common.js 统一注入 -->
+<div class="screen">
+
+  <!-- ============ 刊头 ============ -->
+  <header class="mast band">
+    <div class="mast__row1">
+      <div class="mast__title">
+        <span class="h-eyebrow" data-i18n="app.eyebrow">AUTONOMOUS OPS · 全自主 AI 经营体 · 无人值守</span>
+        <h1><span data-i18n="nav.overview">运营驾驶舱</span> <span class="mast__no num">N°06 / 18</span></h1>
+        <!-- 运行模板切换器：真实联动，World.setTemplate 双窗同步生效 -->
+        <div class="tpl-wrap" id="tpl-wrap">
+          <button type="button" class="tpl-chip" id="tpl-chip" aria-haspopup="true" aria-expanded="false">
+            <i aria-hidden="true"></i>运行模板 · <b id="tpl-chip-name">日常经营</b>
+          </button>
+          <div class="tpl-pop" id="tpl-pop" role="menu" aria-label="运行模板"></div>
+        </div>
+      </div>
+      <div class="mast__vals mast__ops" aria-label="实时运营指标">
+        <div class="val reveal"><b><span id="mast-progress" data-count="72">72</span><i class="u">%</i></b><span class="lbl">整体交付进度</span></div>
+        <div class="val reveal"><b><span id="mast-total" data-count="48">48</span></b><span class="lbl">任务池规模</span></div>
+        <div class="val reveal"><b><span id="mast-doing" data-count="9">9</span></b><span class="lbl">并行执行</span></div>
+        <div class="val reveal"><b><span id="mast-ontime" data-count="96.4" data-decimals="1">96.4</span><i class="u">%</i></b><span class="lbl">准时完成率</span></div>
+      </div>
+    </div>
+    <div class="spine">
+      <div class="spine__pct reveal"><b><span id="spine-pct" data-count="72">72</span><i class="u">%</i></b><span class="lbl">整体交付进度</span></div>
+      <div class="spine__track">
+        <div class="spine__step is-done"><div class="seg"><i style="width:100%"></i></div><span>需求接收 ✓</span></div>
+        <div class="spine__step is-done"><div class="seg"><i style="width:100%"></i></div><span>方案确认 ✓</span></div>
+        <div class="spine__step is-now"><div class="seg"><i id="spine-prod" class="flow-sheen" style="width:72%"></i></div><span>并行生产</span></div>
+        <div class="spine__step"><div class="seg"><i id="spine-accept" class="flow-sheen" style="width:0%"></i></div><span>交付验收</span></div>
+        <div class="spine__step"><div class="seg"><i id="spine-settle" class="flow-sheen" style="width:0%"></i></div><span>交付归档</span></div>
+      </div>
+      <div class="spine__stats">
+        <span><b id="st-total">48</b>任务</span>
+        <span><b id="st-done" style="color:var(--pine)">31</b>已完成</span>
+        <span><b id="st-doing" style="color:var(--clay)">9</b>进行中</span>
+        <span><b id="st-ontime">96.4%</b>准时率</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- ============ 交付横带：质量看板 + 今日交付节律 + 任务管线 ============
+       数据全部实时取自世界状态的非金钱字段：
+       counters.ontime / kb.today / counters.done / tasks[].status / tasks[].doneAt。
+       口径与呈现均不含任何金额、价格信息。 -->
+  <section class="s1-ops band" aria-label="质量看板 · 今日交付节律 · 任务管线">
+
+    <!-- 质量看板：准时率 · 复审占比 · 知识库入库 -->
+    <div class="s1-ops__col s1-kpis reveal">
+      <span class="s1-ops__cap">
+        <span class="h-eyebrow">质量看板</span>
+        <span class="s1-ops__meta num">实时口径 · 全部任务</span>
+      </span>
+      <div class="s1-kpi-row">
+        <div class="s1-kpi">
+          <b><span id="q-ontime" data-count="96.4" data-decimals="1">96.4</span><i class="u">%</i></b>
+          <span class="lbl">准时率</span>
+        </div>
+        <div class="s1-kpi">
+          <b><span id="q-review" data-count="0" data-decimals="1">0.0</span><i class="u">%</i></b>
+          <span class="lbl">复审占比</span>
+        </div>
+        <div class="s1-kpi">
+          <b><span id="q-kb" data-count="0">0</span><i class="u">条</i></b>
+          <span class="lbl">知识库入库</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 今日交付节律：近 12 小时按小时统计的交付件数 -->
+    <div class="s1-ops__col s1-spark reveal">
+      <span class="s1-ops__cap">
+        <span class="h-eyebrow">今日交付节律</span>
+        <span class="s1-ops__meta">近 12 小时 · 件/时</span>
+      </span>
+      <svg viewBox="0 0 260 48" preserveAspectRatio="none" aria-hidden="true">
+        <polyline class="spark-area" id="spark-area" points=""></polyline>
+        <polyline class="spark-line" id="spark-line" points=""></polyline>
+      </svg>
+      <span class="s1-spark__cap"><b class="num" id="spark-now">0 件</b>今日累计交付</span>
+    </div>
+
+    <!-- 任务管线：待派发 → 进行中 → 阻塞 → 已交付 -->
+    <div class="s1-ops__col s1-pipe reveal">
+      <span class="s1-ops__cap">
+        <span class="h-eyebrow">任务管线</span>
+        <span class="s1-ops__meta">全链路无人介入</span>
+      </span>
+      <ol class="s1-pipe__track">
+        <li class="s1-step is-queued"><i>待派发</i><b class="num" data-pipe="queued">0</b></li>
+        <li class="s1-step is-doing"><i>进行中</i><b class="num" data-pipe="doing">0</b></li>
+        <li class="s1-step is-blocked"><i>阻塞</i><b class="num" data-pipe="blocked">0</b></li>
+        <li class="s1-step is-done"><i>已交付</i><b class="num" data-pipe="done">0</b></li>
+      </ol>
+    </div>
+
+  </section>
+
+  <!-- ============ 拼版（左右 Folio 细轨） ============ -->
+  <div class="mid">
+    <aside class="folio folio--l reveal" aria-hidden="true">
+      <span class="folio__word">AI OUTPUT · 06/18</span>
+      <span class="folio__dots">
+        <i style="background:var(--pine)"></i>
+        <i style="background:var(--pine)"></i>
+        <i style="background:var(--pine)"></i>
+        <i style="background:var(--clay); opacity:.75"></i>
+        <i style="background:var(--clay); opacity:.75"></i>
+        <i class="dot--busy" style="width:0.6rem; height:0.6rem"></i>
+      </span>
+    </aside>
+
+    <main class="mosaic">
+    <!-- 00 · 主角：发布方案整合稿 -->
+    <article class="tile tile--hero reveal" style="--rc: var(--pine)">
+      <i class="tile__no">00</i>
+      <div class="tile__thumb">
+        <svg viewBox="0 0 400 300" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+          <circle cx="200" cy="150" r="132" fill="none" stroke="#b8c5d3" stroke-dasharray="2 5"/>
+          <circle cx="200" cy="150" r="112" fill="#f0f3f7"/>
+          <rect x="88" y="16" width="224" height="268" rx="6" fill="#243347" opacity="0.05"/>
+          <rect x="84" y="12" width="224" height="268" rx="6" fill="#ffffff" stroke="#b8c5d3"/>
+          <path d="M112 30l14 8v16l-14 8-14-8V38z" fill="none" stroke="#22d3ee" stroke-width="2.4"/>
+          <text x="140" y="51" font-size="11.5" fill="#33415a">白屿文旅 · 秋季发布会全案</text>
+          <text x="102" y="92" font-size="17" font-weight="650" fill="#243347">发布方案整合稿</text>
+          <text x="102" y="112" font-size="11" fill="#33415a" id="hero-sub">v0.7 · 主 AI 整合生成 · 自动滚动交付</text>
+          <line x1="102" y1="126" x2="298" y2="126" stroke="#b8c5d3"/>
+          <text x="102" y="150" font-size="10" font-weight="600" fill="#33415a">01</text>
+          <text x="128" y="150" font-size="10.5" fill="#4b5a73">目标与对外口径</text>
+          <path d="M272 144l4 4 8-9" fill="none" stroke="#22d3ee" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <text x="102" y="176" font-size="10" font-weight="600" fill="#33415a">02</text>
+          <text x="128" y="176" font-size="10.5" fill="#4b5a73">依赖路径与分工</text>
+          <path d="M272 170l4 4 8-9" fill="none" stroke="#22d3ee" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <text x="102" y="202" font-size="10" font-weight="600" fill="#33415a">03</text>
+          <text x="128" y="202" font-size="10.5" fill="#4b5a73">传播矩阵与排期</text>
+          <path d="M272 196l4 4 8-9" fill="none" stroke="#22d3ee" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <text x="102" y="228" font-size="10" font-weight="600" fill="#33415a">04</text>
+          <text x="128" y="228" font-size="10.5" fill="#4b5a73">风险预案与回滚</text>
+          <path d="M272 222l4 4 8-9" fill="none" stroke="#22d3ee" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <text x="102" y="254" font-size="10" font-weight="600" fill="#33415a">05</text>
+          <text x="128" y="254" font-size="10.5" fill="#4b5a73">资源清单</text>
+          <path d="M280 242a7 7 0 10 6 3" fill="none" stroke="#fb923c" stroke-width="2" stroke-linecap="round"/>
+          <rect x="102" y="264" width="196" height="5" rx="2.5" fill="#eef2f7"/>
+          <rect x="102" y="264" width="82" height="5" rx="2.5" fill="#22d3ee" opacity=".8"/>
+        </svg>
+      </div>
+      <div class="tile__meta">
+        <svg class="ft-ic" aria-hidden="true"><use href="#ft-ppt"/></svg>
+        <span class="tile__name">发布方案整合稿</span><span class="tile__ver num" id="hero-ver">v0.7</span>
+        <span class="pill pill--clay" id="hero-pill">生成中</span>
+      </div>
+      <div class="hero-progress">
+        <div class="track"><i id="hero-track" style="width:42%"></i></div>
+        <span class="num" id="hero-num">42% · 已合并 3 / 5 份源文档</span>
+      </div>
+    </article>
+
+    <!-- 01 · 规格书 -->
+    <article class="tile t-spec reveal" style="--rc: var(--c-planner)">
+      <i class="tile__no">01</i>
+      <div class="tile__thumb">
+        <svg viewBox="0 0 400 300" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+          <rect x="82" y="20" width="244" height="266" rx="6" fill="#243347" opacity="0.05"/>
+          <rect x="78" y="16" width="244" height="266" rx="6" fill="#ffffff" stroke="#b8c5d3"/>
+          <text x="96" y="48" font-size="15" font-weight="650" fill="#243347">产品需求规格书</text>
+          <text id="rev-date" x="96" y="66" font-size="10.5" fill="#33415a">REV 2.3 · 2026-09 · 规划协调组 编制</text>
+          <line x1="96" y1="78" x2="304" y2="78" stroke="#b8c5d3"/>
+          <text x="96" y="98" font-size="10" font-weight="600" fill="#4b5a73">01 · 项目背景与目标</text>
+          <rect x="96" y="108" width="208" height="6" rx="3" fill="#e9eef5"/>
+          <rect x="96" y="120" width="184" height="6" rx="3" fill="#eef2f7"/>
+          <rect x="96" y="132" width="150" height="6" rx="3" fill="#131d30"/>
+          <text x="96" y="158" font-size="10" font-weight="600" fill="#4b5a73">02 · 模块范围与验收标准</text>
+          <rect x="96" y="166" width="208" height="16" fill="#eef2f7"/>
+          <text x="102" y="177" font-size="10" font-weight="600" fill="#33415a">模块</text>
+          <text x="176" y="177" font-size="10" font-weight="600" fill="#33415a">负责人</text>
+          <text x="248" y="177" font-size="10" font-weight="600" fill="#33415a">状态</text>
+          <text x="102" y="193" font-size="10" fill="#4b5a73">需求池管理</text>
+          <text x="176" y="193" font-size="10" fill="#33415a">规划协调</text>
+          <text x="248" y="193" font-size="10" font-weight="600" fill="#0e7490">已评审</text>
+          <line x1="96" y1="198" x2="304" y2="198" stroke="#b8c5d3"/>
+          <text x="102" y="209" font-size="10" fill="#4b5a73">数据看板</text>
+          <text x="176" y="209" font-size="10" fill="#33415a">数据分析</text>
+          <text x="248" y="209" font-size="10" font-weight="600" fill="#c2410c">评审中</text>
+          <line x1="96" y1="214" x2="304" y2="214" stroke="#e5eaf0"/>
+          <text x="102" y="225" font-size="10" fill="#4b5a73">权限与合规</text>
+          <text x="176" y="225" font-size="10" fill="#33415a">规划协调</text>
+          <text x="248" y="225" font-size="10" font-weight="600" fill="#c2410c">评审中</text>
+          <text x="200" y="270" font-size="10" fill="#33415a" text-anchor="middle">— 第 12 页 / 共 38 页 —</text>
+        </svg>
+      </div>
+      <div class="tile__meta">
+        <svg class="ft-ic" aria-hidden="true"><use href="#ft-word"/></svg>
+        <span class="tile__name">产品需求规格书</span><span class="tile__ver num">v2.3</span>
+        <span class="pill pill--pine" id="pill-spec">已归档</span>
+      </div>
+      <div class="tile-live"><div class="track track--blue"><i id="live-spec" style="width:100%"></i></div><span class="num" id="live-spec-num">规划线 · 就绪</span></div>
+    </article>
+
+    <!-- 02 · 数据报告 -->
+    <article class="tile t-data reveal" style="--rc: var(--c-writer)">
+      <i class="tile__no">02</i>
+      <div class="tile__thumb">
+        <svg viewBox="0 0 400 300" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+          <rect x="64" y="22" width="272" height="256" rx="8" fill="#ffffff" stroke="#b8c5d3"/>
+          <text x="82" y="48" font-size="12" font-weight="650" fill="#243347">转化漏斗 · 周趋势</text>
+          <circle cx="192" cy="44" r="3.5" fill="#22d3ee"/><text x="200" y="47.5" font-size="10" fill="#33415a">访问→注册</text>
+          <circle cx="258" cy="44" r="3.5" fill="#38bdf8"/><text x="266" y="47.5" font-size="10" fill="#33415a">注册→活跃</text>
+          <g stroke="#eef2f7" stroke-dasharray="3 3">
+            <line x1="108" y1="70" x2="320" y2="70"/>
+            <line x1="108" y1="105" x2="320" y2="105"/>
+            <line x1="108" y1="140" x2="320" y2="140"/>
+            <line x1="108" y1="175" x2="320" y2="175"/>
+          </g>
+          <line x1="108" y1="70" x2="108" y2="210" stroke="#b8c5d3"/>
+          <line x1="108" y1="210" x2="320" y2="210" stroke="#3a4a6b"/>
+          <g font-size="11" fill="#33415a" text-anchor="end">
+            <text x="102" y="73">4.0</text><text x="102" y="108">3.0</text>
+            <text x="102" y="143">2.0</text><text x="102" y="178">1.0</text><text x="102" y="213">0</text>
+          </g>
+          <polyline points="108,180 144,150 180,165 216,120 252,132 288,95 320,102" fill="none" stroke="#22d3ee" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <polyline points="108,202 144,192 180,196 216,182 252,187 288,170 320,175" fill="none" stroke="#38bdf8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <g fill="#ffffff" stroke-width="2">
+            <circle cx="144" cy="150" r="3.5" stroke="#22d3ee"/><circle cx="252" cy="132" r="3.5" stroke="#22d3ee"/><circle cx="320" cy="102" r="3.5" stroke="#22d3ee"/>
+            <circle cx="216" cy="182" r="3" stroke="#38bdf8"/><circle cx="320" cy="175" r="3" stroke="#38bdf8"/>
+          </g>
+          <g font-size="11" fill="#33415a" text-anchor="middle">
+            <text x="108" y="224">周一</text><text x="144" y="224">周二</text><text x="180" y="224">周三</text>
+            <text x="216" y="224">周四</text><text x="252" y="224">周五</text><text x="288" y="224">周六</text><text x="320" y="224">周日</text>
+          </g>
+          <rect x="82" y="238" width="106" height="22" rx="11" fill="rgba(31,111,92,0.08)" stroke="rgba(31,111,92,0.25)"/>
+          <text x="94" y="252.5" font-size="10" font-weight="600" fill="#0e7490" id="data-cvr">注册转化 3.8% ↑</text>
+          <rect x="198" y="238" width="118" height="22" rx="11" fill="rgba(201,111,74,0.08)" stroke="rgba(201,111,74,0.28)"/>
+          <text x="210" y="252.5" font-size="10" font-weight="600" fill="#c2410c">3 处异常已标注</text>
+        </svg>
+      </div>
+      <div class="tile__meta">
+        <svg class="ft-ic" aria-hidden="true"><use href="#ft-pdf"/></svg>
+        <span class="tile__name">市场数据分析报告</span><span class="tile__ver num">v1.8</span>
+        <span class="pill pill--pine" id="pill-data">已归档</span>
+      </div>
+      <div class="tile-live"><div class="track track--teal"><i id="live-data" style="width:100%"></i></div><span class="num" id="live-data-num">数据线 · 就绪</span></div>
+    </article>
+
+    <!-- 03 · 视觉规范 -->
+    <article class="tile t-visual reveal" style="--rc: var(--c-designer)">
+      <i class="tile__no">03</i>
+      <div class="tile__thumb">
+        <svg viewBox="0 0 400 300" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+          <rect x="64" y="22" width="272" height="256" rx="8" fill="#ffffff" stroke="#b8c5d3"/>
+          <text x="82" y="48" font-size="12" font-weight="650" fill="#243347">色彩系统 · 主色板</text>
+          <text x="318" y="48" font-size="10" fill="#33415a" text-anchor="end">v3.0 修订中</text>
+          <rect x="82" y="62" width="54" height="54" rx="8" fill="#22d3ee"/>
+          <rect x="144" y="62" width="54" height="54" rx="8" fill="#fb923c"/>
+          <rect x="206" y="62" width="54" height="54" rx="8" fill="#3d5a80"/>
+          <rect x="268" y="62" width="54" height="54" rx="8" fill="#0b1220" stroke="#b8c5d3"/>
+          <g font-size="10" font-weight="600" fill="#4b5a73">
+            <text x="82" y="130">霓虹青</text><text x="144" y="130">霓虹橙</text>
+            <text x="206" y="130">深空蓝</text><text x="268" y="130">深空底</text>
+          </g>
+          <g font-size="11" fill="#33415a">
+            <text x="82" y="141">#22d3ee</text><text x="144" y="141">#FB923C</text>
+            <text x="206" y="141">#3D5A80</text><text x="268" y="141">#0B1220</text>
+          </g>
+          <line x1="82" y1="156" x2="322" y2="156" stroke="#b8c5d3"/>
+          <text x="82" y="176" font-size="10" font-weight="600" fill="#4b5a73">字体规格</text>
+          <text x="82" y="214" font-size="30" font-weight="650" fill="#243347">Aa</text>
+          <text x="136" y="196" font-size="11" font-weight="600" fill="#243347">思源黑体 · Semibold</text>
+          <text x="136" y="212" font-size="10" fill="#33415a">标题 24 / 正文 14 / 注释 11 · 行高 1.5</text>
+          <text x="82" y="240" font-size="10" fill="#33415a">间距</text>
+          <rect x="112" y="232" width="8" height="8" rx="2" fill="#3a4a6b"/>
+          <rect x="128" y="228" width="16" height="16" rx="3" fill="#3a4a6b" opacity=".75"/>
+          <rect x="152" y="224" width="32" height="24" rx="4" fill="#3a4a6b" opacity=".5"/>
+          <text x="196" y="238" font-size="10" fill="#33415a">8 / 16 / 32</text>
+          <text x="82" y="264" font-size="11" fill="#33415a">对比度已按 WCAG AA 校验 · 正文对比度 ≥ 4.5:1</text>
+        </svg>
+      </div>
+      <div class="tile__meta">
+        <svg class="ft-ic" aria-hidden="true"><use href="#ft-fig"/></svg>
+        <span class="tile__name">品牌视觉规范</span><span class="tile__ver num">v3.0</span>
+        <span class="pill pill--clay" id="pill-visual">审核中</span>
+      </div>
+      <div class="tile-live"><div class="track track--rose"><i id="live-visual" style="width:38%"></i></div><span class="num" id="live-visual-num">视觉线 · 就绪</span></div>
+    </article>
+
+    <!-- 04 · 落地页 -->
+    <article class="tile t-web reveal" style="--rc: var(--c-engineer)">
+      <i class="tile__no">04</i>
+      <div class="tile__thumb">
+        <svg viewBox="0 0 400 300" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+          <rect x="56" y="20" width="288" height="260" rx="10" fill="#ffffff" stroke="#b8c5d3"/>
+          <circle cx="76" cy="34" r="3.5" fill="#fb923c"/><circle cx="90" cy="34" r="3.5" fill="#fbbf24"/><circle cx="104" cy="34" r="3.5" fill="#3d5a80"/>
+          <rect x="122" y="26" width="204" height="16" rx="8" fill="#0b1220" stroke="#b8c5d3"/>
+          <text x="134" y="37" font-size="10" fill="#33415a">launch-q3.acme.cn</text>
+          <line x1="56" y1="50" x2="344" y2="50" stroke="#b8c5d3"/>
+          <g font-size="11" fill="#33415a">
+            <text x="80" y="70">产品</text><text x="112" y="70">方案</text>
+            <text x="144" y="70">服务</text><text x="176" y="70">关于</text>
+          </g>
+          <rect x="278" y="58" width="52" height="17" rx="8.5" fill="#22d3ee"/>
+          <text x="304" y="69.5" font-size="10" fill="#ffffff" text-anchor="middle" font-weight="600">预约演示</text>
+          <text x="80" y="102" font-size="15" font-weight="650" fill="#243347">Q3 新季发布 · 9.01 上线</text>
+          <rect x="80" y="112" width="150" height="6" rx="3" fill="#e9eef5"/>
+          <rect x="80" y="124" width="118" height="6" rx="3" fill="#eef2f7"/>
+          <rect x="80" y="142" width="84" height="20" rx="6" fill="#22d3ee"/>
+          <text x="122" y="155" font-size="10.5" fill="#ffffff" text-anchor="middle" font-weight="600">立即查看</text>
+          <rect x="172" y="142" width="66" height="20" rx="6" fill="#ffffff" stroke="#3a4a6b"/>
+          <text x="205" y="155" font-size="10.5" fill="#4b5a73" text-anchor="middle">了解更多</text>
+          <rect x="252" y="88" width="80" height="86" rx="8" fill="#e9eef5"/>
+          <circle cx="286" cy="122" r="16" fill="#22d3ee" opacity=".85"/>
+          <rect x="264" y="148" width="56" height="5" rx="2.5" fill="#1a2740"/>
+          <rect x="264" y="158" width="40" height="5" rx="2.5" fill="#1a2740"/>
+          <line x1="80" y1="182" x2="332" y2="182" stroke="#e5eaf0"/>
+          <g>
+            <rect x="80" y="196" width="76" height="58" rx="8" fill="#f0f3f7" stroke="#e5eaf0"/>
+            <circle cx="96" cy="214" r="6" fill="#38bdf8" opacity=".85"/>
+            <rect x="90" y="228" width="56" height="5" rx="2.5" fill="#e5eaf0"/>
+            <rect x="90" y="238" width="40" height="5" rx="2.5" fill="#eef2f7"/>
+            <rect x="168" y="196" width="76" height="58" rx="8" fill="#f0f3f7" stroke="#e5eaf0"/>
+            <circle cx="184" cy="214" r="6" fill="#2dd4bf" opacity=".85"/>
+            <rect x="178" y="228" width="56" height="5" rx="2.5" fill="#e5eaf0"/>
+            <rect x="178" y="238" width="40" height="5" rx="2.5" fill="#eef2f7"/>
+            <rect x="256" y="196" width="76" height="58" rx="8" fill="#f0f3f7" stroke="#e5eaf0"/>
+            <circle cx="272" cy="214" r="6" fill="#a78bfa" opacity=".85"/>
+            <rect x="266" y="228" width="56" height="5" rx="2.5" fill="#e5eaf0"/>
+            <rect x="266" y="238" width="40" height="5" rx="2.5" fill="#eef2f7"/>
+          </g>
+        </svg>
+      </div>
+      <div class="tile__meta">
+        <svg class="ft-ic" aria-hidden="true"><use href="#ft-code"/></svg>
+        <span class="tile__name">落地页前端工程</span><span class="tile__ver num">v0.9-rc</span>
+        <span class="pill pill--clay" id="pill-web">联调中</span>
+      </div>
+      <div class="tile-live"><div class="track track--violet"><i id="live-web" style="width:57%"></i></div><span class="num" id="live-web-num">工程线 · 就绪</span></div>
+    </article>
+    </main>
+
+    <aside class="folio folio--r reveal" aria-hidden="true">
+      <span class="folio__word">LIVE OPS</span>
+      <span class="folio__val num" id="folio-val">任务 48</span>
+    </aside>
+  </div>
+
+  <!-- ============ 甘特横带：全任务排期（任务 × 日期周期） ============ -->
+  <section class="sched band">
+    <div class="sched__head reveal">
+      <span class="h-eyebrow">全任务排期</span>
+      <span class="sched__range num">09.01 – 09.30</span>
+      <span class="sched__meta">全 5 项任务 · 4 个渠道 · 月度周期</span>
+    </div>
+    <i class="tile__no" style="--rc: var(--c-planner)" aria-hidden="true">05</i>
+    <div class="sched__body">
+      <div class="sched__weeks" aria-hidden="true">
+        <span style="left:12.5%">W1</span><span style="left:37.5%">W2</span>
+        <span style="left:62.5%">W3</span><span style="left:87.5%">W4</span>
+      </div>
+
+      <div class="lane reveal">
+        <span class="lane__name">官网</span>
+        <div class="lane__track"><i class="bar bar--planner flow-sheen" style="left:0%; width:40%">预告页上线</i></div>
+        <span class="sched__period num">09.01 – 09.12<i>12 天</i></span>
+        <span class="tip"><b>预告页上线</b> · 负责人 规划 · 产出 官网预告页 v1</span>
+      </div>
+      <div class="lane reveal">
+        <span class="lane__name">社媒</span>
+        <div class="lane__track"><i class="bar bar--writer flow-sheen" style="left:13.33%; width:33.33%">话题预热期</i></div>
+        <span class="sched__period num">09.05 – 09.14<i>10 天</i></span>
+        <span class="tip"><b>话题预热期</b> · 负责人 内容 · 产出 话题池 20 条</span>
+      </div>
+      <div class="lane reveal">
+        <span class="lane__name">EDM</span>
+        <div class="lane__track"><i class="bar bar--analyst flow-sheen" style="left:26.67%; width:30%">新品预热</i></div>
+        <span class="sched__period num">09.09 – 09.17<i>9 天</i></span>
+        <span class="tip"><b>新品预热</b> · 负责人 数据 · 产出 唤醒邮件 3 封</span>
+      </div>
+      <div class="lane reveal">
+        <span class="lane__name">媒介</span>
+        <div class="lane__track"><i class="bar bar--engineer flow-sheen" style="left:40%; width:33.33%">KOL 矩阵</i></div>
+        <span class="sched__period num">09.13 – 09.22<i>10 天</i></span>
+        <span class="tip"><b>KOL 矩阵</b> · 负责人 工程 · 产出 达人排期表</span>
+      </div>
+      <div class="lane reveal">
+        <span class="lane__name">社媒</span>
+        <div class="lane__track"><i class="bar bar--designer flow-sheen" style="left:63.33%; width:16.67%">上线倒数</i></div>
+        <span class="sched__period num">09.20 – 09.24<i>5 天</i></span>
+        <span class="tip"><b>上线倒数</b> · 负责人 设计 · 产出 倒计时物料 9 张</span>
+      </div>
+
+      <div class="sched__grid">
+        <div class="today" id="today-line"><b>今日</b></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 跨屏联动台（真实联动 · World 引擎） ============
+       第一屏既被动反映世界引擎，也能下发指令：流速 / 派发 / 模板。
+       状态指示与事件流让「联动是否生效」在演示时自证。 -->
+  <section class="s1-bridge band" aria-label="跨屏联动">
+    <div class="s1-bridge__sync reveal">
+      <i class="s1-bridge__dot" id="link-dot" aria-hidden="true"></i>
+      <div class="s1-bridge__txt">
+        <b id="link-state">检测中</b>
+        <span id="link-sub" class="t-muted">正在读取世界引擎领导者租约…</span>
+      </div>
+      <button type="button" class="s1-bridge__open" id="link-open">打开联动窗口 →</button>
+    </div>
+
+    <div class="s1-bridge__stream reveal">
+      <span class="h-eyebrow">最近事件流</span>
+      <ol class="s1-bridge__events" id="link-events" aria-live="polite"></ol>
+    </div>
+
+    <div class="s1-bridge__cmd reveal">
+      <span class="s1-bridge__lbl">流速</span>
+      <span class="s1-seg" id="link-speed">
+        <button type="button" data-speed="1" class="on">1×</button>
+        <button type="button" data-speed="4">4×</button>
+        <button type="button" data-speed="8">8×</button>
+      </span>
+      <span class="s1-bridge__field">
+        <input id="link-input" type="text" autocomplete="off"
+               placeholder="监管派发：描述任务，回车下发到产线">
+        <button type="button" id="link-send">派发</button>
+      </span>
+    </div>
+  </section>
+
+  <!-- ============ 接力线 footer ============ -->
+  <footer class="relay band">
+    <div class="relay__track" id="team"></div>
+    <i class="relay__lead" aria-hidden="true"></i>
+    <div class="relay__note reveal">
+      <span id="relay-n1">今日 13 项推进 · 知识库 +37 · 全员在线</span>
+      <span class="t-muted" id="relay-n2">最新 11:58 · 视觉规范 v3.0 收到修订请求</span>
+    </div>
+  </footer>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+<script src="src/modules/bloub.js"></script>
+<script type="module" src="src/controllers/screen1.js"></script>
+</body>
+</html>

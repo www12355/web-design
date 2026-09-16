@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 2 / 3 / 4 屏 · 横向卷轴 ｜ AI 自主经营中枢</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='13' fill='%2322d3ee'/%3E%3Ccircle cx='16' cy='15' r='6.5' fill='%230d1524'/%3E%3Ccircle cx='13.4' cy='13.8' r='1.5' fill='%2322d3ee'/%3E%3Ccircle cx='18.6' cy='13.8' r='1.5' fill='%2322d3ee'/%3E%3Cpath d='M13 18.5q3 2.4 6 0' stroke='%2322d3ee' stroke-width='1.4' fill='none' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="src/styles/tokens.css">
+<link rel="stylesheet" href="src/styles/pages/window2.css">
+<link rel="stylesheet" href="src/styles/pages/window2-review.css">
+</head>
+<body data-world-prio="2">
+
+<!-- 文件类型图标精灵由 src/modules/common.js 统一注入 -->
+<div class="reel" id="reel">
+
+  <!-- ==================== 第 2 屏 · 员工（原设计还原） ==================== -->
+  <section class="reel__page" data-page="0">
+    <div class="screen">
+      <main class="p2">
+        <!-- 左：五张拟态工牌 -->
+        <div class="p2__badges" id="badges"></div>
+
+        <!-- 右：协作群聊 -->
+        <div class="p2__chat">
+          <div class="chat__head">
+            <span class="win-dots"><i></i><i></i><i></i></span>
+            <div class="bot bot-white" id="chat-main"></div>
+            <div>
+              <b style="font-size:1.4rem;">主 AI 经营群</b>
+              <div style="font-size:1.1rem; color:var(--muted);">6 名成员 · 全自主经营 · 无人值守</div>
+            </div>
+            <span class="pill pill--sage" style="margin-left:auto;"><i class="dot dot--run"></i>全员在线</span>
+            <span class="pill" id="chat-pool">任务池 48 · 进行 9</span>
+            <span class="pill pill--pine">自动运转中</span>
+          </div>
+
+          <div class="chat__thread">
+            <div class="chat-day">今天 09:12</div>
+
+            <div class="chat-row chat-row--ai">
+              <span class="avatar-slot" data-who="main" title="主 AI"></span>
+              <div class="bubble bubble--ai">
+                <div class="bubble__think"><b><svg viewBox="0 0 24 24"><path d="M9 18h6M10 21h4M12 3a6 6 0 00-4 10.5c.6.5 1 1.2 1 2h6c0-.8.4-1.5 1-2A6 6 0 0012 3z"/></svg>思考 · 09:10</b>重申交付窗口并点名依赖源头——整合稿的全部输入都来自规划路径，先让规划给出关键路径，再向下排子任务。</div>
+                目标重申：本周五完成发布包整合。规划协调，请先给出依赖路径。
+                <div class="bubble__time">09:12</div>
+              </div>
+            </div>
+
+            <div class="chat-row">
+              <span class="avatar-slot" data-who="planner" title="规划协调"></span>
+              <div class="bubble">
+                <div class="bubble__quote"><b>回复 主 AI</b>目标重申：本周五完成发布包整合，请先给出依赖路径。</div>
+                <div class="bubble__think"><b><svg viewBox="0 0 24 24"><path d="M9 18h6M10 21h4M12 3a6 6 0 00-4 10.5c.6.5 1 1.2 1 2h6c0-.8.4-1.5 1-2A6 6 0 0012 3z"/></svg>思考 · 09:14</b>按四段交付物梳理前后依赖，数据报告是唯一上游；估算各段工时后，给出周四 18:00 的整合输入承诺。</div>
+                收到。依赖路径已排：数据报告 → 视觉规范 → 前端联调 → 整合稿。预计周四 18:00 前可交付整合输入。
+                <div class="bubble__time">09:14</div>
+              </div>
+            </div>
+            <span class="msg-react">👍 3</span>
+
+            <div class="chat-row">
+              <span class="avatar-slot" data-who="analyst" title="数据分析"></span>
+              <div class="bubble">
+                <div class="bubble__think"><b><svg viewBox="0 0 24 24"><path d="M9 18h6M10 21h4M12 3a6 6 0 00-4 10.5c.6.5 1 1.2 1 2h6c0-.8.4-1.5 1-2A6 6 0 0012 3z"/></svg>思考 · 11:38</b>比对新旧两版数据集，确认 v1.8 只新增异常标注、不改动结论；把三处异常写进第 4 节，便于视觉与前端回查。</div>
+                市场数据已更新至 v1.8，转化漏斗三处异常已标注，详见报告第 4 节。
+                <div class="bubble__time">11:38</div>
+              </div>
+            </div>
+
+            <div class="chat-day">今天 11:40</div>
+
+            <div class="chat-row">
+              <span class="avatar-slot" data-who="designer" title="视觉设计"></span>
+              <div class="bubble">
+                <div class="bubble__think"><b><svg viewBox="0 0 24 24"><path d="M9 18h6M10 21h4M12 3a6 6 0 00-4 10.5c.6.5 1 1.2 1 2h6c0-.8.4-1.5 1-2A6 6 0 0012 3z"/></svg>思考 · 11:39</b>主色沿用定稿结论，把陶土橙与深松绿写进主视觉；规范第 2 节还差无障碍提级，先传初版让主 AI 把方向。</div>
+                视觉规范 v3.0 已上传，主色改为陶土橙 + 深松绿，待主 AI 审定。
+                <div class="bubble__time">11:40</div>
+              </div>
+            </div>
+
+            <div class="chat-row chat-row--ai">
+              <span class="avatar-slot" data-who="main" title="主 AI"></span>
+              <div class="bubble bubble--ai">
+                <div class="bubble__think"><b><svg viewBox="0 0 24 24"><path d="M9 18h6M10 21h4M12 3a6 6 0 00-4 10.5c.6.5 1 1.2 1 2h6c0-.8.4-1.5 1-2A6 6 0 0012 3z"/></svg>思考 · 11:52</b>抽查正文与浅底对比度实测 3.1:1，低于 AA 标准；只要求提级第 2 节，其余全部通过，避免阻塞整体节奏。</div>
+                已审：第 2 节对比度不足，请按无障碍标准提级后再入库。其余通过。
+                <div class="bubble__time">11:52</div>
+              </div>
+            </div>
+
+            <div class="chat-row">
+              <span class="avatar-slot" data-who="engineer" title="工程开发"></span>
+              <div class="bubble">
+                <div class="bubble__think"><b><svg viewBox="0 0 24 24"><path d="M9 18h6M10 21h4M12 3a6 6 0 00-4 10.5c.6.5 1 1.2 1 2h6c0-.8.4-1.5 1-2A6 6 0 0012 3z"/></svg>思考 · 11:55</b>预览环境构建通过、静态资源已挂 CDN；联调前需工程侧确认接口时序，先发清单把等待时间前置。</div>
+                落地页 v0.9-rc 已部署预览环境，联调清单发出，请工程侧确认接口时序。
+                <div class="bubble__time">11:55</div>
+              </div>
+            </div>
+
+          </div>
+
+          <div class="chat__limit">
+            <svg viewBox="0 0 24 24"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 018 0v3"/></svg>
+            已加载 <span class="num" id="chat-count">6</span> 条 · 实时同步中 · 内容仅在框内滚动
+          </div>
+        </div>
+      </main>
+    </div>
+  </section>
+
+  <!-- ==================== 第 3 屏 · 中枢（首页 DeepWell · 表情球） ==================== -->
+  <section class="reel__page" data-page="1">
+    <div class="p3">
+      <!-- 左倾斜面板：自主工作台 -->
+      <aside class="tp tp--left">
+        <div class="tp__panel">
+          <div class="seg-wrap">
+            <div class="seg" id="seg-left">
+              <button class="seg__item seg__item--on" data-pane="pane-status" type="button"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>状态</button>
+              <button class="seg__item" data-pane="pane-events" type="button"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>事件</button>
+              <button class="seg__item" data-pane="pane-set" type="button"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 11-4 0v-.09a1.65 1.65 0 00-1-1.51 1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 110-4h.09a1.65 1.65 0 001.51-1 1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06a1.65 1.65 0 001.82.33h0a1.65 1.65 0 001-1.51V3a2 2 0 114 0v.09a1.65 1.65 0 001 1.51h0a1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82v0a1.65 1.65 0 001.51 1H21a2 2 0 110 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>设置</button>
+            </div>
+          </div>
+          <div class="pane" id="pane-status">
+            <div class="eb-sec" style="margin-top:0.2rem;">
+              <h4><svg viewBox="0 0 24 24"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>经营指标 · 实时</h4>
+              <div class="eb-kpi"><span>在产订单</span><b id="ls-orders">5 个</b></div>
+              <div class="eb-kpi"><span>并行任务</span><b id="ls-doing">9 项</b></div>
+              <div class="eb-kpi"><span>交付完成率</span><b id="ls-completion">72.0%</b></div>
+              <div class="eb-kpi"><span>今日入库</span><b id="ls-ingested">37 项</b></div>
+              <div class="eb-kpi"><span>自动运行时长</span><b id="ls-runtime">24h 18m</b></div>
+            </div>
+            <div class="eb-sec">
+              <h4><svg viewBox="0 0 24 24"><path d="M14.7 6.3a5 5 0 10-7 7l-4 4V21h3.7l4-4a5 5 0 103.3-10.7z"/></svg>运行中的技能</h4>
+              <div style="display:flex; flex-wrap:wrap; gap:0.5rem;">
+                <span class="pill">订单接签 · auto</span>
+                <span class="pill">任务编排 · loop</span>
+                <span class="pill">依赖解析 · DAG</span>
+                <span class="pill">质量审查 · rubric</span>
+                <span class="pill">交付归档 · auto</span>
+              </div>
+            </div>
+            <div class="eb-sec">
+              <h4><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M9 4v16M4 9h16"/></svg>资源占用</h4>
+              <div class="eb-res"><span>算力</span><div class="track load-track"><i id="cpu-track" style="width:63%"></i></div><b id="cpu-val">63%</b></div>
+              <div class="eb-res" style="margin-top:0.6rem;"><span>内存</span><div class="track track--amber load-track"><i id="mem-track" style="width:41%"></i></div><b id="mem-val">41%</b></div>
+            </div>
+            <div class="eb-sec">
+              <h4><svg viewBox="0 0 24 24"><path d="M3 21h18M5 21V7l7-4 7 4v14"/></svg>在产订单</h4>
+              <div id="prod-orders"></div>
+            </div>
+          </div>
+          <div class="pane" id="pane-events" hidden>
+            <div class="eb-sec" style="margin-top:0.2rem;">
+              <h4><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>经营事件流</h4>
+              <div id="event-log"></div>
+            </div>
+          </div>
+          <div class="pane" id="pane-set" hidden>
+            <div class="eb-sec">
+              <h4><svg viewBox="0 0 24 24"><path d="M13 2L3 14h7l-1 8 10-12h-7l1-8z"/></svg>演示加速</h4>
+              <div class="set-row"><span>时间流速</span>
+                <span class="speed-seg" id="speed-seg">
+                  <button type="button" data-speed="1" class="on">1×</button>
+                  <button type="button" data-speed="4">4×</button>
+                  <button type="button" data-speed="8">8×</button>
+                </span>
+              </div>
+              <p class="set-note" id="speed-note">当前 ×1：实时节律，订单与交付按正常节奏到达。</p>
+            </div>
+            <div class="eb-sec">
+              <h4><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>自主行为</h4>
+              <div class="set-row"><span>自动巡检播报</span><input type="checkbox" class="set-switch" id="patrol-chk" checked></div>
+              <div class="set-row"><span>本页运行时长</span><b class="num" id="runtime-val" style="font-size:1.2rem;">0 分钟</b></div>
+            </div>
+            <div class="eb-sec">
+              <h4><svg viewBox="0 0 24 24"><path d="M9 18h6M10 21h4M12 3a6 6 0 00-4 10.5c.6.5 1 1.2 1 2h6c0-.8.4-1.5 1-2A6 6 0 0012 3z"/></svg>关于本引擎</h4>
+              <p class="set-note">本页为全自主 AI 经营体模拟：接单、生产、交付、归档全程无人力接入；「监管终端」为可选人工干预通道。两窗口数据经世界引擎实时同步。</p>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      <!-- 中央舞台：DeepWell 深井 + 表情球 + 任务入口 -->
+      <div class="stage">
+        <div class="well-halo"><div class="well-halo-glow"></div></div>
+        <div class="plain-ring"></div>
+        <div class="well">
+          <div class="well-inner-shadow"></div>
+          <div class="well__clip"><div class="well__eb"><div id="eb-main"></div></div></div>
+        </div>
+        <div class="task-chips" role="list" aria-label="快捷指令">
+          <button type="button" class="chip" data-fill="@视觉设计 修订主视觉色板对比度"><b>@视觉设计</b> 修订色板</button>
+          <button type="button" class="chip" data-fill="分析上周转化漏斗数据并出周报">漏斗分析周报</button>
+          <button type="button" class="chip" data-fill="开发落地页移动端适配">移动端适配</button>
+          <button type="button" class="chip" data-fill="写一版发布会开场文案">开场文案</button>
+          <button type="button" class="chip chip--doc" data-doc-action="generate">生成交付 Word 文档</button>
+        </div>
+        <div class="task-bar">
+          <div class="task-bar__field field">
+            <svg viewBox="0 0 24 24"><path d="M12 2a3 3 0 013 3v6a3 3 0 01-6 0V5a3 3 0 013-3z"/><path d="M19 10v1a7 7 0 01-14 0v-1M12 18v4"/></svg>
+            <input id="task-input" type="text" placeholder="向主 AI 说点什么，或下达监管指令（回车派发）…" aria-label="监管终端输入" />
+          </div>
+          <button class="task-bar__send" id="task-send" title="发送" aria-label="发送">
+            <svg viewBox="0 0 24 24"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+            <i class="spinner spinner--sm" aria-hidden="true"></i>
+          </button>
+        </div>
+        <div class="task-hint">全自主运转中 · 打招呼主 AI 会亲自回话 · 带任务动词或 @分身 则派发执行</div>
+      </div>
+
+      <!-- 右倾斜面板：主 AI 思考过程 -->
+      <aside class="tp tp--right">
+        <div class="tp__panel">
+          <div class="seg-wrap">
+            <div class="seg" id="seg-right">
+              <button class="seg__item seg__item--on" data-pane="think" type="button"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>思考过程</button>
+              <button class="seg__item" data-pane="pane-log" type="button"><svg viewBox="0 0 24 24"><path d="M9 6h11M9 12h11M9 18h11"/></svg>日志</button>
+              <button class="seg__item" data-pane="pane-ctx" type="button"><svg viewBox="0 0 24 24"><path d="M4 19V5a2 2 0 012-2h13v18H6a2 2 0 01-2-2z"/></svg>上下文</button>
+            </div>
+          </div>
+          <div class="pane" id="think">
+            <!-- 思考链由 src/controllers/window2.js 动态生成：观察 → 拆解 → 推演 → 决策 → 结论 -->
+          </div>
+          <div class="pane" id="pane-log" hidden>
+            <div id="event-log2"></div>
+          </div>
+          <div class="pane" id="pane-ctx" hidden>
+            <div class="eb-sec" style="margin-top:0.2rem;">
+              <h4><svg viewBox="0 0 24 24"><path d="M3 21h18M5 21V7l7-4 7 4v14"/></svg>经营上下文</h4>
+              <div class="eb-kpi"><span>在产订单</span><b id="ctx-orders">5 个</b></div>
+              <div class="eb-kpi"><span>任务池</span><b id="ctx-tasks">48 项</b></div>
+              <div class="eb-kpi"><span>进行 / 排队</span><b id="ctx-doing">9 / 8</b></div>
+              <div class="eb-kpi"><span>知识库</span><b id="ctx-kb">1,284 条</b></div>
+              <div class="eb-kpi"><span>服务客户</span><b id="ctx-clients">14 家</b></div>
+            </div>
+            <div class="eb-sec">
+              <h4><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>运行模式</h4>
+              <p class="eb-note">全自主经营 · 无人力接入。接单 → 拆解 → 生产 → 交付 → 归档闭环自动运转，监管终端仅作可选干预。</p>
+            </div>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <!-- ==================== 第 4 屏 · 知识（原设计还原） ==================== -->
+  <section class="reel__page" data-page="2">
+    <div class="screen">
+      <main class="p4">
+        <!-- 底层：自演化戴森知识球（纯球状连接，无画布文字标签，src/modules/nebula.js） -->
+        <div class="p4__nebula">
+          <canvas id="nebula"></canvas>
+          <div class="sphere-pop" id="sphere-pop" aria-live="polite" hidden>
+            <span class="sphere-pop__agent" id="pop-agent">智能体</span>
+            <h3 id="pop-title">—</h3>
+            <div class="sphere-pop__conf" id="pop-conf">—</div>
+          </div>
+        </div>
+
+        <!-- 顶部 · 图版表头 + 仪表读数 -->
+        <header class="atlas-head reveal">
+          <div class="atlas-head__l">
+            <span class="h-eyebrow">知识资产 · 全景索引</span>
+            <span class="atlas-plate">PL.04 <em>Knowledge Graph</em> — 知识图谱</span>
+            <span class="atlas-readout num" id="neb-readout">节点 0 · 球状连接 0 · 覆盖率 0%</span>
+          </div>
+          <div class="atlas-stats num">
+            <span><b id="kb-total">1,284</b>总条目</span>
+            <i></i>
+            <span><b id="kb-today">+37</b>今日入库</span>
+            <i></i>
+            <span><b id="kb-settle">5</b>今日归档</span>
+            <i></i>
+            <span><b>12</b>覆盖领域</span>
+          </div>
+        </header>
+
+        <!-- 左侧 · 星表索引（悬停/点击与星图双向联动） -->
+        <aside class="atlas-catalog reveal">
+          <div class="cat-head">
+            <span class="h-eyebrow">知识索引</span>
+            <em>KNOWLEDGE INDEX</em>
+          </div>
+          <label class="cat-search field">
+            <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+            <input id="cat-search" type="text" placeholder="搜索知识条目，回车聚焦星图…" aria-label="搜索知识条目" data-i18n-title="screen2.searchKnowledge">
+          </label>
+          <div class="cat-scroll">
+            <div class="shelf-group">
+              <h4><i style="background:#22d3ee"></i>主 AI · 统筹产出<em>2 项</em></h4>
+              <div class="shelf-row" data-doc="doc-integrate">
+                <span class="cat-no">01</span>
+                <span class="shelf-ic"><svg class="ft-ic ft-ic--sm" aria-hidden="true"><use href="#ft-ppt"/></svg></span>
+                <span class="title">发布方案整合稿 v0.7</span>
+                <div class="meta"><span class="tag">整合</span><span class="num">11:52</span><span class="pill pill--ft-ppt">PPTX</span></div>
+              </div>
+              <div class="shelf-row" data-doc="doc-plan7">
+                <span class="cat-no">02</span>
+                <span class="shelf-ic"><svg class="ft-ic ft-ic--sm" aria-hidden="true"><use href="#ft-pdf"/></svg></span>
+                <span class="title">执行序列 · 7 子任务拆解</span>
+                <div class="meta"><span class="tag">调度</span><span class="num">11:55</span><span class="pill pill--ft-pdf">PDF</span></div>
+              </div>
+            </div>
+
+            <div class="shelf-group">
+              <h4><i style="background:#38bdf8"></i>规划协调<em>2 项</em></h4>
+              <div class="shelf-row" data-doc="doc-prd">
+                <span class="cat-no">03</span>
+                <span class="shelf-ic"><svg class="ft-ic ft-ic--sm" aria-hidden="true"><use href="#ft-word"/></svg></span>
+                <span class="title">产品需求规格书 v2.3</span>
+                <div class="meta"><span class="tag">需求</span><span class="num">10:08</span><span class="pill pill--ft-word">DOCX</span></div>
+              </div>
+              <div class="shelf-row" data-doc="doc-schedule">
+                <span class="cat-no">04</span>
+                <span class="shelf-ic"><svg class="ft-ic ft-ic--sm" aria-hidden="true"><use href="#ft-xls"/></svg></span>
+                <span class="title">传播矩阵排期表 v1.2</span>
+                <div class="meta"><span class="tag">排期</span><span class="num">09:47</span><span class="pill pill--ft-xls">XLSX</span></div>
+              </div>
+            </div>
+
+            <div class="shelf-group">
+              <h4><i style="background:#2dd4bf"></i>内容撰写<em>2 项</em></h4>
+              <div class="shelf-row" data-doc="doc-copy">
+                <span class="cat-no">05</span>
+                <span class="shelf-ic"><svg class="ft-ic ft-ic--sm" aria-hidden="true"><use href="#ft-word"/></svg></span>
+                <span class="title">发布会主文案 v4（终校中）</span>
+                <div class="meta"><span class="tag">文案</span><span class="num">11:20</span><span class="pill pill--ft-word">DOCX</span></div>
+              </div>
+              <div class="shelf-row" data-doc="doc-faq">
+                <span class="cat-no">06</span>
+                <span class="shelf-ic"><svg class="ft-ic ft-ic--sm" aria-hidden="true"><use href="#ft-word"/></svg></span>
+                <span class="title">对外口径 FAQ 32 条</span>
+                <div class="meta"><span class="tag">口径</span><span class="num">10:55</span><span class="pill pill--ft-word">DOCX</span></div>
+              </div>
+            </div>
+
+            <div class="shelf-group">
+              <h4><i style="background:#fbbf24"></i>数据分析<em>1 项</em></h4>
+              <div class="shelf-row" data-doc="doc-report">
+                <span class="cat-no">07</span>
+                <span class="shelf-ic"><svg class="ft-ic ft-ic--sm" aria-hidden="true"><use href="#ft-pdf"/></svg></span>
+                <span class="title">市场数据分析报告 v1.8</span>
+                <div class="meta"><span class="tag">分析</span><span class="num">11:41</span><span class="pill pill--ft-pdf">PDF</span></div>
+              </div>
+            </div>
+
+            <div class="shelf-group">
+              <h4><i style="background:#f472b6"></i>视觉设计<em>1 项</em></h4>
+              <div class="shelf-row" data-doc="doc-brand">
+                <span class="cat-no">08</span>
+                <span class="shelf-ic"><svg class="ft-ic ft-ic--sm" aria-hidden="true"><use href="#ft-fig"/></svg></span>
+                <span class="title">品牌视觉规范 v3.0（修订中）</span>
+                <div class="meta"><span class="tag">视觉</span><span class="num">11:58</span><span class="pill pill--ft-fig">FIG</span></div>
+              </div>
+            </div>
+
+            <div class="shelf-group">
+              <h4><i style="background:#a78bfa"></i>工程开发<em>2 项</em></h4>
+              <div class="shelf-row" data-doc="doc-landing">
+                <span class="cat-no">09</span>
+                <span class="shelf-ic"><svg class="ft-ic ft-ic--sm" aria-hidden="true"><use href="#ft-code"/></svg></span>
+                <span class="title">落地页前端工程 v0.9-rc</span>
+                <div class="meta"><span class="tag">代码</span><span class="num">11:12</span><span class="pill pill--ft-code">REPO</span></div>
+              </div>
+              <div class="shelf-row" data-doc="doc-api">
+                <span class="cat-no">10</span>
+                <span class="shelf-ic"><svg class="ft-ic ft-ic--sm" aria-hidden="true"><use href="#ft-pdf"/></svg></span>
+                <span class="title">联调接口时序说明 v1.0</span>
+                <div class="meta"><span class="tag">接口</span><span class="num">11:30</span><span class="pill pill--ft-pdf">PDF</span></div>
+              </div>
+            </div>
+          </div>
+        </aside>
+
+        <!-- 右侧 · 附图版画（成果展示，图钉散挂） -->
+        <aside class="atlas-figures reveal">
+          <div class="fig-head">
+            <span class="h-eyebrow">附图 · 成果展示</span>
+            <em>FIG. 01–07</em>
+          </div>
+
+          <figure class="fig">
+            <div class="fig-thumb">
+              <svg viewBox="0 0 120 90" preserveAspectRatio="xMidYMid slice">
+                <rect width="120" height="90" fill="#0d1626"/>
+                <rect x="18" y="10" width="84" height="70" rx="4" fill="#fff" stroke="#2a3a5c"/>
+                <rect x="26" y="18" width="44" height="7" rx="3.5" fill="#aebcd2" opacity=".8"/>
+                <rect x="26" y="31" width="68" height="4" rx="2" fill="#1b2740"/>
+                <rect x="26" y="39" width="56" height="4" rx="2" fill="#16213a"/>
+                <rect x="26" y="49" width="68" height="8" fill="#16213a"/>
+                <line x1="26" y1="63" x2="94" y2="63" stroke="#2a3a5c"/>
+                <line x1="26" y1="70" x2="94" y2="70" stroke="#1b2740"/>
+              </svg>
+              <svg class="ft-chip" aria-hidden="true"><use href="#ft-word"/></svg>
+            </div>
+            <figcaption>
+              <div class="fig-line"><span class="fig-no">FIG.01</span><span class="pill pill--pine">已验收</span></div>
+              <b>产品需求规格书</b>
+              <p>v2.3 · 已评审归档 · 覆盖 6 大模块</p>
+            </figcaption>
+          </figure>
+
+          <figure class="fig">
+            <div class="fig-thumb">
+              <svg viewBox="0 0 120 90" preserveAspectRatio="xMidYMid slice">
+                <rect width="120" height="90" fill="#0d1626"/>
+                <rect x="12" y="10" width="96" height="70" rx="4" fill="#fff" stroke="#2a3a5c"/>
+                <g stroke="#16213a"><line x1="24" y1="26" x2="100" y2="26"/><line x1="24" y1="40" x2="100" y2="40"/><line x1="24" y1="54" x2="100" y2="54"/></g>
+                <line x1="24" y1="20" x2="24" y2="66" stroke="#2a3a5c"/>
+                <line x1="24" y1="66" x2="100" y2="66" stroke="#3a4a6b"/>
+                <polyline points="24,54 40,42 56,48 72,30 88,36 100,24" fill="none" stroke="#2dd4bf" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <polyline points="24,62 40,58 56,60 72,52 88,54 100,48" fill="none" stroke="#38bdf8" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                <circle cx="72" cy="30" r="2.5" fill="#fff" stroke="#2dd4bf" stroke-width="1.5"/>
+              </svg>
+              <svg class="ft-chip" aria-hidden="true"><use href="#ft-pdf"/></svg>
+            </div>
+            <figcaption>
+              <div class="fig-line"><span class="fig-no">FIG.02</span><span class="pill pill--pine">已验收</span></div>
+              <b>市场数据分析报告</b>
+              <p>v1.8 · 3 处异常定位 · 已入知识库</p>
+            </figcaption>
+          </figure>
+
+          <figure class="fig">
+            <div class="fig-thumb">
+              <svg viewBox="0 0 120 90" preserveAspectRatio="xMidYMid slice">
+                <rect width="120" height="90" fill="#0d1626"/>
+                <rect x="14" y="10" width="92" height="70" rx="4" fill="#fff" stroke="#2a3a5c"/>
+                <rect x="22" y="18" width="22" height="22" rx="4" fill="#f472b6" opacity=".85"/>
+                <rect x="49" y="18" width="22" height="22" rx="4" fill="#22d3ee" opacity=".9"/>
+                <rect x="76" y="18" width="22" height="22" rx="4" fill="#fb923c" opacity=".85"/>
+                <text x="22" y="60" font-size="16" font-weight="650" fill="#e7f1ff">Aa</text>
+                <rect x="52" y="48" width="44" height="4" rx="2" fill="#1b2740"/>
+                <rect x="52" y="57" width="30" height="4" rx="2" fill="#16213a"/>
+              </svg>
+              <svg class="ft-chip" aria-hidden="true"><use href="#ft-fig"/></svg>
+            </div>
+            <figcaption>
+              <div class="fig-line"><span class="fig-no">FIG.03</span><span class="pill pill--clay">审核中</span></div>
+              <b>品牌视觉规范</b>
+              <p>v3.0 · 对比度修订中 · 检查点已建</p>
+            </figcaption>
+          </figure>
+
+          <figure class="fig">
+            <div class="fig-thumb">
+              <svg viewBox="0 0 120 90" preserveAspectRatio="xMidYMid slice">
+                <rect width="120" height="90" fill="#0d1626"/>
+                <rect x="12" y="10" width="96" height="70" rx="5" fill="#fff" stroke="#2a3a5c"/>
+                <circle cx="20" cy="18" r="2" fill="#fb923c"/><circle cx="27" cy="18" r="2" fill="#fbbf24"/><circle cx="34" cy="18" r="2" fill="#3d5a80"/>
+                <line x1="12" y1="24" x2="108" y2="24" stroke="#2a3a5c"/>
+                <rect x="20" y="31" width="46" height="6" rx="3" fill="#aebcd2" opacity=".75"/>
+                <rect x="20" y="42" width="32" height="10" rx="4" fill="#a78bfa" opacity=".85"/>
+                <rect x="76" y="30" width="24" height="24" rx="3" fill="#141e33"/>
+                <rect x="20" y="58" width="24" height="14" rx="3" fill="#0d1626" stroke="#1b2740"/>
+                <rect x="48" y="58" width="24" height="14" rx="3" fill="#0d1626" stroke="#1b2740"/>
+                <rect x="76" y="58" width="24" height="14" rx="3" fill="#0d1626" stroke="#1b2740"/>
+              </svg>
+              <svg class="ft-chip" aria-hidden="true"><use href="#ft-code"/></svg>
+            </div>
+            <figcaption>
+              <div class="fig-line"><span class="fig-no">FIG.04</span><span class="pill pill--clay">联调中</span></div>
+              <b>落地页前端工程</b>
+              <p>v0.9-rc · 预览环境已部署</p>
+            </figcaption>
+          </figure>
+
+          <figure class="fig">
+            <div class="fig-thumb">
+              <svg viewBox="0 0 120 90" preserveAspectRatio="xMidYMid slice">
+                <rect width="120" height="90" fill="#0d1626"/>
+                <rect x="24" y="8" width="72" height="74" rx="4" fill="#fff" stroke="#2a3a5c"/>
+                <path d="M38 15l6 3.5v7L38 29l-6-3.5v-7z" fill="none" stroke="#22d3ee" stroke-width="1.6"/>
+                <rect x="50" y="17" width="34" height="5" rx="2.5" fill="#aebcd2" opacity=".75"/>
+                <g stroke="#22d3ee" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M84 36l2.5 2.5 5-5.5"/>
+                  <path d="M84 48l2.5 2.5 5-5.5"/>
+                </g>
+                <rect x="32" y="34" width="40" height="4" rx="2" fill="#1b2740"/>
+                <rect x="32" y="46" width="34" height="4" rx="2" fill="#16213a"/>
+                <rect x="32" y="58" width="38" height="4" rx="2" fill="#16213a"/>
+                <rect x="32" y="70" width="36" height="4" rx="2" fill="#16213a"/>
+                <rect x="74" y="70" width="18" height="4" rx="2" fill="#fb923c" opacity=".7"/>
+              </svg>
+              <svg class="ft-chip" aria-hidden="true"><use href="#ft-ppt"/></svg>
+            </div>
+            <figcaption>
+              <div class="fig-line"><span class="fig-no">FIG.05</span><span class="pill pill--sage">生成中</span></div>
+              <b>发布方案整合稿</b>
+              <p>v0.7 · 主 AI 滚动生成 · 自动交付</p>
+            </figcaption>
+          </figure>
+
+          <figure class="fig">
+            <div class="fig-thumb">
+              <svg viewBox="0 0 120 90" preserveAspectRatio="xMidYMid slice">
+                <rect width="120" height="90" fill="#0d1626"/>
+                <rect x="24" y="10" width="72" height="70" rx="4" fill="#fff" stroke="#2a3a5c"/>
+                <rect x="32" y="18" width="40" height="7" rx="3.5" fill="#aebcd2" opacity=".75"/>
+                <rect x="32" y="32" width="56" height="4" rx="2" fill="#1b2740"/>
+                <rect x="32" y="40" width="48" height="4" rx="2" fill="#16213a"/>
+                <rect x="32" y="48" width="52" height="4" rx="2" fill="#2dd4bf" opacity=".55"/>
+                <rect x="32" y="60" width="56" height="4" rx="2" fill="#1b2740"/>
+                <rect x="32" y="68" width="36" height="4" rx="2" fill="#16213a"/>
+              </svg>
+              <svg class="ft-chip" aria-hidden="true"><use href="#ft-word"/></svg>
+            </div>
+            <figcaption>
+              <div class="fig-line"><span class="fig-no">FIG.06</span><span class="pill pill--clay">终校中</span></div>
+              <b>发布会主文案 v4</b>
+              <p>终校中 · 今日 18:00 截稿</p>
+            </figcaption>
+          </figure>
+
+          <figure class="fig">
+            <div class="fig-thumb">
+              <svg viewBox="0 0 120 90" preserveAspectRatio="xMidYMid slice">
+                <rect width="120" height="90" fill="#0d1626"/>
+                <rect x="14" y="12" width="92" height="66" rx="4" fill="#fff" stroke="#2a3a5c"/>
+                <path d="M36 30l-8 10 8 10M56 30l8 10-8 10" fill="none" stroke="#a78bfa" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" opacity=".85"/>
+                <rect x="68" y="36" width="24" height="4" rx="2" fill="#1b2740"/>
+                <rect x="68" y="44" width="18" height="4" rx="2" fill="#16213a"/>
+              </svg>
+              <svg class="ft-chip" aria-hidden="true"><use href="#ft-pdf"/></svg>
+            </div>
+            <figcaption>
+              <div class="fig-line"><span class="fig-no">FIG.07</span><span class="pill pill--pine">已验收</span></div>
+              <b>联调接口时序说明 v1.0</b>
+              <p>已验收 · 写入知识库 · 11:30</p>
+            </figcaption>
+          </figure>
+        </aside>
+
+        <!-- 左下 · 星座图例 + 图集翻页 -->
+        <div class="atlas-margin reveal">
+          <div class="neb-legend">
+            <span><i style="background:#22d3ee"></i>主 AI</span>
+            <span><i style="background:#38bdf8"></i>规划</span>
+            <span><i style="background:#2dd4bf"></i>内容</span>
+            <span><i style="background:#fbbf24"></i>数据</span>
+            <span><i style="background:#f472b6"></i>设计</span>
+            <span><i style="background:#a78bfa"></i>工程</span>
+          </div>
+          <div class="atlas-pagenav">
+            <button type="button" data-nav="prev" title="上一屏" aria-label="上一屏"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button>
+            <button type="button" data-nav="next" title="下一屏" aria-label="下一屏"><svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></button>
+          </div>
+        </div>
+      </main>
+    </div>
+  </section>
+</div>
+
+<div class="doc-review" id="doc-review" hidden>
+  <div class="doc-review__window" role="dialog" aria-modal="true" aria-labelledby="dr-title">
+    <div class="doc-review__titlebar"><span class="doc-review__name" id="dr-title">交付方案.docx - Word</span><span class="dr-workspace-label">DELIVERY REVIEW WORKSPACE</span><button type="button" class="doc-review__close" id="dr-close" aria-label="返回第 2 屏">×</button></div>
+    <div class="doc-review__body">
+      <section class="doc-review__chat-panel"><div class="dr-chat-head"><div><span class="dr-kicker">第 2 屏 · 真实讨论</span><b>主 AI 经营群</b><span>交付方案协作记录</span></div><span class="dr-live"><i></i>实时同步</span></div><div class="dr-chat" id="dr-chat"></div><div class="dr-chat-compose"><span>审阅意见会自动回写到群聊</span><span class="dr-compose-lock">仅 AI 可发言</span></div></section>
+      <section class="doc-review__review-panel">
+        <div class="doc-review__ribbon"><span class="dr-tab dr-tab--on">文档内容</span><span class="dr-tab">审阅思考流</span><span class="dr-spacer"></span><span class="dr-status dr-status--wait" id="dr-status">等待 AI 审阅</span></div>
+        <div class="doc-review__stage"><div class="doc-review__paper" id="dr-paper"></div></div>
+        <aside class="doc-review__side" id="dr-side"><div class="dr-side__head"><b>AI 分析与评审</b><i id="dr-batch">第 1 轮</i></div><div id="dr-score"></div><div class="dr-review-stream" id="dr-review-stream"><div class="dr-stream-line">等待数据分析读取订单、任务和群聊证据…</div></div><div class="dr-side__list" id="dr-findings"><div class="dr-empty">审阅结果将在这里显示</div></div><div class="dr-side__actions"><button type="button" class="dr-btn dr-btn--prim" id="dr-audit">开始 AI 审阅</button><button type="button" class="dr-btn" id="dr-download">下载 .docx</button><button type="button" class="dr-btn" id="dr-close2">返回第 2 屏</button></div></aside>
+      </section>
+    </div>
+  </div>
+</div>
+
+
+
+<script src="src/data/i18n/zh-CN.js"></script>
+<script src="src/data/i18n/en-US.js"></script>
+<script src="src/data/i18n/ja-JP.js"></script>
+<script src="src/data/i18n/ko-KR.js"></script>
+<script src="src/data/i18n/ru-RU.js"></script>
+<script src="src/modules/bloub.js"></script>
+<script src="src/modules/emotionball/rings.js"></script>
+<script src="src/modules/emotionball/emotions.js"></script>
+<script src="src/modules/emotionball/ball.js"></script>
+<script src="src/modules/emotionball/engine.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+<script type="module" src="src/controllers/window2.js"></script>
+</body>
+</html>

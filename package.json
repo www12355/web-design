@@ -1,0 +1,12 @@
+{
+  "name": "ai-autonomous-ops",
+  "version": "2.1.0",
+  "private": true,
+  "type": "module",
+  "description": "全自主 AI 数字经营体 · 设计稿（企业级模块化结构：模板 / 数据 / 逻辑分层）",
+  "scripts": {
+    "serve": "node serve.js",
+    "start": "node serve.js"
+  },
+  "license": "UNLICENSED"
+}

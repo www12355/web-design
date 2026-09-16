@@ -1,0 +1,40 @@
+/* ============================================================
+ * index.html 控制器：启动器（双窗口启动 / 桌面尺寸预览 / 版权年份）
+ * 纯 ES 模块；Bloub 为经典脚本注入的全局。
+ * ============================================================ */
+import { year } from '../modules/time.js';
+
+// 两颗示例球：白色主 AI + 靛蓝员工
+Bloub.mount(document.getElementById('bot-demo-main'), {
+  size: 88, shape: 'cercle', ink: '#ffffff', expression: 'attentif', state: 'idle', paper: '#0d1524'
+});
+Bloub.mount(document.getElementById('bot-demo-reel'), {
+  size: 88, shape: 'hexagone', color: 'bleu', expression: 'neutre', state: 'idle', paper: '#0d1524'
+});
+
+// 同一手势内同步双开，降低拦截概率；被拦截时给出降级提示
+function openBoth() {
+  const a = window.open('screen1.html', 'screen1');
+  const b = window.open('window2.html', 'window2');
+  const warn = document.getElementById('launch-warn');
+  if (warn) warn.hidden = !!(a || b);
+}
+
+function openSized(w, h) {
+  window.open('screen1.html', 'screen1', `width=${w},height=${h}`);
+}
+
+// 卡片支持键盘打开
+document.querySelectorAll('.launch-card[role="link"]').forEach(card => {
+  card.addEventListener('keydown', e => {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); card.click(); }
+  });
+});
+
+// index.html 的按钮使用内联 onclick，必须把模块内函数显式暴露到 window 才能被调用
+window.openBoth = openBoth;
+window.openSized = openSized;
+
+// 页脚版权年份取真实时间
+const copyEl = document.querySelector('.launch__foot .num');
+if (copyEl) copyEl.textContent = `© ${year()} AI Autonomous Operations`;
