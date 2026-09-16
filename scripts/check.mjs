@@ -23,7 +23,11 @@ const ok = (name, extra) => passes.push(name + (extra ? ` — ${extra}` : ''));
 const fail = (name, detail) => failures.push(name + (detail ? ` — ${detail}` : ''));
 const warn = (msg) => warnings.push(msg);
 
-const rel = (p) => p.slice(ROOT.length + 1).split('\\').join('/');
+const rel = (p) =>
+  p
+    .slice(ROOT.length + 1)
+    .split('\\')
+    .join('/');
 
 function walk(dir, exts, out = []) {
   if (!existsSync(dir)) return out;
@@ -41,7 +45,10 @@ function walk(dir, exts, out = []) {
   const missing = [];
   for (const page of HTML_PAGES) {
     const p = join(ROOT, page);
-    if (!existsSync(p)) { missing.push(`${page}（缺文件）`); continue; }
+    if (!existsSync(p)) {
+      missing.push(`${page}（缺文件）`);
+      continue;
+    }
     const txt = readFileSync(p, 'utf8');
     for (const m of txt.matchAll(/(?:src|href)="([^"]+)"/g)) {
       const u = m[1];
@@ -84,7 +91,10 @@ function walk(dir, exts, out = []) {
     try {
       execFileSync(process.execPath, ['--check', f], { stdio: 'pipe' });
     } catch (e) {
-      const line = String(e.stderr || e.message).split('\n').find((l) => l.trim()) || 'parse error';
+      const line =
+        String(e.stderr || e.message)
+          .split('\n')
+          .find((l) => l.trim()) || 'parse error';
       bad.push(`${rel(f)}: ${line.trim()}`);
     }
   }
@@ -103,12 +113,17 @@ function walk(dir, exts, out = []) {
   const count = (name) => (corpus.match(new RegExp(`\\b${name}\\b`, 'g')) || []).length;
   for (const f of jsFiles) {
     const txt = readFileSync(f, 'utf8');
-    for (const m of txt.matchAll(/export\s+(?:async\s+)?(?:const|let|var|function|class)\s+([A-Za-z_$][\w$]*)/g)) {
+    for (const m of txt.matchAll(
+      /export\s+(?:async\s+)?(?:const|let|var|function|class)\s+([A-Za-z_$][\w$]*)/g
+    )) {
       if (count(m[1]) <= 1) unused.push(`${m[1]} (${rel(f)})`);
     }
     for (const m of txt.matchAll(/export\s*\{([^}]+)\}/g)) {
       for (const part of m[1].split(',')) {
-        const name = part.trim().split(/\s+as\s+/)[0].trim();
+        const name = part
+          .trim()
+          .split(/\s+as\s+/)[0]
+          .trim();
         if (name && count(name) <= 1) unused.push(`${name} (${rel(f)})`);
       }
     }
@@ -126,7 +141,8 @@ async function worldSmoke() {
   globalThis.document = {
     body: { dataset: { worldPrio: '1' }, classList },
     hidden: false,
-    addEventListener() {}, removeEventListener() {},
+    addEventListener() {},
+    removeEventListener() {},
     querySelector: () => null,
     querySelectorAll: () => [],
     getElementById: () => null
@@ -136,7 +152,12 @@ async function worldSmoke() {
     setItem: (k, v) => store.set(k, String(v)),
     removeItem: (k) => store.delete(k)
   };
-  globalThis.matchMedia = () => ({ matches: false, addEventListener() {}, removeEventListener() {}, addListener() {} });
+  globalThis.matchMedia = () => ({
+    matches: false,
+    addEventListener() {},
+    removeEventListener() {},
+    addListener() {}
+  });
   globalThis.requestAnimationFrame = noop;
   globalThis.cancelAnimationFrame = noop;
   globalThis.addEventListener = () => {};
@@ -195,8 +216,12 @@ function colorEquivalence() {
   if (!BC) throw new Error('BallCore 未定义');
 
   const origMix = (from, to, t) => {
-    const parse = (h) => { const v = parseInt(h.slice(1), 16); return [(v >> 16) & 255, (v >> 8) & 255, v & 255]; };
-    const a = parse(from), b = parse(to);
+    const parse = (h) => {
+      const v = parseInt(h.slice(1), 16);
+      return [(v >> 16) & 255, (v >> 8) & 255, v & 255];
+    };
+    const a = parse(from),
+      b = parse(to);
     const c = a.map((x, i) => Math.round(x + (b[i] - x) * t));
     return '#' + c.map((x) => x.toString(16).padStart(2, '0')).join('');
   };
@@ -207,19 +232,34 @@ function colorEquivalence() {
     const n = parseInt(s, 16);
     return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
   };
-  const oRgb = (r, g, b) => '#' + [r, g, b].map((v) => clamp(Math.round(v), 0, 255).toString(16).padStart(2, '0')).join('');
+  const oRgb = (r, g, b) =>
+    '#' + [r, g, b].map((v) => clamp(Math.round(v), 0, 255).toString(16).padStart(2, '0')).join('');
   const origLerp = (a, b, t) => {
     if (a === b) return b;
-    const A = oHex(a), B = oHex(b);
+    const A = oHex(a),
+      B = oHex(b);
     return oRgb(A[0] + (B[0] - A[0]) * t, A[1] + (B[1] - A[1]) * t, A[2] + (B[2] - A[2]) * t);
   };
 
-  const hexes = ['#000000', '#ffffff', '#eafdff', '#ff5a6a', '#2dd4bf', '#123456', '#abcdef', '#f472b6', '#0e1a2c', '#cfe7ff'];
-  let bad = 0, total = 0;
+  const hexes = [
+    '#000000',
+    '#ffffff',
+    '#eafdff',
+    '#ff5a6a',
+    '#2dd4bf',
+    '#123456',
+    '#abcdef',
+    '#f472b6',
+    '#0e1a2c',
+    '#cfe7ff'
+  ];
+  let bad = 0,
+    total = 0;
   for (const a of hexes) {
     for (const b of hexes) {
       for (let i = 0; i <= 10; i++) {
-        const t = i / 10; total++;
+        const t = i / 10;
+        total++;
         const x = BC.lerpColor(a, b, t);
         if (x !== origMix(a, b, t) || x !== origLerp(a, b, t)) bad++;
       }
@@ -233,8 +273,16 @@ function colorEquivalence() {
 
 /* ---------------- 汇总 ---------------- */
 (async () => {
-  try { ok('颜色等价', colorEquivalence()); } catch (e) { fail('颜色等价', e.message); }
-  try { ok('World 冒烟', await worldSmoke()); } catch (e) { fail('World 冒烟', e.message); }
+  try {
+    ok('颜色等价', colorEquivalence());
+  } catch (e) {
+    fail('颜色等价', e.message);
+  }
+  try {
+    ok('World 冒烟', await worldSmoke());
+  } catch (e) {
+    fail('World 冒烟', e.message);
+  }
 
   console.log('\n=== scripts/check.mjs ===');
   for (const p of passes) console.log(`  PASS  ${p}`);

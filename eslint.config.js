@@ -78,7 +78,15 @@ const nodeGlobals = {
 
 export default [
   {
-    ignores: ['node_modules/**', 'tools/visual/out/**', '*.md', '.zcode/**', '.codebuddy/**', '_backup_*/**', '.rem_backup/**']
+    ignores: [
+      'node_modules/**',
+      'tools/visual/out/**',
+      '*.md',
+      '.zcode/**',
+      '.codebuddy/**',
+      '_backup_*/**',
+      '.rem_backup/**'
+    ]
   },
   {
     files: ['**/*.js', '**/*.mjs'],

@@ -1,9 +1,9 @@
 # 架构评审报告 · AI 自主经营中枢（ai-autonomous-ops v2.1.0）
 
 > 评审对象：`d:/Users/15372/Desktop/h5/网页设计3`
-> 评审性质：静态架构走查（不运行、不改动源码）。方法镜头取自 impeccable `critique` / `audit` 维度：复杂度、可维护性、性能与资源生命周期、耦合/重复、可访问性、工程化。
+> 评审性质：静态架构走查 + 修复执行。方法镜头取自 impeccable `critique` / `audit` 维度：复杂度、可维护性、性能与资源生命周期、耦合/重复、可访问性、工程化。
 > 证据来源：对仓库的全量静态侦察，所有结论均附 `文件:行号`。
-> 本轮交付：本报告为修复基线；**已进入修复阶段（批 A–G）**，逐批在对应条目标注「✅ 已修复 — 文件:行号 + 提交哈希」。所有改动均可经 `git` 回退至首提交 `6b57ec7`。
+> 本轮交付：本报告为修复基线；**修复已完成批 A–N**，逐批在对应条目标注「✅ 已修复 — 提交哈希」。所有改动均可经 `git` 回退至首提交 `6b57ec7`。自批 H 起引入 **Playwright 计算样式回归基座**（`tools/visual/`），所有「会改变像素」的改动均以它证明等价。
 
 ---
 
@@ -12,9 +12,9 @@
 | 项 | 现状 |
 |---|---|
 | 页面 | `index.html`（启动器）、`screen1.html`（浅色运营驾驶舱）、`window2.html`（深色横向卷轴 2/3/4 屏） |
-| 脚本形态 | **经典脚本挂全局**（bloub / emotionball / gsap via CDN）+ **ES 模块**（controllers/*、modules/* 中部分文件），混用 |
-| 构建/依赖 | 无构建、无 `dependencies`/`devDependencies`、`package.json` 仅 12 行 |
-| 工程化 | 已补 `.gitignore` / `README` / git 基线（首提交 `6b57ec7` 为修复前完整快照）；仍无 lint / 类型检查 / 自动化测试 |
+| 脚本形态 | **本地引擎已统一为 ES 模块**（`ball-core` / `bloub` / `emotionball/*` 改 `type="module"`，保留 `window.*` 全局 API）；仅 `gsap` 仍为 CDN 经典脚本（P3-3） |
+| 构建/依赖 | 无构建、运行时 `dependencies` 仍为 **0**；新增 devDependencies（`eslint` / `prettier`） |
+| 工程化 | 已补 `.gitignore` / `README` / git 基线（首提交 `6b57ec7`）+ **零依赖门禁 `scripts/check.mjs`** + **ESLint / Prettier** + **Playwright 计算样式回归基座**；无类型检查（纯 JS，未引入 TS） |
 | 数据层 | `src/data/*` 静态常量；运行时可变状态集中在 `src/modules/world.js` 的 `World.state` |
 | 跨窗口 | `localStorage` + `storage` 事件 + 轮询兜底（无 `BroadcastChannel` / `postMessage`） |
 
@@ -22,7 +22,7 @@
 
 ---
 
-## 0.5 修复完成度总览（批 A–G）
+## 0.5 修复完成度总览（批 A–N）
 
 > 全部改动以「单一提交 = 单一批次」落盘，可逐批 `git revert`；首提交 `6b57ec7` 为修复前完整快照（含已删除的 `_backup_*`）。
 
@@ -32,7 +32,7 @@
 | P1 | P1-1 两套球引擎 | ✅ 抽出 `ball-core.js` 共享层（颜色数学 1100 组比对 0 差异；`SHAPES`/`EXPRESSIONS` 因语义不同有意保留） |
 | P1 | P1-2 三套球体渲染 | 🟡 有意保留（三种视觉职责不可互换，已在 P1-1 收敛其共享层） |
 | P1 | P1-3 协议双实现 | ✅ 统一为 `World.leaderInfo()` / `World.leaderKey`（批 D） |
-| P1 | P1-4 模板/派发/事件标签双份 | 🟡 事件标签已统一为 `linkage.js` 的 `EV_LABEL`；模板切换器与派发语义路由仍双份（交互差异大，未强行合并） |
+| P1 | P1-4 派发/事件流双份 | ✅ 事件标签（批 D）、**派发语义路由与事件流渲染 DOM**（批 M）均已统一到 `src/modules/linkage.js`。⚠️ **事实更正**：原报告称「模板切换器双份」**有误**——`tpl-chip/tpl-pop/tpl-wrap/tpl-item` 全仓仅存在于 `screen1`，`window2` 只有 `#speed-seg` 与 seg 标签页 |
 | P1 | P1-5 doc-review 样式双份 | ✅ 合并为 `window2.css` 单文件（批 D） |
 | P1 | P1-6 同名文件 | ✅ 重命名 `data/worldData.js`（批 D） |
 | P1 | P1-7 i18n 死数据 | ✅ 删除 5 个语言文件与加载、清理 `data-i18n` 占位（批 B） |
@@ -40,19 +40,27 @@
 | P1 | P1-9 备份目录死代码 | ✅ 整体删除（批 B） |
 | P1 | P1-10 未引用导出 | ✅ `bloub` / `time` / `nebula` 三处裁剪（批 B） |
 | P2 | P2-1 内联 onclick | ✅ 7 处清零，改 `data-action` 绑定并去 `window` 污染（批 E） |
-| P2 | P2-2 内联 style | 🟡 `index.html` 4 处 + `window2.html` 角色色 10 处已类化；其余多为 JS 动态值（按"仅保留真正动态"原则保留） |
+| P2 | P2-2 内联 style | ✅ 约 37 处静态内联样式迁为语义类（`index.html` 4、`window2.html` 17、`screen1.html` 16）；保留 JS 动态 `width:`/`left:` 与甘特图几何数据（按「仅保留真正动态行内值」原则）。批 K 含一处特异性修正：`.s1-num--*` 需用 `.spine__stats b.s1-num--*` 才能压过 `.spine__stats b { color:var(--ink) }` |
 | P2 | P2-3 tokens.css 名不副实 | ✅ 拆为纯 token 层，`components.css` 改为 `@import`（批 B） |
-| P2 | P2-4 魔法色值 | 🟡 `screen1.css` 同值 token 化 16 处 + 阻塞色 2 处；`window2.css` 角色色收敛为 6 类；主题叠层其余 rgba 待主题收敛 |
+| P2 | P2-4 魔法色值 | ✅ `screen1.css` 同值 token 化 18 处；`window2.css` 角色色收敛为 6 类，并在主题收敛层内引入 14 个**同值**品牌色透明度 token（`--primary-a*` / `--violet-a*` / `--steel-a20`），逐值等于原字面量 |
 | P2 | P2-5 巨型单文件 | 🟡 `window2.js` 1310 → 约 1200 行；抽出 `window2/static-times.js`、`window2/reel.js`，`World.on` 拆为 `EV_HANDLERS` 映射表（批 F） |
-| P2 | P2-6 选择器叠 5 层 | ⬜ 未处理（需主题层收敛，属下一轮结构性工作） |
-| P3 | P3-1 超长单行 | 🟡 i18n 超长行随文件删除消失、`window2-review.css` 已合并删除；`emotionball/rings.js:11` 约 40KB 单行仍待处理 |
-| P3 | P3-2 零工程化 | 🟡 已补 `.gitignore` / `README` / git 基线；lint / 类型检查 / 自动化测试未引入（维持零依赖约定，需另行决策） |
-| P3 | P3-3 模块/经典脚本混用 | ⬜ 未改造（`ball-core` 按经典脚本约定落地；全面 ESM 化会改动全局加载时序，风险高，留待评估） |
-| P3 | P3-4 文案字面量驱动逻辑 | 🟡 `normalizeStaticTimes` 已抽为独立模块，但内部仍沿用原 `p` 文本匹配定位方式（行为等价，未改变定位策略） |
+| P2 | P2-6 选择器叠 5 层 | ✅ `window2.css` 中 7 个选择器（`.well`/`.plain-ring`/`.well-inner-shadow`/`.eb-card--orb`/`.chat__head`/`.bubble--ai`/`.p2__chat`+`.tp__panel`）由 4–6 层覆盖合并为末尾「主题收敛层」单一定义；`.p2__chat`/`.tp__panel` 仅收敛主题属性以避让 `@media` 几何覆盖；净效果由快照证明逐值一致（批 J） |
+| P3 | P3-1 超长单行 | ✅ `emotionball/rings.js` 36,777 字符单行机械重排为多行（540 行），重排前后数据 **deepEqual + JSON 规范化相等**（批 L）；i18n 超长行随文件删除消失、`window2-review.css` 已合并删除 |
+| P3 | P3-2 零工程化 | ✅ 新增零依赖门禁 `scripts/check.mjs`（引用完整性 / 语法 / 未用导出 / World 冒烟 / 颜色等价 1100 组）+ ESLint + Prettier + npm scripts（`check`/`test`/`lint`/`format`）+ Playwright 回归基座；**运行时依赖仍为 0** |
+| P3 | P3-3 模块/经典脚本混用 | ✅ 保守 ESM 化：本地引擎脚本改 `type="module"`，保留 `window.*` 全局 API 与「HTML 顺序即执行顺序」；三页 0 console error、快照 IDENTICAL（批 N） |
+| P3 | P3-4 文案字面量驱动逻辑 | ✅ 焦点卡时间改为 `data-stamp-at` 锚点定位（原为遍历全文档 `<p>` 再做中文文案匹配）；改后文本与 `data-ts` 与原实现一致（批 L） |
 
-**静态验证结论（批 G）**：三页 `node serve.js` 均 HTTP 200；HTML 资源引用 / JS `import` / CSS `@import` 全图可解析；全仓无 `onclick`、无 `data/i18n`、无 `window2-review.css` 残留引用；改动文件 lint 0 error。
+**验证结论（批 O 收尾）**：`node serve.js` 三页 HTTP 200；`scripts/check.mjs` 5/5 通过（引用完整性 / 24 个 JS 语法 / 未用导出 / 颜色等价 1100 组 / World 冒烟）；`npx eslint .` **0 error**（10 warning 为历史遗留未用内部量）；`prettier --check` 对新增工具文件全合规；Playwright 计算样式回归基座对每批做 263–312 个采样点比对 —— 除批 M 明确接受的「事件流列序统一」外，**全部批次 IDENTICAL（零属性差异）**。
 
-**已知且未能离线验证的部分**：本次无浏览器视觉回归手段，故对"会改变像素"的改动一律回避（魔法色值全部 **同值** 替换、doc-review 样式 **追加式** 合并以保持级联顺序、内联 style 仅迁移静态项）。仍存的 🟡/⬜ 项均属此列，建议在有人工视觉确认的环境下继续。
+**验证方法（批 H 起）**：`tools/visual/snapshot.py` 以 `prefers-reduced-motion` 打开三页，并在页面上下文冻结 `Date.now` / `performance.now` / `Math.random` / `setTimeout` / `setInterval`，导出关键选择器的 computedStyle + 包围盒；`compare.py` 逐路径比对，有差异即非零退出。**基座自身确定性已验证**（同输入两次采集 IDENTICAL，263 采样点）。凡「会改变像素」的改动一律先采基线、改后比对：
+
+- 颜色 token 化：全部按**同值**替换；
+- 主题叠层收敛：按「逐属性获胜值」合并，且合并位置在全部原声明之后；
+- 内联样式迁移：含特异性修正（`.s1-num--*`）、页面作用域度量对齐（事件流 padding 由各页提供，避免挤压 flex 弹性区）；
+- `rings.js` 重排：数据 `deepEqual` + JSON 规范化相等；
+- P1-4 事件流统一：另以「事件流文本序列」比对证明逻辑等价（window2 逐字节一致；screen1 内容与条数相同，仅列序统一）。
+
+**仍存的 🟡 项**：仅 `P1-2`（三套球体渲染有意保留，属设计需要）与 `P2-5`（`window2.js` 进一步按屏拆分需引入显式状态容器）。除此之外 **P0 / P1 / P2 / P3 均已收敛**。
 
 ---
 
@@ -503,3 +511,26 @@
 > 进入修复建议：先于 window2.js 补 `docRefs.delete` 与 `setTimeout`/`setInterval` 句柄登记、把 `World.on` 拆映射表；world.js 给 `tasks/orders` 加清理上限 + `tick` 拆分；bloub 持有 `mount` 返回值并卸载时 `stop()`；nebula 早退挂桩 + `setInterval` clear。CSS 先拆 `tokens.css` 与收敛 window2 五段叠层。
 
 *（第 5 章为函数级静态走查，行号基于本轮真实读取；修复前建议 `grep` 复核偏移。）*
+
+---
+
+## 6. 复评（批 O · impeccable `critique` / `audit` 维度）
+
+> 说明：`impeccable` 引擎二进制在本环境下载失败（批 A 起多次尝试），故按其 **critique / audit** 维度**手工执行**复评并在此注明，未宣称引擎已运行。
+
+| 维度 | 复评结论 |
+|---|---|
+| 复杂度 | `World.on` 巨型 switch（CC≈26）已拆为 `EV_HANDLERS` 映射表，分发路径 CC 降至 ≈2；`window2.js` 仍约 1180 行（P2-5 残余）。 |
+| 重复 | 球引擎颜色数学 / 调色板 → `ball-core.js`；事件标签、派发语义路由、事件流 DOM → `linkage.js`；租约协议 → `World.leaderInfo()`。两套 `SHAPES`/`EXPRESSIONS` 因语义不同按设计保留。 |
+| 资源生命周期 | P0 五项全清：rAF 句柄化并在 `pagehide` 停止；`world.js` 引擎/心跳/轮询定时器与一次性延时统一登记销毁；`window2`/`screen1`/`nebula`/`time` 的 `setInterval` 均登记并在 `pagehide` 清理；`docRefs` 带上限淘汰；`startSync` 幂等 + 监听器可解绑。 |
+| 耦合 | 单一真相源未破坏：`World.state` 仍是唯一可变状态，跨窗以 `localStorage` + `storage` + 轮询同步；页面侧只读派生。 |
+| 死代码 | 备份目录 / 未消费 i18n / 不可达 docx 分支 / 未引用导出 / `window2-review.css` 均已删除。ESLint 仍报 10 处**历史遗留未用内部量**（`bloub` 5、`docgen` 2、`ball.js` 1、`nebula` 2）—— 不影响运行，作为后续可选清理项保留为 warning。 |
+| 可访问性 | 本轮未主动变更；既有 `aria-*`、`role`、焦点归还（doc-review）、`prefers-reduced-motion` 降级块均保留。 |
+| 工程化 | 零依赖门禁 + ESLint/Prettier + Playwright 回归基座 + npm scripts；运行时依赖保持 0。 |
+
+**下一轮（非本轮范围）建议**：
+1. `window2.js` 引入显式状态容器（如 `createReelState()`），把工牌 / 群聊 / 派发 / 思考链的闭包耦合拆开，才能真正按屏分模块；
+2. `window2.css` 按屏拆分为多个文件（当前仍是单文件 + 主题收敛层）；
+3. `rings.js` 的纯几何数据可进一步转 `JSON` + 加载器，彻底脱离 JS 源文件；
+4. 清理上述 10 处历史遗留未用内部量；
+5. 若需要类型安全，再评估渐进式 `// @ts-check` + JSDoc（不引入构建链）。
