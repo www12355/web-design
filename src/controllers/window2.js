@@ -6,10 +6,12 @@
 import { AIC } from '../modules/common.js';
 import { World } from '../modules/world.js';
 import { Nebula } from '../modules/nebula.js';
-import { hmAgo, nowHM, fmtAgo, mountTimeTicker } from '../modules/time.js';
+import { hmAgo, nowHM, fmtAgo } from '../modules/time.js';
 import { buildDocContent, reviewDoc, openDocReview } from '../modules/docgen.js';
 import { DOCS } from '../data/documents.js';
 import { EV_LABEL } from '../modules/linkage.js';
+import { initStaticTimes } from './window2/static-times.js';
+import { initReel } from './window2/reel.js';
 
 /* ================= 基础：数据源 / 工具 ================= */
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -21,7 +23,6 @@ import { EV_LABEL } from '../modules/linkage.js';
   if (!window.gsap) document.body.classList.add('no-anim');
   const $ = s => document.querySelector(s);
   const setTxt = (s, v) => { const el = $(s); if (el) el.textContent = v; };
-  let suppressClick = false;
   let patrolOn = true;
   let taskBusy = false;
   /* docNo → { content, order, context }：交付文件气泡复看时反查文档上下文 */
@@ -29,7 +30,7 @@ import { EV_LABEL } from '../modules/linkage.js';
   /* 防止长会话 Map 无界增长（P0-4）：超出上限时淘汰最早写入项 */
   const DOC_REFS_MAX = 64;
   function setDocRef(key, val) {
-    setDocRef(key, val);
+    docRefs.set(key, val);
     if (docRefs.size > DOC_REFS_MAX) { const k = docRefs.keys().next().value; if (k !== undefined) docRefs.delete(k); }
   }
   let chatOrb = null;
@@ -48,43 +49,8 @@ import { EV_LABEL } from '../modules/linkage.js';
   }
   window.addEventListener('pagehide', () => { clearPageTimers(); stopOrbs(); });
 
-  /* ================= 真实时间：把模板里静态的时间标签对齐到当前时钟，并挂 data-ts 自动刷新 ================= */
-  (function normalizeStaticTimes() {
-    /* 群聊时间轴（今天 + 消息时间）：按 DOM 顺序从较早逼近「现在」，
-       写入 data-ts（epoch）让全局刷新器持续校准为 刚刚/N分钟前/HH:MM */
-    const tEls = [...document.querySelectorAll('.chat-day, .bubble__time')];
-    tEls.forEach((el, i) => {
-      const ago = Math.max(0, 40 - i * 2);
-      const ts = Date.now() - ago * 60000;
-      el.dataset.ts = ts;
-      if (el.classList.contains('chat-day')) {
-        el.dataset.tsPrefix = '今天 ';
-        el.textContent = `今天 ${fmtAgo(ts)}`;
-      } else {
-        el.textContent = fmtAgo(ts);
-      }
-    });
-    /* 思考标注「思考 · HH:MM」：把时间包进带 data-ts 的 <span>，保留前缀 */
-    document.querySelectorAll('.bubble__think b').forEach((b, i) => {
-      const ts = Date.now() - Math.max(0, 36 - i * 2) * 60000;
-      b.innerHTML = b.innerHTML.replace(/(思考 · )\d{2}:\d{2}/, `$1<span data-ts="${ts}">${fmtAgo(ts)}</span>`);
-    });
-    /* 知识目录入库时间（已是真实时钟，挂 data-ts 以便自动刷新） */
-    document.querySelectorAll('.shelf-row .meta .num').forEach((el, i) => {
-      const ts = Date.now() - (2 + i * 3) * 60000;
-      el.dataset.ts = ts;
-      el.textContent = fmtAgo(ts);
-    });
-    /* 焦点卡「已验收 · 写入知识库 · HH:MM」 */
-    document.querySelectorAll('p').forEach(p => {
-      if (p.textContent.indexOf('写入知识库') >= 0) {
-        const ts = Date.now() - 60000;
-        p.innerHTML = p.innerHTML.replace(/(写入知识库 · )\d{2}:\d{2}/, `$1<span data-ts="${ts}">${fmtAgo(ts)}</span>`);
-      }
-    });
-    /* 启动全局真实时间刷新器（幂等，doc-review 弹窗复用同一实例） */
-    mountTimeTicker();
-  })();
+  /* ================= 真实时间：静态时间标签归一化（已抽为 ./window2/static-times.js，P2-5） ================= */
+  initStaticTimes();
 
   /* ================= 第 2 屏：五张智能体创意卡（实时同步） ================= */
   const badges = document.getElementById('badges');
@@ -988,156 +954,149 @@ import { EV_LABEL } from '../modules/linkage.js';
     });
   }
 
+  /* 事件处理映射表：替代原 CC≈26 的巨型 switch（P1-4 结构重构，逐 handler 行为等价迁移） */
+  const EV_HANDLERS = {
+    order(e, st) {
+      const o = st.orders[e.id]; if (!o) return;
+      const n = (e.tasks || []).length;
+      const roleNames = [...new Set((e.tasks || []).map(tt => (CAST.find(c => c.key === tt._role) || {}).name || '分身'))].join('、');
+      const s0 = snapWorld();
+      queueChat('planner', `新订单已自动受理：${o.client} · ${o.demand}，已进入生产队列。`, false,
+        `评估「${o.client}」需求复杂度与交付窗口；依赖已解析，自动受理并排入生产队列。`);
+      queueChat('main', `已拆解为 ${n} 项任务并排入并行队列，关键路径优先调度。`, true);
+      thinkChain(`新订单 · ${o.client}`, [
+        { p: 'obs',   t: `受理信号：${o.demand}，客户 ${o.client}，需求复杂度评估完毕。` },
+        { p: 'cut',   t: `需求拆解：${n} 项子任务，涉及 ${roleNames || '待定'}。` },
+        { p: 'sim',   t: `并行度推演：在产 ${s0.producing} 单 · 进行 ${s0.doing} 项 · 排队 ${s0.queued} 项，${s0.queued > 12 ? '队列偏长，先消化再扩容' : '产能仍有富余'}。` },
+        { p: 'judge', t: `调度判定：关键路径优先，空闲分身即时承接，其余按依赖顺序排队。` },
+        { p: 'concl', t: `已自动受理并排入并行生产，交付窗口不变。` }
+      ], { prio: 7 });
+      AIC.toast({ title: '新订单自动受理', body: `${o.client} · ${o.demand} · 已进入生产队列`, color: 'var(--pine)', tag: nowHM() });
+      if (!taskBusy && !sleeping) { ebBall.setEmotion('30'); later(() => { if (!taskBusy) ebBall.setEmotion('02'); }, 3200); }
+    },
+    taskDone(e, st) {
+      const t = st.tasks[e.id]; if (!t) return;
+      pulseAgent(t.owner);
+      /* 智能体每完成一次思考/产出，把最佳结果写入戴森球知识点 */
+      if (Nebula && Nebula.addKnowledge) {
+        if (t.owner) Nebula.addKnowledge(t.owner, t.title);
+        else if (t.regen) Nebula.addKnowledge('main', t.title);
+      }
+      if (kbTodayEl && !reduceMotion) { kbTodayEl.classList.remove('num-flash'); void kbTodayEl.offsetWidth; kbTodayEl.classList.add('num-flash'); }
+      if (t.owner) {
+        queueChat(t.owner, `「${t.title}」已完成并通过验收，产出已写入知识库。`, false,
+          `「${t.title}」验收要点复核完毕；产出归档并同步下游，交付记录已更新。`);
+        if (Math.random() < 0.4) later(() => {
+          const rows = thread.querySelectorAll('.chat-row');
+          const last = rows[rows.length - 1];
+          if (last) addReact(last, '👍 2');
+        }, 3800);
+      } else if (t.regen) {
+        thinkQuick(`合稿 · v0.${t.regen}`,
+          `版本校验通过：发布方案整合稿 v0.${t.regen} 全章齐备。`,
+          `推演：下一版本需承接增量素材，先清点新入库条目再开版。`,
+          `v0.${t.regen} 已归档，v0.${t.regen + 1} 自动开启。`,
+          { prio: 5 });
+      }
+    },
+    claim(e, st) {
+      const t = st.tasks[e.id]; if (!t || !t.owner) return;
+      const _emp = World.state.employees[t.owner] || {};
+      thinkQuick(`认领 · ${t.title}`,
+        `待办出现：「${t.title}」进入可执行队列。`,
+        `匹配推演：${whoName(t.owner)} 承接后起点进度 ${Math.round(_emp.pct || 0)}%，依赖输入已就绪。`,
+        `已认领并进入并行生产。`,
+        { prio: 5 });
+    },
+    settle(e, st) {
+      const o = st.orders[e.id]; if (!o) return;
+      queueChat('main', `订单交付：${o.client} · ${o.demand} 已完成验收，成果已归档。`, true,
+        `验收完成：${o.client} 交付记录已写入知识库，生产链路继续运行。`);
+      const _doneTasks = Object.values(st.tasks).filter(x => x.order === o.id);
+      const _doneCnt = _doneTasks.length;
+      thinkChain(`交付 · ${o.client}`, [
+        { p: 'obs',   t: _doneCnt ? `验收通过：${o.demand} 共 ${_doneCnt} 项任务全部达标，验收口径无争议。` : `验收通过：${o.demand} 交付物齐备，验收口径无争议。` },
+        { p: 'cut',   t: `清单核对：产物完整、格式合规、与订单需求逐条对齐。` },
+        { p: 'sim',   t: `产能推演：本单 ${_doneCnt} 项子任务全部达标，今日已归档 ${st.counters.done} 项。` },
+        { p: 'judge', t: `据实归档：交付记录与知识条目同批写入，不做二次返工。` },
+        { p: 'concl', t: `已归档，知识资产 ${st.kb.total.toLocaleString('en-US')} 条，产线继续运行。` }
+      ], { prio: 7 });
+      if (Nebula && Nebula.addKnowledge) Nebula.addKnowledge('main', `${o.client} · ${o.demand}`);
+      AIC.toast({ title: '交付验收完成', body: `${o.client} · ${o.demand} · 已归档`, color: 'var(--pine)', tag: nowHM() });
+      if (!taskBusy && !sleeping) { ebBall.setEmotion('33'); if (ebBall.burst) ebBall.burst(); later(() => { if (!taskBusy) ebBall.setEmotion('02'); }, 3600); }
+      /* 交付后自动织一份 Word 交付文档并弹窗审阅（只做加法，不影响既有分支） */
+      later(() => { generateDeliverableDoc(o, false, { openReview: true }); }, 4200);
+    },
+    block(e, st) {
+      const t = st.tasks[e.id]; if (!t) return;
+      if (t.owner) queueChat(t.owner, `「${t.title}」阻塞：${t.reason}，自动重试中。`, false);
+      thinkChain(`阻塞 · ${t.title}`, [
+        { p: 'obs',   t: `异常中断：任务停在中途，原因「${t.reason}」。`, risk: true },
+        { p: 'cut',   t: `影响面定位：${t.owner ? whoName(t.owner) + ' 的当前产线' : '主 AI 合稿线'}被挂起，进度停在 ${Math.round(t.pct)}%。` },
+        { p: 'sim',   t: `交付窗口推演：若 30 分钟内恢复则不影响承诺，超时则触发顺延预案。` },
+        { p: 'concl', t: `自动重试已启动，恢复后从断点续跑。`, risk: true }
+      ], { prio: 9, tone: 'risk' });
+      AIC.toast({ title: '任务阻塞 · 自动重试', body: t.title, color: 'var(--clay)', tone: 'clay', tag: nowHM() });
+      if (!taskBusy && !sleeping) { ebBall.setEmotion('21'); later(() => { if (!taskBusy) ebBall.setEmotion('02'); }, 4200); }
+    },
+    unblock(e, st) {
+      const t = st.tasks[e.id]; if (!t) return;
+      thinkQuick(`恢复 · ${t.title}`,
+        `重试回执：依赖方恢复响应。`,
+        `推演：从 ${Math.round(t.pct)}% 断点续跑，前段产出无需重做。`,
+        `已恢复执行，交付窗口守住。`,
+        { prio: 6 });
+    },
+    rework(e, st) {
+      const t = st.tasks[e.id]; if (!t) return;
+      if (t.owner) queueChat(t.owner, `「${t.title}」质检未过，回退重做中，恢复后继续推进。`, false,
+        `校验规则命中：${t.title} 约有 ${e.dip || 10}% 产出不达标，先修正再重跑校验，不影响交付窗口。`);
+      thinkChain(`返工 · ${t.title}`, [
+        { p: 'obs',   t: `质检未过：校验规则命中，产出约 ${e.dip || 10}% 不达标。`, risk: true },
+        { p: 'cut',   t: `定位：问题集中在末段，前段结构与引用无需改动。` },
+        { p: 'judge', t: `处置判定：只回退受影响段落重做，其余保留，避免整段重跑。` },
+        { p: 'concl', t: `已回退重做，修订后自动复查。`, risk: true }
+      ], { prio: 9, tone: 'risk' });
+      if (Nebula && Nebula.stats && t.owner) {
+        const match = Nebula.stats().current ? Nebula.getPoint(Nebula.stats().current) : null;
+        if (match && match.agentKey === t.owner) Nebula.inspect(match.id);
+        else Nebula.addKnowledge(t.owner, t.title, { sourceTask: t.title });
+      }
+      AIC.toast({ title: '质检返工 · 自动修正', body: t.title, color: 'var(--clay)', tone: 'clay', tag: nowHM() });
+    },
+    note(e) {
+      if (!patrolOn) return;
+      const body = String(e.text || '').replace(/^巡检：/, '');
+      const s1 = snapWorld();
+      thinkChain('自主巡检', [
+        { p: 'obs',   t: body },
+        { p: 'sim',   t: patrolSim(body, s1) },
+        { p: 'concl', t: patrolVerdict(body) }
+      ], { prio: 1, dedupe: 'patrol:' + body.replace(/[0-9¥%.,，、]+/g, '') });
+    },
+    dispatch(e) {
+      const _tt = (e.task || {}).title || '监管任务';
+      thinkQuick(`入池 · ${_tt}`,
+        `指令进入任务池：${_tt}。`,
+        `推演：与在产任务比对依赖，避免二次占用同一分身。`,
+        `已登记，等待调度执行。`,
+        { prio: 5 });
+    },
+    speed(e) {
+      thinkQuick(`节拍 · ×${e.v}`,
+        `流速切换：时钟与生产节律调整为 ×${e.v}。`,
+        `推演：事件密度随之变化，推理链保持完整步骤，仅压缩打字与停顿。`,
+        e.v > 1 ? `演示加速生效，思考链全量输出。` : `已恢复 ×1 正常流速，阅读节奏回到基准。`,
+        { prio: 3 });
+      syncSpeedUI();
+    }
+  };
   World.on((evts) => {
     updateBadges(); updatePanels(); renderEventLog(); updateKbStats(); syncHeroDocVer();
     evts.forEach(e => {
       const st = World.state;
-      switch (e.type) {
-        case 'order': {
-          const o = st.orders[e.id]; if (!o) break;
-          const n = (e.tasks || []).length;
-          const roleNames = [...new Set((e.tasks || []).map(tt => (CAST.find(c => c.key === tt._role) || {}).name || '分身'))].join('、');
-          const s0 = snapWorld();
-          queueChat('planner', `新订单已自动受理：${o.client} · ${o.demand}，已进入生产队列。`, false,
-            `评估「${o.client}」需求复杂度与交付窗口；依赖已解析，自动受理并排入生产队列。`);
-          queueChat('main', `已拆解为 ${n} 项任务并排入并行队列，关键路径优先调度。`, true);
-          thinkChain(`新订单 · ${o.client}`, [
-            { p: 'obs',   t: `受理信号：${o.demand}，客户 ${o.client}，需求复杂度评估完毕。` },
-            { p: 'cut',   t: `需求拆解：${n} 项子任务，涉及 ${roleNames || '待定'}。` },
-            { p: 'sim',   t: `并行度推演：在产 ${s0.producing} 单 · 进行 ${s0.doing} 项 · 排队 ${s0.queued} 项，${s0.queued > 12 ? '队列偏长，先消化再扩容' : '产能仍有富余'}。` },
-            { p: 'judge', t: `调度判定：关键路径优先，空闲分身即时承接，其余按依赖顺序排队。` },
-            { p: 'concl', t: `已自动受理并排入并行生产，交付窗口不变。` }
-          ], { prio: 7 });
-          AIC.toast({ title: '新订单自动受理', body: `${o.client} · ${o.demand} · 已进入生产队列`, color: 'var(--pine)', tag: nowHM() });
-          if (!taskBusy && !sleeping) { ebBall.setEmotion('30'); setTimeout(() => { if (!taskBusy) ebBall.setEmotion('02'); }, 3200); }
-          break;
-        }
-        case 'taskDone': {
-          const t = st.tasks[e.id]; if (!t) break;
-          pulseAgent(t.owner);
-          /* 智能体每完成一次思考/产出，把最佳结果写入戴森球知识点 */
-          if (Nebula && Nebula.addKnowledge) {
-            if (t.owner) Nebula.addKnowledge(t.owner, t.title);
-            else if (t.regen) Nebula.addKnowledge('main', t.title);
-          }
-          if (kbTodayEl && !reduceMotion) { kbTodayEl.classList.remove('num-flash'); void kbTodayEl.offsetWidth; kbTodayEl.classList.add('num-flash'); }
-          if (t.owner) {
-            queueChat(t.owner, `「${t.title}」已完成并通过验收，产出已写入知识库。`, false,
-              `「${t.title}」验收要点复核完毕；产出归档并同步下游，交付记录已更新。`);
-            if (Math.random() < 0.4) setTimeout(() => {
-              const rows = thread.querySelectorAll('.chat-row');
-              const last = rows[rows.length - 1];
-              if (last) addReact(last, '👍 2');
-            }, 3800);
-          } else if (t.regen) {
-            thinkQuick(`合稿 · v0.${t.regen}`,
-              `版本校验通过：发布方案整合稿 v0.${t.regen} 全章齐备。`,
-              `推演：下一版本需承接增量素材，先清点新入库条目再开版。`,
-              `v0.${t.regen} 已归档，v0.${t.regen + 1} 自动开启。`,
-              { prio: 5 });
-          }
-          break;
-        }
-        case 'claim': {
-          const t = st.tasks[e.id]; if (!t || !t.owner) break;
-          const _emp = World.state.employees[t.owner] || {};
-          thinkQuick(`认领 · ${t.title}`,
-            `待办出现：「${t.title}」进入可执行队列。`,
-            `匹配推演：${whoName(t.owner)} 承接后起点进度 ${Math.round(_emp.pct || 0)}%，依赖输入已就绪。`,
-            `已认领并进入并行生产。`,
-            { prio: 5 });
-          break;
-        }
-        case 'settle': {
-          const o = st.orders[e.id]; if (!o) break;
-          queueChat('main', `订单交付：${o.client} · ${o.demand} 已完成验收，成果已归档。`, true,
-            `验收完成：${o.client} 交付记录已写入知识库，生产链路继续运行。`);
-          const _doneTasks = Object.values(st.tasks).filter(x => x.order === o.id);
-          const _doneCnt = _doneTasks.length;
-          thinkChain(`交付 · ${o.client}`, [
-            { p: 'obs',   t: _doneCnt ? `验收通过：${o.demand} 共 ${_doneCnt} 项任务全部达标，验收口径无争议。` : `验收通过：${o.demand} 交付物齐备，验收口径无争议。` },
-            { p: 'cut',   t: `清单核对：产物完整、格式合规、与订单需求逐条对齐。` },
-            { p: 'sim',   t: `产能推演：本单 ${_doneCnt} 项子任务全部达标，今日已归档 ${st.counters.done} 项。` },
-            { p: 'judge', t: `据实归档：交付记录与知识条目同批写入，不做二次返工。` },
-            { p: 'concl', t: `已归档，知识资产 ${st.kb.total.toLocaleString('en-US')} 条，产线继续运行。` }
-          ], { prio: 7 });
-          if (Nebula && Nebula.addKnowledge) Nebula.addKnowledge('main', `${o.client} · ${o.demand}`);
-          AIC.toast({ title: '交付验收完成', body: `${o.client} · ${o.demand} · 已归档`, color: 'var(--pine)', tag: nowHM() });
-          if (!taskBusy && !sleeping) { ebBall.setEmotion('33'); if (ebBall.burst) ebBall.burst(); setTimeout(() => { if (!taskBusy) ebBall.setEmotion('02'); }, 3600); }
-          /* 交付后自动织一份 Word 交付文档并弹窗审阅（只做加法，不影响既有分支） */
-          later(() => { generateDeliverableDoc(o, false, { openReview: true }); }, 4200);
-          break;
-        }
-        case 'block': {
-          const t = st.tasks[e.id]; if (!t) break;
-          if (t.owner) queueChat(t.owner, `「${t.title}」阻塞：${t.reason}，自动重试中。`, false);
-          thinkChain(`阻塞 · ${t.title}`, [
-            { p: 'obs',   t: `异常中断：任务停在中途，原因「${t.reason}」。`, risk: true },
-            { p: 'cut',   t: `影响面定位：${t.owner ? whoName(t.owner) + ' 的当前产线' : '主 AI 合稿线'}被挂起，进度停在 ${Math.round(t.pct)}%。` },
-            { p: 'sim',   t: `交付窗口推演：若 30 分钟内恢复则不影响承诺，超时则触发顺延预案。` },
-            { p: 'concl', t: `自动重试已启动，恢复后从断点续跑。`, risk: true }
-          ], { prio: 9, tone: 'risk' });
-          AIC.toast({ title: '任务阻塞 · 自动重试', body: t.title, color: 'var(--clay)', tone: 'clay', tag: nowHM() });
-          if (!taskBusy && !sleeping) { ebBall.setEmotion('21'); setTimeout(() => { if (!taskBusy) ebBall.setEmotion('02'); }, 4200); }
-          break;
-        }
-        case 'unblock': {
-          const t = st.tasks[e.id]; if (!t) break;
-          thinkQuick(`恢复 · ${t.title}`,
-            `重试回执：依赖方恢复响应。`,
-            `推演：从 ${Math.round(t.pct)}% 断点续跑，前段产出无需重做。`,
-            `已恢复执行，交付窗口守住。`,
-            { prio: 6 });
-          break;
-        }
-        case 'rework': {
-          const t = st.tasks[e.id]; if (!t) break;
-          if (t.owner) queueChat(t.owner, `「${t.title}」质检未过，回退重做中，恢复后继续推进。`, false,
-            `校验规则命中：${t.title} 约有 ${e.dip || 10}% 产出不达标，先修正再重跑校验，不影响交付窗口。`);
-          thinkChain(`返工 · ${t.title}`, [
-            { p: 'obs',   t: `质检未过：校验规则命中，产出约 ${e.dip || 10}% 不达标。`, risk: true },
-            { p: 'cut',   t: `定位：问题集中在末段，前段结构与引用无需改动。` },
-            { p: 'judge', t: `处置判定：只回退受影响段落重做，其余保留，避免整段重跑。` },
-            { p: 'concl', t: `已回退重做，修订后自动复查。`, risk: true }
-          ], { prio: 9, tone: 'risk' });
-          if (Nebula && Nebula.stats && t.owner) {
-            const match = Nebula.stats().current ? Nebula.getPoint(Nebula.stats().current) : null;
-            if (match && match.agentKey === t.owner) Nebula.inspect(match.id);
-            else Nebula.addKnowledge(t.owner, t.title, { sourceTask: t.title });
-          }
-          AIC.toast({ title: '质检返工 · 自动修正', body: t.title, color: 'var(--clay)', tone: 'clay', tag: nowHM() });
-          break;
-        }
-        case 'note': {
-          if (!patrolOn) break;
-          const body = String(e.text || '').replace(/^巡检：/, '');
-          const s1 = snapWorld();
-          thinkChain('自主巡检', [
-            { p: 'obs',   t: body },
-            { p: 'sim',   t: patrolSim(body, s1) },
-            { p: 'concl', t: patrolVerdict(body) }
-          ], { prio: 1, dedupe: 'patrol:' + body.replace(/[0-9¥%.,，、]+/g, '') });
-          break;
-        }
-        case 'dispatch': {
-          const _tt = (e.task || {}).title || '监管任务';
-          thinkQuick(`入池 · ${_tt}`,
-            `指令进入任务池：${_tt}。`,
-            `推演：与在产任务比对依赖，避免二次占用同一分身。`,
-            `已登记，等待调度执行。`,
-            { prio: 5 });
-          break;
-        }
-        case 'speed': {
-          thinkQuick(`节拍 · ×${e.v}`,
-            `流速切换：时钟与生产节律调整为 ×${e.v}。`,
-            `推演：事件密度随之变化，推理链保持完整步骤，仅压缩打字与停顿。`,
-            e.v > 1 ? `演示加速生效，思考链全量输出。` : `已恢复 ×1 正常流速，阅读节奏回到基准。`,
-            { prio: 3 });
-          syncSpeedUI();
-          break;
-        }
-      }
+      const h = EV_HANDLERS[e.type];
+      if (h) h(e, st);
     });
   });
 
@@ -1238,94 +1197,17 @@ import { EV_LABEL } from '../modules/linkage.js';
     });
   });
 
-  /* ================= 卷轴：拖拽 + 吸附 + 导航 + 默认第 3 屏 ================= */
-  const reel = document.getElementById('reel');
-  const pages = [...document.querySelectorAll('.reel__page')];
-  let idx = 1;
-
-  function go(i, smooth = true) {
-    idx = Math.max(0, Math.min(pages.length - 1, i));
-    reel.scrollTo({ left: idx * reel.clientWidth, behavior: smooth ? 'smooth' : 'instant' });
-    revealPage(idx);
-  }
-
-  let down = false, moved = false, startX = 0, startLeft = 0, lastX = 0;
-  reel.addEventListener('pointerdown', (e) => {
-    if (e.pointerType !== 'mouse') return;
-    down = true; moved = false;
-    startX = e.clientX; lastX = e.clientX; startLeft = reel.scrollLeft;
-    reel.classList.add('dragging');
-    reel.style.scrollSnapType = 'none';
-    reel.style.scrollBehavior = 'auto';
+  /* ================= 卷轴：拖拽 + 吸附 + 键盘 + 入场动效（已抽为 ./window2/reel.js，P2-5） ================= */
+  const reelNav = initReel({
+    gsapOK,
+    isBlockedTarget: (t) => t === catSearch,
+    later
   });
-  window.addEventListener('pointermove', (e) => {
-    if (!down) return;
-    lastX = e.clientX;
-    const dx = e.clientX - startX;
-    if (Math.abs(dx) > 4) moved = true;
-    reel.scrollLeft = startLeft - dx;
-  });
-  window.addEventListener('pointerup', () => {
-    if (!down) return;
-    down = false;
-    reel.classList.remove('dragging');
-    reel.style.scrollSnapType = '';
-    reel.style.scrollBehavior = '';
-    const delta = startX - lastX;
-    let target = idx;
-    if (delta > reel.clientWidth * 0.4) target = idx + 1;
-    else if (delta < -reel.clientWidth * 0.4) target = idx - 1;
-    if (moved) { suppressClick = true; setTimeout(() => { suppressClick = false; }, 0); }
-    go(target);
-  });
-
-  let scrollTimer = 0;
-  reel.addEventListener('scroll', () => {
-    clearTimeout(scrollTimer);
-    scrollTimer = setTimeout(() => {
-      const i = Math.round(reel.scrollLeft / reel.clientWidth);
-      if (i !== idx) { idx = i; revealPage(i); }
-    }, 90);
-  }, { passive: true });
-
-  window.addEventListener('keydown', (e) => {
-    if (e.target === catSearch) return;
-    if (e.key === 'ArrowLeft') go(idx - 1);
-    if (e.key === 'ArrowRight') go(idx + 1);
-  });
-
-  /* ================= 入场动效（gsap 可选，失败直接显示） ================= */
-  const revealed = new Set([1]);
-  function revealPage(i) {
-    if (revealed.has(i)) return;
-    revealed.add(i);
-    const page = pages[i];
-    const els = page.querySelectorAll('.reveal');
-    if (i === 2) {
-      els.forEach(el => { el.style.opacity = 1; el.style.transform = 'none'; });
-    } else if (gsapOK() && els.length) {
-      gsap.fromTo(els, { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.55, stagger: 0.07, ease: 'power2.out', clearProps: 'transform' });
-      later(() => {
-        els.forEach(el => { if (getComputedStyle(el).opacity === '0') { el.style.opacity = 1; el.style.transform = 'none'; } });
-      }, 1200);
-    } else {
-      els.forEach(el => { el.style.opacity = 1; el.style.transform = 'none'; });
-    }
-    if (i === 0 && gsapOK()) {
-      gsap.fromTo(page.querySelectorAll('.chat-row, .chat-day, .msg-react'),
-        { autoAlpha: 0, y: 12 },
-        { autoAlpha: 1, y: 0, duration: 0.42, stagger: 0.055, ease: 'power2.out', clearProps: 'transform' });
-      gsap.from(page.querySelectorAll('.agn__foot .track i'),
-        { width: 0, duration: 0.9, stagger: 0.07, ease: 'power3.out' });
-      gsap.from(page.querySelectorAll('.agn__core'),
-        { scale: 0.72, duration: 0.6, stagger: 0.07, ease: 'back.out(1.7)', clearProps: 'transform' });
-    }
-  }
 
   /* ================= 启动 ================= */
   updateBadges(); updatePanels(); renderEventLog(); updateKbStats(); syncHeroDocVer(); syncSpeedUI(); updateLoad();
   bootThinking();
   if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
-  requestAnimationFrame(() => go(1, false));
-  window.addEventListener('load', () => go(1, false));
-  window.addEventListener('resize', () => go(idx, false));
+  requestAnimationFrame(() => reelNav.go(1, false));
+  window.addEventListener('load', () => reelNav.go(1, false));
+  window.addEventListener('resize', () => reelNav.go(reelNav.getIdx(), false));

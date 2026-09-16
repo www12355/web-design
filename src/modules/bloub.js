@@ -305,33 +305,13 @@
   const SHAPE_BY_ID = new Map(SHAPES.map((s) => [s.id, s]));
   const DEFAULT_SHAPE = 'cercle';
 
-  const COLORS = [
-    { id: 'encre', hex: '#eafdff' },
-    { id: 'brun', hex: '#ffb347' },
-    { id: 'rouge', hex: '#ff5a6a' },
-    { id: 'orange', hex: '#ffd23f' },
-    { id: 'ambre', hex: '#ffd23f' },
-    { id: 'vert', hex: '#2dd4bf' },
-    { id: 'turquoise', hex: '#2dd4bf' },
-    { id: 'bleu', hex: '#5ec8ff' },
-    { id: 'violet', hex: '#c084fc' },
-    { id: 'rose', hex: '#f472b6' },
-    { id: 'gris', hex: '#a3a3a3' },
-    { id: 'creme', hex: '#f1efe9' }
-  ];
+  /* 调色板单一来源：共享层 window.BallCore.COLORS（P1-1，已在三页于 bloub.js 之前加载） */
+  const COLORS = window.BallCore.COLORS;
   const COLOR_BY_ID = new Map(COLORS.map((c) => [c.id, c]));
   const DEFAULT_COLOR = 'encre';
 
-  function mixHex(from, to, t) {
-    const parse = (h) => {
-      const v = parseInt(h.slice(1), 16);
-      return [(v >> 16) & 255, (v >> 8) & 255, v & 255];
-    };
-    const a = parse(from);
-    const b = parse(to);
-    const c = a.map((x, i) => Math.round(x + (b[i] - x) * t));
-    return `#${c.map((x) => x.toString(16).padStart(2, '0')).join('')}`;
-  }
+  /* 颜色插值单一实现：共享层 window.BallCore.mixHex（P1-1，数学等价，调用点零改动） */
+  const mixHex = window.BallCore.mixHex;
 
   /* ================================================================ decor.ts */
   function wheel(hue, s = 0.55, l = 0.62) {
