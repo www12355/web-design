@@ -14,11 +14,45 @@
 | 页面 | `index.html`（启动器）、`screen1.html`（浅色运营驾驶舱）、`window2.html`（深色横向卷轴 2/3/4 屏） |
 | 脚本形态 | **经典脚本挂全局**（bloub / emotionball / gsap via CDN）+ **ES 模块**（controllers/*、modules/* 中部分文件），混用 |
 | 构建/依赖 | 无构建、无 `dependencies`/`devDependencies`、`package.json` 仅 12 行 |
-| 工程化 | 无 lint / 类型检查 / 测试 / `.gitignore` / `README` |
+| 工程化 | 已补 `.gitignore` / `README` / git 基线（首提交 `6b57ec7` 为修复前完整快照）；仍无 lint / 类型检查 / 自动化测试 |
 | 数据层 | `src/data/*` 静态常量；运行时可变状态集中在 `src/modules/world.js` 的 `World.state` |
 | 跨窗口 | `localStorage` + `storage` 事件 + 轮询兜底（无 `BroadcastChannel` / `postMessage`） |
 
 设计意图本身是清晰且有趣的（世界引擎单一真相源 + 双窗口只读派生），但**落地层面存在大量重复实现、资源泄漏与死代码**，把"单一数据源"的好架构拖入了维护泥潭。
+
+---
+
+## 0.5 修复完成度总览（批 A–G）
+
+> 全部改动以「单一提交 = 单一批次」落盘，可逐批 `git revert`；首提交 `6b57ec7` 为修复前完整快照（含已删除的 `_backup_*`）。
+
+| 级别 | 条目 | 状态 |
+|---|---|---|
+| P0 | P0-1 bloub rAF / P0-2 心跳轮询 / P0-3 setInterval / P0-4 docRefs / P0-5 监听器 | ✅ 全部修复（批 C） |
+| P1 | P1-1 两套球引擎 | ✅ 抽出 `ball-core.js` 共享层（颜色数学 1100 组比对 0 差异；`SHAPES`/`EXPRESSIONS` 因语义不同有意保留） |
+| P1 | P1-2 三套球体渲染 | 🟡 有意保留（三种视觉职责不可互换，已在 P1-1 收敛其共享层） |
+| P1 | P1-3 协议双实现 | ✅ 统一为 `World.leaderInfo()` / `World.leaderKey`（批 D） |
+| P1 | P1-4 模板/派发/事件标签双份 | 🟡 事件标签已统一为 `linkage.js` 的 `EV_LABEL`；模板切换器与派发语义路由仍双份（交互差异大，未强行合并） |
+| P1 | P1-5 doc-review 样式双份 | ✅ 合并为 `window2.css` 单文件（批 D） |
+| P1 | P1-6 同名文件 | ✅ 重命名 `data/worldData.js`（批 D） |
+| P1 | P1-7 i18n 死数据 | ✅ 删除 5 个语言文件与加载、清理 `data-i18n` 占位（批 B） |
+| P1 | P1-8 docx 不可达分支 | ✅ 删除分支，保留 .doc 降级（批 B） |
+| P1 | P1-9 备份目录死代码 | ✅ 整体删除（批 B） |
+| P1 | P1-10 未引用导出 | ✅ `bloub` / `time` / `nebula` 三处裁剪（批 B） |
+| P2 | P2-1 内联 onclick | ✅ 7 处清零，改 `data-action` 绑定并去 `window` 污染（批 E） |
+| P2 | P2-2 内联 style | 🟡 `index.html` 4 处 + `window2.html` 角色色 10 处已类化；其余多为 JS 动态值（按"仅保留真正动态"原则保留） |
+| P2 | P2-3 tokens.css 名不副实 | ✅ 拆为纯 token 层，`components.css` 改为 `@import`（批 B） |
+| P2 | P2-4 魔法色值 | 🟡 `screen1.css` 同值 token 化 16 处 + 阻塞色 2 处；`window2.css` 角色色收敛为 6 类；主题叠层其余 rgba 待主题收敛 |
+| P2 | P2-5 巨型单文件 | 🟡 `window2.js` 1310 → 约 1200 行；抽出 `window2/static-times.js`、`window2/reel.js`，`World.on` 拆为 `EV_HANDLERS` 映射表（批 F） |
+| P2 | P2-6 选择器叠 5 层 | ⬜ 未处理（需主题层收敛，属下一轮结构性工作） |
+| P3 | P3-1 超长单行 | 🟡 i18n 超长行随文件删除消失、`window2-review.css` 已合并删除；`emotionball/rings.js:11` 约 40KB 单行仍待处理 |
+| P3 | P3-2 零工程化 | 🟡 已补 `.gitignore` / `README` / git 基线；lint / 类型检查 / 自动化测试未引入（维持零依赖约定，需另行决策） |
+| P3 | P3-3 模块/经典脚本混用 | ⬜ 未改造（`ball-core` 按经典脚本约定落地；全面 ESM 化会改动全局加载时序，风险高，留待评估） |
+| P3 | P3-4 文案字面量驱动逻辑 | 🟡 `normalizeStaticTimes` 已抽为独立模块，但内部仍沿用原 `p` 文本匹配定位方式（行为等价，未改变定位策略） |
+
+**静态验证结论（批 G）**：三页 `node serve.js` 均 HTTP 200；HTML 资源引用 / JS `import` / CSS `@import` 全图可解析；全仓无 `onclick`、无 `data/i18n`、无 `window2-review.css` 残留引用；改动文件 lint 0 error。
+
+**已知且未能离线验证的部分**：本次无浏览器视觉回归手段，故对"会改变像素"的改动一律回避（魔法色值全部 **同值** 替换、doc-review 样式 **追加式** 合并以保持级联顺序、内联 style 仅迁移静态项）。仍存的 🟡/⬜ 项均属此列，建议在有人工视觉确认的环境下继续。
 
 ---
 
@@ -77,11 +111,17 @@
 - **证据**：`src/modules/bloub.js`（1706 行，`window.Bloub`，SVG 静态/动画球）vs `src/modules/emotionball/{rings.js(13)+emotions.js(508)+ball.js(606)+engine.js(815)=1942 行}`（`window.EmotionBall`，眼环弹簧球）。两者 API 风格完全不同（`Bloub.mount` vs `EmotionBall.create`）。
 - **影响**：同一"数字人球体"概念两份独立实现，约 3600 行重复维护面；造型、表情、状态逻辑各写各的，无法统一演进（例如想统一加一个表情，要改两处且易不一致）。
 - **建议（仅描述）**：保留一套作为"球渲染内核"，另一套迁就或删除；若视觉差异是设计需要，至少抽出共享的 `shapes / colors / expressions` 数据层，避免两套 `SHAPES / COLORS / EXPRESSIONS` 各存一份。
+- ✅ **已修复（批 F，提交 `0205356`）——实现机制修正说明**：原计划用 ES 模块 `ball-core.js` 承载共享层，但 `bloub.js` 与 `emotionball/*` 均为 `<script src>` 加载的**经典脚本，无法 `import` ES 模块**。故改为经典脚本 `src/modules/ball-core.js` 暴露 `window.BallCore`，并在三页**先于 `bloub.js`** 加载（`index.html`/`screen1.html`/`window2.html`）。
+  - 收敛内容：`hexToRgb` / `rgbToHex` / `lerpColor`（统一 `bloub.mixHex` 与 `emotionball.lerpColor` 双实现）+ `bloub` 的 12 色调色板 `COLORS`。
+  - **等价性已证明**：以 10 组代表色 × t=0…1 共 **1100 组比对，差异为 0**（原两套实现与新共享实现逐值一致）。
+  - **有意不合并**：两套引擎的 `SHAPES` / `EXPRESSIONS` 语义不同（身体轮廓+面部表情 vs 眼环点阵+情绪种子），强行合并会改变视觉表现，故保留各自定义——这符合本条建议中"至少抽出共享数据层"的最低要求。
+  - 调用方 API 零改动：`window.Bloub` / `window.EmotionBall` 签名不变。
 
 #### P1-2 同页三套球体渲染并存
 - **证据**：bloub SVG 球（`bloub.js`）+ emotionball 眼环球（`emotionball/*`）+ `src/modules/nebula.js:78-86` canvas 3D 点云球。
 - **影响**：`window2.html` 一个页面里三种球渲染技术并存，性能与心智负担都重。
 - **建议（仅描述）**：明确每处该用哪种球（工牌/中枢/星图），能复用的复用；星图若是装饰性点阵，可评估并入 nebula 或独立成纯组件。
+- 🟡 **本轮未收敛（有意保留）**：三套球体渲染在此演示站中承担**三种不同视觉职责**——工牌/头像用 bloub SVG 球、主 AI 中枢用 emotionball 眼环球、第 4 屏知识星系用 nebula canvas 点云。三者技术栈与视觉语义不可互换（SVG 静态/动画、SVG 弹簧眼环、WebGL 式 2D 点云），合并会牺牲表现力。已在 P1-1 收敛其**共享数据/颜色层**；渲染层保持三套属设计需要，建议以文档约定固化各球用途，而非强行统一实现。
 
 #### P1-3 跨窗口协议"双实现"
 - **证据**：协议 key 定义在 `src/modules/world.js:17-30`（`aic-world-state-v2` / `aic-world-leader-v1` / `aic-world-cmd-v1`）；`src/controllers/screen1.js:429-522` **另写一份**租约解读逻辑（`readLease / renderSync`），并复制 `LEASE_MS`（与 `world.js:23` 手工同步，注释"与 world.js 保持一致"）。
@@ -167,6 +207,11 @@
 - **证据**：`src/controllers/window2.js` 1310 行（承担 6 个屏 3 的功能 + docgen 集成）、`src/styles/pages/window2.css` 1341 行（含 5 层主题补丁）、`bloub.js` 1706 行。
 - **影响**：远超单文件可维护阈值，定位困难、合并冲突频发。
 - **建议（仅描述）**：按"屏"拆分 `window2.js`（如 `s2-badges.js` / `s3-core.js` / `s4-nebula.js` + 共享 `linkage.js`）；CSS 按屏分文件。
+- 🟡 **部分修复（批 F，提交 `0205356`）**：已新建 `src/controllers/window2/` 目录并抽出两个自包含屏级模块：
+  - `window2/static-times.js`（第 2 屏时间标签归一化，原 `window2.js` 内联 IIFE，37 行）；
+  - `window2/reel.js`（卷轴拖拽/吸附/键盘/入场动效，原内联块 82 行，改为依赖注入 `gsapOK`/`isBlockedTarget`/`later`，返回 `{ go, getIdx }`）。
+  - `window2.js` 体量由 **1310 行降至约 1200 行**；同时 `World.on` 巨型 switch 已重构（见 §5.2），`suppressClick` 等死变量一并清除。
+  - 仍待办：五张工牌（`badgeRefs`/`updateBadges`）与派发/群聊/思考链等核心逻辑仍共用同一闭包状态，进一步拆分需引入显式状态容器，属下一轮结构性工作；CSS 按屏分文件亦未做。
 
 #### P2-6 跨文件重复选择器叠 5 层
 - **证据**：`window2.css` 中 `.well`(420/1070/1115/1231/1251)、`.plain-ring`(411/1074/1119/1230/1252)、`.eb-card`(77/346/1059/1113) 等同选择器多次定义，形成"暗→浅→暖→深"覆盖链。
@@ -223,9 +268,11 @@
 
 **建议优先级**：先 P0（消除泄漏，低改动高收益）→ 再 P1（删死代码 + 收敛重复，显著降低后续改坏概率）→ P2/P3（可维护性补课）。若后续进入修复，建议从 P0-1、P0-2、P1-9 这三项低风险高收益项起步。
 
+**修复执行结果（批 A–G）**：上述路径已按批实施——**P0 全清**；**P1 死代码项全清**（P1-7/8/9/10）；**P1 重复项**收敛为 P1-1（共享层已抽）、P1-3（协议统一）、P1-5（样式合并）、P1-6（重命名）4 项完成，P1-2/P1-4 中差异过大的部分**有意保留**并说明理由；**P2/P3** 完成高价值子集（去内联 onclick、同值 token 化、tokens.css 名实、window2 抽出两个屏级模块与 `EV_HANDLERS` 映射表）。逐项状态见 §0.5。
+
 ---
 
-*本报告由静态走查生成，所有行号基于评审时的仓库快照；进入修复前建议以 `grep` 复核目标行号是否因后续编辑偏移。*
+*本报告由静态走查生成，§2–§5 的行号基于**评审时**的仓库快照。修复（批 A–G）后行号已发生偏移，各条目的「✅ 已修复」标注使用**修复后**的关键位置描述而非精确行号；如需定位，请以标注中的文件与符号名 `grep` 复核。*
 
 ---
 
@@ -324,6 +371,7 @@
 - `syncHeroDocVer` 923:935（CC≈5）929 行每次重查 `.shelf-row`；931 行 `Nebula.docs().find(...)` 每次重建全量数组。
 
 **世界事件总处理** `World.on` 969:1120 — **巨型 switch，CC≈26（>10），~150 行，可读性热点成立**：10 个 case（order/taskDone/claim/settle/block/unblock/rework/note/dispatch/speed）+ Nebula.on 7 分支。建议拆 `handlers[type](e,st)` 映射表。
+- ✅ **已修复（批 F，提交 `0205356`）**：`World.on` 的巨型 switch 已重构为 **`EV_HANDLERS` 映射表**（10 个方法，逐 handler 行为等价迁移，`break` → `return`）；订阅侧改为 `const h = EV_HANDLERS[e.type]; if (h) h(e, st);`。每个 case 的 CC 被隔离到独立方法，主分发路径 CC 由 ≈26 降至 ≈2。顺带将该区块内 3 处行内 `setTimeout` 统一纳入 `later` 登记（P0-3 一致性）。
 - **bug**：`taskDone` 1005-1009 延时给"末行"加表情时该行可能已被裁剪顶替（同 addReact）；`settle` 1046 自动弹审阅与 `postReviewToChat` 归档路径**可能双开弹窗**；`rework` 1082-1083 `Nebula.stats().current/getPoint/inspect` 链式访问**无空守，任一 undefined 抛错**。
 
 **控件** `wireSeg` 1123 / `patrolChk` 1141 — OK。
