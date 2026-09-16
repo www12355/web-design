@@ -9,7 +9,19 @@ import { Nebula } from '../modules/nebula.js';
 import { nowHM, fmtAgo } from '../modules/time.js';
 import { buildDocContent, reviewDoc, openDocReview } from '../modules/docgen.js';
 import { DOCS } from '../data/documents.js';
-import { EV_LABEL } from '../modules/linkage.js';
+import {
+  EV_LABEL,
+  EV_KEY_KINDS,
+  routeRole,
+  normalizeTitle,
+  isDispatch,
+  RE_GREET,
+  RE_THANKS,
+  RE_WHO,
+  eventNorm,
+  dedupeEventRows,
+  renderEventRows
+} from '../modules/linkage.js';
 import { initStaticTimes } from './window2/static-times.js';
 import { initReel } from './window2/reel.js';
 
@@ -699,28 +711,7 @@ import { initReel } from './window2/reel.js';
   window.addEventListener('keydown', wakeIdle);
   armIdle();
 
-  /* ================= 监管终端：对话 ≠ 派发（按语义路由） ================= */
-  const RE_TASK_VERB = /(发布|派发|下达|完成|修订|修复|优化|整理|分析|设计|开发|上线|评审|排查|校对|排版|拆解|部署|适配|写|做|改|跑|查|同步|测)/;
-  const RE_GREET = /(你好|您好|嗨|哈喽|hello|hi|在吗|早上好|下午好|晚上好|早安|晚安)/i;
-  const RE_THANKS = /(谢谢|感谢|辛苦|thx|thanks)/i;
-  const RE_WHO = /(你是谁|你叫什么|你能做什么|你会什么|介绍.*(自己|你)|自我介绍)/i;
-
-  function routeRole(text) {
-    const m = text.match(/@(视觉设计|内容撰写|数据分析|规划协调|工程开发)/);
-    if (m) { const c = CAST.find(x => x.name === m[1]); if (c) return c.key; }
-    if (/(设计|视觉|海报|banner|色板|配色|图标|logo|UI)/i.test(text)) return 'designer';
-    if (/(文案|撰写|稿|文章|口径|FAQ|邮件|标题|keynote)/i.test(text)) return 'writer';
-    if (/(数据|分析|报表|漏斗|埋点|指标|转化)/i.test(text)) return 'analyst';
-    if (/(开发|上线|部署|接口|前端|代码|修复|工程|压测|适配)/i.test(text)) return 'engineer';
-    return 'planner';
-  }
-  function normalizeTitle(text) {
-    const t = text.replace(/@[\u4e00-\u9fa5A-Za-z]+/g, '')
-      .replace(/^(请|帮我|麻烦|立即|马上)/, '')
-      .replace(/^(做|写|改|跑|查)(一下|下)?/, '')
-      .trim();
-    return (t || text.trim()).slice(0, 26);
-  }
+  /* ================= 监管终端：对话 ≠ 派发（语义路由取自共享层 linkage.js，P1-4） ================= */
   function converse(text) {
     const st = World.state;
     const producing = Object.values(st.orders).filter(o => o.status === 'producing').length;
@@ -750,7 +741,7 @@ import { initReel } from './window2/reel.js';
     if (!text) return;
     taskInput.value = '';
     wakeIdle();
-    if (!RE_TASK_VERB.test(text) && text.length <= 40) { converse(text); return; }
+    if (!isDispatch(text)) { converse(text); return; }
     runDispatch(text);
   }
   taskSend.addEventListener('click', handleInput);
@@ -782,7 +773,7 @@ import { initReel } from './window2/reel.js';
   function runDispatch(text) {
     taskBusy = true;
     taskSend.classList.add('loading'); taskSend.disabled = true;
-    const owner = routeRole(text);
+    const owner = routeRole(text, CAST);
     const emp = CAST.find(c => c.key === owner);
     const title = normalizeTitle(text);
     const id = 'u' + Date.now().toString(36);
@@ -835,36 +826,23 @@ import { initReel } from './window2/reel.js';
 
   /* ================= 世界引擎订阅：一切数字与消息的源头 ================= */
   const eventLogEls = [document.getElementById('event-log'), document.getElementById('event-log2')].filter(Boolean);
-  const EV_TAG = EV_LABEL;   /* 事件标签统一取自共享层 linkage.js（P1-3）；info 由「巡检」收敛为「动态」 */
-  /* 日志降噪：关键事件优先占位；巡检类按语义去重合并（同指标只留最新一条 + ×N） */
-  const EV_KEY_KINDS = new Set(['order', 'settle', 'done', 'risk', 'dispatch', 'mode']);
-  function evNorm(text) {
-    /* 先脱敏再归一：金额差异不再被当成不同事件，同指标可正确合并 */
-    return AIC.stripMoney(String(text)).replace(/\s+/g, '').replace(/[0-9%.,，、：:]+/g, '');
-  }
+  const EV_TAG = EV_LABEL;   /* 事件标签统一取自共享层 linkage.js（P1-3） */
+  /* 事件流：降噪与渲染均由 linkage.js 提供，两页共用同一套 DOM 结构（P1-4） */
   function renderEventLog() {
-    const rows = [];
-    const infoSeen = new Map();
-    let keyShown = 0, infoShown = 0;
-    World.state.events.forEach(e => {
-      if (EV_KEY_KINDS.has(e.kind)) {
-        if (keyShown < 13) { rows.push({ e, n: 1 }); keyShown++; }
-        return;
-      }
-      const key = evNorm(e.text);
-      const hit = infoSeen.get(key);
-      if (hit) { hit.n++; return; }
-      if (infoShown >= 3) return;              /* 巡检最多 3 类摘要，避免淹没关键事件 */
-      const rec = { e, n: 1 };
-      infoSeen.set(key, rec);
-      rows.push(rec);
-      infoShown++;
+    const rows = dedupeEventRows(World.state.events, {
+      keyKinds: EV_KEY_KINDS,
+      keyLimit: 13,
+      infoLimit: 3,
+      /* 先脱敏再归一：金额差异不再被当成不同事件，同指标可正确合并 */
+      norm: (text) => eventNorm(AIC.stripMoney(String(text)))
     });
-    const html = rows.map(({ e, n }) => {
-      const tag = EV_TAG[e.kind];
-      return `<div class="eb-evt eb-evt--${e.kind}"><span class="num">${e.t}</span>${tag ? `<span class="ev-tag ev-tag--${e.kind}">${tag}</span>` : ''}<span class="eb-evt__tx">${chatEsc(e.text)}</span>${n > 1 ? `<span class="eb-evt__n">×${n}</span>` : ''}</div>`;
-    }).join('');
-    eventLogEls.forEach(el => { el.innerHTML = html; });
+    const html = renderEventRows(rows, {
+      tag: 'div',
+      esc: (v) => String(v == null ? '' : v),
+      renderText: chatEsc,
+      labelOf: (kind) => EV_TAG[kind] || ''
+    });
+    eventLogEls.forEach((el) => { el.innerHTML = html; });
   }
 
   function updatePanels() {

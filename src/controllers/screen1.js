@@ -5,7 +5,7 @@
 import { AIC } from '../modules/common.js';
 import { World } from '../modules/world.js';
 import { monthRange, monthDay, yearMonth } from '../modules/time.js';
-import { EV_LABEL } from '../modules/linkage.js';
+import { EV_LABEL, routeRole, normalizeTitle, renderEventRows } from '../modules/linkage.js';
 
 /* 定时器统一登记：pagehide 时集中清理，避免长会话泄漏（P0-3） */
 const _scrIntervals = new Set();
@@ -530,16 +530,18 @@ function drawRhythm(slots) {
       const sig = World.template + '|' + evts.map(e => e.t + e.text).join('~');
       if (sig === evSig) return;          /* 事件未变则不重排 DOM */
       evSig = sig;
-      evList.innerHTML = evts.length
-        ? evts.map(e => {
-            const tx = esc(AIC.stripMoney(e.text));   /* 事件原文含金额：统一脱敏后再入 DOM */
-            return `<li class="s1-ev">
-            <span class="ev-tag ev-tag--${esc(e.kind || 'info')}">${esc(EV_LABEL[e.kind] || '动态')}</span>
-            <b class="num">${esc(e.t)}</b>
-            <span class="s1-ev__tx" title="${tx}">${tx}</span>
-          </li>`;
-          }).join('')
-        : '<li class="s1-ev is-empty">等待世界引擎事件…</li>';
+      /* 行结构由 linkage.js 统一生成（P1-4）；本页仅注入浅色转义与标签 */
+      evList.innerHTML = renderEventRows(
+        evts.map((e) => ({ e, n: 1 })),
+        {
+          tag: 'li',
+          esc,
+          /* 事件原文含金额：统一脱敏后再入 DOM */
+          renderText: (t) => esc(AIC.stripMoney(t)),
+          labelOf: (kind) => EV_LABEL[kind] || '动态',
+          emptyHTML: '<li class="ev-row is-empty">等待世界引擎事件…</li>'
+        }
+      );
     }
 
     /* ---------------- 4. 流速 + 监管派发（与第 3 屏监管终端同构） ---------------- */
@@ -557,29 +559,13 @@ function drawRhythm(slots) {
     }
 
     const input = $('#link-input'), send = $('#link-send');
-    const RE_ROLE_AT = /@(视觉设计|内容撰写|数据分析|规划协调|工程开发)/;
-    function routeRole(text) {
-      const m = text.match(RE_ROLE_AT);
-      if (m) { const c = CAST.find(x => x.name === m[1]); if (c) return c.key; }
-      if (/(设计|视觉|海报|banner|色板|配色|图标|logo|UI)/i.test(text)) return 'designer';
-      if (/(文案|撰写|稿|文章|口径|FAQ|邮件|标题|keynote)/i.test(text)) return 'writer';
-      if (/(数据|分析|报表|漏斗|埋点|指标|转化)/i.test(text)) return 'analyst';
-      if (/(开发|上线|部署|接口|前端|代码|修复|工程|压测|适配)/i.test(text)) return 'engineer';
-      return 'planner';
-    }
-    function normalizeTitle(text) {
-      const t = text.replace(/@[\u4e00-\u9fa5A-Za-z]+/g, '')
-        .replace(/^(请|帮我|麻烦|立即|马上)/, '')
-        .replace(/^(做|写|改|跑|查)(一下|下)?/, '')
-        .trim();
-      return (t || text.trim()).slice(0, 26);
-    }
+    /* 派发语义路由（routeRole / normalizeTitle）取自共享层 linkage.js（P1-4） */
     function dispatchFromBridge() {
       if (!input) return;
       const text = input.value.trim();
       if (!text) return;
       input.value = '';
-      const owner = routeRole(text);
+      const owner = routeRole(text, CAST);
       const title = normalizeTitle(text);
       /* 经世界引擎下发：本页为 leader 时立即生效，否则投指令通道由 leader 执行 */
       World.dispatch({ id: 's1-' + Date.now().toString(36), title, owner, value: 6000 + Math.floor(Math.random() * 9000) });

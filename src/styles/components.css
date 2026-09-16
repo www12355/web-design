@@ -520,6 +520,19 @@ body::after {
 .ev-tag--dispatch { color:#a78bfa; border-color:rgba(124,58,237,0.32); background:rgba(124,58,237,0.12); }
 .ev-tag--mode     { color:#f0a33a; border-color:rgba(217,119,6,0.34); background:rgba(217,119,6,0.11); }
 
+/* ---------- 事件流行（两页共用同一套 DOM 结构 · P1-4） ---------- */
+.ev-row { display:flex; align-items:baseline; gap:0.7rem; font-size:1.1rem; color:var(--ink-soft); min-width:0; }
+.ev-row .num { flex:none; font-family:var(--font-display); font-size:1.05rem; font-weight:600; color:var(--muted); }
+.ev-row__tx { flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.ev-row__n { flex:none; margin-left:auto; padding:0.02rem 0.4rem; border-radius:0.35rem; background:rgba(158,182,205,.14); color:var(--ink-soft); font-size:1rem; font-variant-numeric:tabular-nums; }
+.ev-row.is-empty { justify-content:center; color:var(--muted); }
+/* 语义着色（沿用原 .eb-evt--* / 事件类型语义） */
+.ev-row--done { color:var(--pine-teal); }
+.ev-row--settle { color:var(--primary); font-weight:600; }
+.ev-row--order { color:var(--c-planner); font-weight:600; }
+.ev-row--risk { color:var(--clay); }
+.ev-row--dispatch { color:var(--c-designer); }
+
 /* ---------- 瓦片实时行：绑定世界任务进度 ---------- */
 .tile-live { display:flex; align-items:center; gap:0.8rem; margin-top:0.7rem; }
 .tile-live .track { flex:1; height:0.4rem; }
@@ -533,7 +546,7 @@ body::after {
 .load-track > i { transition:width 1.2s ease; }
 
 /* ---------- 事件文本（事件流列内省略） ---------- */
-.eb-evt__tx { flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.ev-row__tx { flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 
 /* ============================================================
    开源组件增强（借鉴 uiverse-io/galaxy 技法，重配入 Soft-Editorial 系）

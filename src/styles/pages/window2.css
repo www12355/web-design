@@ -353,6 +353,9 @@ body { text-rendering:optimizeLegibility; }
 .eb-res b { color:var(--ink-soft); font-variant-numeric:tabular-nums; width:3.4rem; text-align:right; font-size:1.15rem; }
 .eb-evt { display:flex; gap:0.8rem; font-size:1.25rem; font-weight:500; color:var(--ink-soft); padding:0.3rem 0; }
 .eb-evt .num { color:var(--ink-soft); flex:none; width:4.2rem; }
+/* 共享事件流行在卷轴窗的度量（对应原 .eb-evt）：保持本窗前观感不变（P1-4） */
+.ev-row { padding:0.3rem 0; font-size:1.25rem; font-weight:500; }
+.ev-row .num { width:4.2rem; color:var(--ink-soft); }
 
 /* 思考流（首页风格） */
 .eb-think { display:flex; gap:0.8rem; padding:0.7rem 0; font-size:1.35rem; font-weight:500; color:var(--ink); border-bottom:1px dashed var(--line); line-height:1.55; }
@@ -605,12 +608,7 @@ body { text-rendering:optimizeLegibility; }
 .eb-kpi { display:flex; align-items:baseline; justify-content:space-between; gap:0.8rem; padding:0.4rem 0; font-size:1.25rem; color:var(--ink-soft); }
 .eb-kpi b { font-family:var(--font-display); font-size:1.4rem; font-weight:650; color:var(--ink); font-variant-numeric:tabular-nums; }
 
-/* ---------- 事件日志着色 ---------- */
-.eb-evt--done { color:var(--pine-teal); }
-.eb-evt--settle { color:var(--primary); font-weight:600; }
-.eb-evt--order { color:var(--c-planner); font-weight:600; }
-.eb-evt--risk { color:var(--clay); }
-.eb-evt--dispatch { color:var(--c-designer); }
+/* ---------- 事件日志着色：已随事件流统一移交 components.css 的 .ev-row--*（P1-4） ---------- */
 
 /* ---------- 设置页 ---------- */
 .set-row { display:flex; align-items:center; justify-content:space-between; gap:1rem; padding:0.7rem 0; font-size:1.25rem; color:var(--ink-soft); }
@@ -1303,8 +1301,7 @@ body { text-rendering:optimizeLegibility; }
 .eb-jump:focus-visible { outline:2px solid var(--primary); outline-offset:2px; }
 .eb-jump[hidden] { display:none; }
 
-/* 日志降噪：合并计数徽标 */
-.eb-evt__n { flex:none; margin-left:auto; padding:0.02rem 0.4rem; border-radius:0.35rem; background:rgba(158,182,205,.14); color:var(--ink-soft); font-size:1rem; font-variant-numeric:tabular-nums; }
+/* 日志降噪合并徽标：已随事件流统一移交 components.css 的 .ev-row__n（P1-4） */
 
 @media (min-width: 1920px) { .eb-step { font-size:1.4rem; } }
 

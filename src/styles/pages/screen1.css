@@ -774,10 +774,11 @@ body.screen1-page #aic-miniscreen {
 .s1-bridge__stream { flex:1 1 auto; min-width:0; display:flex; align-items:center; gap:1.4rem; }
 .s1-bridge__stream .h-eyebrow { flex:none; white-space:nowrap; font-size:1.05rem; }
 .s1-bridge__events { list-style:none; flex:1; min-width:0; display:flex; flex-direction:column; gap:0.1rem; }
-.s1-ev { display:flex; align-items:baseline; gap:0.7rem; font-size:1.1rem; color:var(--ink-soft); min-width:0; }
-.s1-ev b { flex:none; font-family:var(--font-display); font-size:1.05rem; font-weight:600; color:var(--muted); }
-.s1-ev__tx { flex:1; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-.s1-ev.is-empty { color:var(--muted); }
+/* 事件流行：结构由 linkage.js 统一（P1-4）；此处仅做浅色作用域收敛 */
+.screen1-page .ev-row { font-size:1.1rem; }
+.screen1-page .ev-row .num { font-family:var(--font-display); }
+.screen1-page .ev-row.is-empty { color:var(--muted); }
+.screen1-page .ev-row__n { background:rgba(43, 42, 38, .07); color:var(--muted); }
 /* 事件标签在浅色下重配（components.css 里是暗底亮字） */
 .screen1-page .ev-tag { background:var(--paper-3); border-color:var(--line); color:var(--muted); }
 .screen1-page .ev-tag--order    { color:#1d4ed8; border-color:rgba(29, 78, 216, 0.28); background:rgba(29, 78, 216, 0.07); }
