@@ -6,7 +6,7 @@
 import { AIC } from '../modules/common.js';
 import { World } from '../modules/world.js';
 import { Nebula } from '../modules/nebula.js';
-import { hmAgo, nowHM, fmtAgo } from '../modules/time.js';
+import { nowHM, fmtAgo } from '../modules/time.js';
 import { buildDocContent, reviewDoc, openDocReview } from '../modules/docgen.js';
 import { DOCS } from '../data/documents.js';
 import { EV_LABEL } from '../modules/linkage.js';

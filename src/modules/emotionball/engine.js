@@ -54,9 +54,7 @@
   var BOUNCE_SEGS = [{ h: 48, d: 0.5 }, { h: 28, d: 0.382 }, { h: 14, d: 0.27 }, { h: 6, d: 0.177 }];
   var BOUNCE_TOTAL = BOUNCE_SEGS.reduce(function (s, q) { return s + q.d; }, 0);
 
-  /* 颜色工具单一实现：共享层 window.BallCore（P1-1，已在 window2.html 于 emotionball 之前加载） */
-  function hexToRgb(hex) { return window.BallCore.hexToRgb(hex); }
-  function rgbToHex(r, g, b) { return window.BallCore.rgbToHex(r, g, b); }
+  /* 颜色插值单一实现：共享层 window.BallCore（P1-1，已在 window2.html 于 emotionball 之前加载） */
   function lerpColor(a, b, t) { return window.BallCore.lerpColor(a, b, t); }
 
   /* ---------------- Pose：默认值 / 合并 / 插值 ---------------- */

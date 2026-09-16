@@ -10,8 +10,6 @@ export function initReel({ gsapOK, isBlockedTarget, later }) {
   const reel = document.getElementById('reel');
   const pages = [...document.querySelectorAll('.reel__page')];
   let idx = 1;
-  /* 拖拽后抑制点击的标记（保留原语义；当前无消费方，仅为行为等价） */
-  let suppressClick = false;
 
   /* ---------------- 入场动效（gsap 可选，失败直接显示） ---------------- */
   const revealed = new Set([1]);
@@ -48,10 +46,10 @@ export function initReel({ gsapOK, isBlockedTarget, later }) {
   }
 
   /* ---------------- 拖拽 + 吸附 ---------------- */
-  let down = false, moved = false, startX = 0, startLeft = 0, lastX = 0;
+  let down = false, startX = 0, startLeft = 0, lastX = 0;
   reel.addEventListener('pointerdown', (e) => {
     if (e.pointerType !== 'mouse') return;
-    down = true; moved = false;
+    down = true;
     startX = e.clientX; lastX = e.clientX; startLeft = reel.scrollLeft;
     reel.classList.add('dragging');
     reel.style.scrollSnapType = 'none';
@@ -61,7 +59,6 @@ export function initReel({ gsapOK, isBlockedTarget, later }) {
     if (!down) return;
     lastX = e.clientX;
     const dx = e.clientX - startX;
-    if (Math.abs(dx) > 4) moved = true;
     reel.scrollLeft = startLeft - dx;
   });
   window.addEventListener('pointerup', () => {
@@ -74,7 +71,6 @@ export function initReel({ gsapOK, isBlockedTarget, later }) {
     let target = idx;
     if (delta > reel.clientWidth * 0.4) target = idx + 1;
     else if (delta < -reel.clientWidth * 0.4) target = idx - 1;
-    if (moved) { suppressClick = true; later(() => { suppressClick = false; }, 0); }
     go(target);
   });
 

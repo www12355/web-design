@@ -1,0 +1,7 @@
+# 仅对新增工具文件做格式化；历史大文件与文档不纳入，避免数千行无意义 diff
+node_modules/
+tools/visual/out/
+src/
+ARCHITECTURE-REVIEW.md
+package-lock.json
+*.md

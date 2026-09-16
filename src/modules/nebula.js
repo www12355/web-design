@@ -3,7 +3,6 @@
    均匀球壳、点位详情、自动观测与自主复盘。
    ============================================================ */
 import { AGENTS, DOCS, TOPICS } from '../data/documents.js';
-import { dateKey } from './time.js';
 
 (function () {
   'use strict';
