@@ -48,7 +48,7 @@ body { text-rendering:optimizeLegibility; }
 .agn__face--front {
   display:grid; grid-template-rows:auto 1fr; align-items:stretch; gap:1rem;
   padding:1.4rem 1.4rem 1.2rem;
-  background:linear-gradient(115deg, rgba(124,116,201,.16), transparent 46%), var(--cream);
+  background:linear-gradient(115deg, var(--violet-a16), transparent 46%), var(--cream);
 }
 .agn__face--back {
   transform:rotateY(180deg);
@@ -75,7 +75,7 @@ body { text-rendering:optimizeLegibility; }
 }
 .agn:hover { box-shadow:var(--shadow-lift), var(--glow); }
 .eb-card { background:var(--glass); border-color:var(--glass-brd); box-shadow:var(--shadow-soft), var(--hairline); }
-.eb-card--orb { border-color:var(--accent-ring); box-shadow:var(--glow); }
+/* .eb-card--orb 已收敛至文件末「主题收敛层」（P2-6） */
 .agn__core .bot svg { filter:drop-shadow(0 0 6px var(--accent-ring)); }
 .agn:nth-child(even) { transform:rotate(0.3deg); }
 .agn::before {
@@ -168,9 +168,7 @@ body { text-rendering:optimizeLegibility; }
   display:flex; align-items:center; flex-wrap:wrap; row-gap:0.6rem;
   gap:1.2rem;
   padding:1.3rem 2.6rem;
-  border-bottom:1px solid var(--line-strong);
-  background:linear-gradient(180deg, #101a2c, #0b1220);
-  box-shadow:0 1px 0 rgba(255, 255, 255, 0.07) inset;
+  /* border-bottom / background / box-shadow 已收敛至文件末「主题收敛层」（P2-6） */
 }
 /* IM 窗口三色圆点 */
 .win-dots { display:flex; gap:0.6rem; margin-right:0.4rem; }
@@ -203,7 +201,7 @@ body { text-rendering:optimizeLegibility; }
   border:1px solid var(--line-strong);
   box-shadow:0 1px 2px rgba(0, 0, 0, 0.05), 0 4px 10px rgba(0, 0, 0, 0.04);
 }
-.bubble--ai { border-color:rgba(34, 211, 238, 0.35); }
+/* .bubble--ai 已收敛至文件末「主题收敛层」（P2-6） */
 /* 主 AI 消息靠右，员工消息一律靠左 */
 .chat-row--ai { flex-direction:row-reverse; }
 .bubble__time { margin-top:0.6rem; text-align:right; font-size:1.15rem; color:var(--muted); font-variant-numeric:tabular-nums; }
@@ -345,7 +343,7 @@ body { text-rendering:optimizeLegibility; }
 /* 面板小卡 */
 .eb-card { border:1px solid var(--line); border-radius:1.2rem; background:var(--cream); padding:1rem 1.2rem; box-shadow:var(--shadow-soft); }
 .eb-card + .eb-card { margin-top:0.8rem; }
-.eb-card--orb { border-color:rgba(34, 211, 238, 0.3); background:rgba(34, 211, 238, 0.06); }
+/* .eb-card--orb 已收敛至文件末「主题收敛层」（P2-6） */
 .eb-sec { margin-top:1.2rem; }
 .eb-sec > h4 { display:flex; align-items:center; gap:0.6rem; font-size:1.25rem; font-weight:650; color:var(--ink-soft); margin-bottom:0.7rem; }
 .eb-sec > h4 svg { width:1.3rem; height:1.3rem; stroke:var(--muted); fill:none; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
@@ -408,30 +406,7 @@ body { text-rendering:optimizeLegibility; }
 
 .well-halo { pointer-events:none; position:absolute; inset:0; margin:auto; aspect-ratio:1; width:min(70vh, 52vw, 70rem); border-radius:99.9rem; }
 .well-halo-glow { position:absolute; inset:0; border-radius:99.9rem; box-shadow:0 0 40px 12px rgba(0,0,0,0.03), 0 0 20px 6px rgba(0,0,0,0.04); }
-.plain-ring {
-  pointer-events:none; position:absolute; inset:0; margin:auto;
-  aspect-ratio:1; width:min(66vh, 49vw, 66rem); border-radius:99.9rem;
-  background:linear-gradient(180deg, rgba(255,255,255,0.05) 0%, rgba(128,128,128,0) 45%, rgba(0,0,0,0.15) 100%),
-    radial-gradient(circle closest-side at 50% 34%, #4a4a4e, #262628 72%);
-  -webkit-mask:radial-gradient(circle closest-side at center, transparent 0 87%, #000 88% 99.4%, transparent 100%);
-  mask:radial-gradient(circle closest-side at center, transparent 0 87%, #000 88% 99.4%, transparent 100%);
-  box-shadow:inset 0 0 0 1px rgba(255,255,255,0.05), inset 0 4px 12px 2px rgba(0,0,0,0.2);
-}
-.well {
-  position:absolute; inset:0; margin:auto;
-  aspect-ratio:1; width:min(57vh, 42vw, 57rem); border-radius:99.9rem;
-  background:radial-gradient(circle at 50% 36%, #4c4c52 0%, #2e2e33 38%, #1a1a1e 68%, #0d0d10 100%);
-  box-shadow:inset 0 12px 36px 8px rgba(0,0,0,0.5),
-    inset 0 -4px 16px 0 rgba(255,255,255,0.05),
-    inset 0 0 0 1px rgba(255,255,255,0.06),
-    0 8px 24px -8px rgba(0,0,0,0.25);
-}
-.well-inner-shadow {
-  pointer-events:none; position:absolute; inset:6%; border-radius:99.9rem; z-index:2;
-  box-shadow:inset 0 -14px 32px 8px rgba(0,0,0,0.4),
-    inset 0 6px 16px 2px rgba(0,0,0,0.22),
-    inset 0 2px 4px 1px rgba(255,255,255,0.06);
-}
+/* .plain-ring / .well / .well-inner-shadow 的基础与主题叠层已收敛至文件末「主题收敛层」（P2-6） */
 .well__clip { position:absolute; inset:0; border-radius:99.9rem; overflow:hidden; }
 .well__eb { position:absolute; inset:0; display:grid; place-items:center; }
 .well__eb > div { width:min(43rem, 53vh); height:min(43rem, 53vh); }
@@ -670,7 +645,7 @@ body { text-rendering:optimizeLegibility; }
 }
 .chip:hover { transform:translateY(-1px); border-color:var(--line-strong); color:var(--ink); }
 .chip b { color:var(--pine); font-weight:650; }
-.chip--doc { border-color:var(--pine); color:var(--pine); background:rgba(62,201,192,.10); font-weight:600; }
+.chip--doc { border-color:var(--pine); color:var(--pine); background:var(--primary-a10); font-weight:600; }
 .chip--doc::before { content:''; display:inline-block; width:0.7em; height:0.9em; margin-right:0.45em; vertical-align:-0.1em; border:0.12em solid currentColor; border-radius:0.15em; background:
   linear-gradient(currentColor,currentColor) 0.18em 0.2em/0.32em 0.05em no-repeat,
   linear-gradient(currentColor,currentColor) 0.18em 0.32em/0.22em 0.05em no-repeat; }
@@ -1048,16 +1023,13 @@ body { text-rendering:optimizeLegibility; }
 .agn__body { gap:0.6rem; }
 .agn__think { background:transparent; color:var(--ink-soft); padding:0; border-radius:0; }
 
-.tp__panel { border-radius:0.6rem; background:var(--cream); box-shadow:var(--shadow-soft); }
-.chat__head { background:var(--paper-2); border-bottom:1px solid var(--line); }
+.tp__panel { border-radius:0.6rem; }
 .chat__head::after { content:""; display:block; height:0; }
 .bubble { border-radius:0.6rem; box-shadow:none; }
-.bubble--ai { background:var(--paper-2); border-color:var(--line); }
 .chat__limit { background:var(--paper-2); }
 .msg-react { border-radius:0.6rem; }
 
 .eb-card { border-radius:0.6rem; box-shadow:none; }
-.eb-card--orb { border-color:var(--line); background:var(--paper-2); }
 .seg, .seg__item { border-radius:0.5rem; }
 
 .task-bar__field { border-radius:0.6rem; box-shadow:var(--shadow-soft); }
@@ -1066,13 +1038,7 @@ body { text-rendering:optimizeLegibility; }
 .hint { border-radius:0.5rem; box-shadow:none; }
 .p3 { --eb-primary:var(--primary); --eb-accent:var(--c-designer); }
 
-/* DeepWell 降噪：中性边界，去掉外圈暖金属高光 */
-.well {
-  background:radial-gradient(circle at 50% 34%, #20262e 0%, #171c24 48%, #0f1216 100%);
-  box-shadow:inset 0 0 0 1px rgba(255,255,255,0.04);
-}
-.plain-ring { box-shadow:none; }
-.well-inner-shadow { box-shadow:inset 0 -10px 24px 6px rgba(0,0,0,0.35); }
+/* DeepWell 降噪/中性边界已收敛至文件末「主题收敛层」（P2-6） */
 
 /* doc-review 弹窗外框：工业中性 */
 .doc-review__window { background:var(--paper-2); border-color:var(--line-strong); border-radius:0.8rem; box-shadow:var(--shadow-lift); }
@@ -1106,18 +1072,11 @@ body { text-rendering:optimizeLegibility; }
 @media(max-width:42rem){ .bubble--file { width:min(29rem, 100%); } .bubble-file { grid-template-columns:2.7rem minmax(0,1fr) auto; gap:.6rem; padding:.7rem; } .bubble-file__icon { width:2.45rem; height:2.9rem; } }
 
 /* Trae 暗色一致性：聊天/面板深层玻璃，工牌碳黑，DeepWell 深色球 */
-.p2__chat, .tp__panel { background:var(--paper-2); border-color:var(--line); box-shadow:var(--shadow-soft); }
-.chat__head, .chat__limit { background:var(--paper-3); }
-.bubble, .bubble--ai { background:var(--paper-2); color:var(--ink); border-color:var(--line); }
-.bubble--ai { border-color:var(--primary-ring); background:var(--primary-soft); }
-.eb-card, .eb-card--orb { background:var(--paper-2); border-color:var(--line); }
+.chat__limit { background:var(--paper-3); }
+.bubble { background:var(--paper-2); color:var(--ink); border-color:var(--line); }
+.eb-card { background:var(--paper-2); border-color:var(--line); }
 .task-bar__field, .chip, .hint { background:rgba(16,20,28,.94); border-color:var(--line); color:var(--ink-soft); backdrop-filter:blur(10px); }
-.well {
-  background:radial-gradient(circle at 50% 30%, #2a3040 0%, #161b26 42%, #0c0f16 72%, #07090e 100%);
-  box-shadow:inset 0 0 0 1px rgba(124,116,201,.35), inset 0 -18px 40px 6px rgba(62,201,192,.12), 0 22px 60px -18px rgba(124,116,201,.35);
-}
-.plain-ring { background:transparent; box-shadow:inset 0 0 0 1px var(--primary-ring); }
-.well-inner-shadow { box-shadow:inset 0 -14px 32px 8px rgba(124,116,201,.16); }
+/* DeepWell 主题层已收敛至文件末「主题收敛层」（P2-6） */
 .doc-review__window { background:var(--paper-2); border-color:var(--line-strong); }
 .doc-review__titlebar, .doc-review__ribbon, .doc-review__side { background:var(--paper-3); color:var(--ink); border-color:var(--line); }
 .doc-review__stage { background:var(--paper); }
@@ -1204,55 +1163,80 @@ body { text-rendering:optimizeLegibility; }
 }
 
 /* 终端级科技感收口：边缘光、扫描线与状态层级 */
-.p2__chat, .tp__panel {
-  background:
-    linear-gradient(135deg, rgba(124,116,201,.035), transparent 34%),
-    linear-gradient(315deg, rgba(62,201,192,.025), transparent 38%),
-    var(--paper-2);
-  border-color:rgba(148,163,184,.16);
-}
-.chat__head, .chat__limit, .seg-wrap { background:linear-gradient(180deg, rgba(20,25,34,.96), rgba(14,17,23,.96)); }
-.chat__head { border-bottom-color:rgba(124,116,201,.22); }
-.bubble--ai {
-  background:linear-gradient(135deg, rgba(124,116,201,.16), rgba(62,201,192,.06)), var(--paper-2);
-  border-color:rgba(124,116,201,.4);
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.045), 0 8px 22px rgba(0,0,0,.22);
-}
+.chat__limit, .seg-wrap { background:linear-gradient(180deg, rgba(20,25,34,.96), rgba(14,17,23,.96)); }
 .bubble--ai .bubble__think { border-left-color:var(--pine-teal); background:rgba(62,201,192,.055); }
 .seg { background:rgba(7,10,16,.72); border-color:rgba(148,163,184,.17); }
-.seg__item--on { background:linear-gradient(135deg, rgba(124,116,201,.24), rgba(62,201,192,.08)); color:var(--ink); box-shadow:inset 0 0 0 1px rgba(124,116,201,.28), 0 0 18px rgba(124,116,201,.10); }
-.eb-card--orb { background:linear-gradient(135deg, rgba(62,201,192,.11), rgba(124,116,201,.08)); border-color:rgba(62,201,192,.34); box-shadow:inset 0 1px 0 rgba(255,255,255,.04), 0 0 24px rgba(62,201,192,.08); }
+.seg__item--on { background:linear-gradient(135deg, rgba(124,116,201,.24), var(--primary-a08)); color:var(--ink); box-shadow:inset 0 0 0 1px rgba(124,116,201,.28), 0 0 18px rgba(124,116,201,.10); }
+/* .eb-card--orb 已收敛至文件末「主题收敛层」（P2-6） */
 .task-bar__field { background:rgba(10,13,20,.88); border-color:rgba(148,163,184,.2); box-shadow:inset 0 1px 0 rgba(255,255,255,.045), 0 14px 34px rgba(0,0,0,.38); }
 .task-bar__send { background:var(--brand-grad); border-color:transparent; box-shadow:0 0 0 1px rgba(255,255,255,.12), 0 0 24px rgba(62,201,192,.22); }
-.task-bar__send:hover { box-shadow:0 0 0 1px rgba(255,255,255,.2), 0 0 34px rgba(62,201,192,.34); }
+.task-bar__send:hover { box-shadow:0 0 0 1px rgba(255,255,255,.2), 0 0 34px var(--primary-a34); }
 .chip:hover { border-color:rgba(62,201,192,.44); box-shadow:0 0 16px rgba(62,201,192,.12); }
 .chip b { color:var(--pine-teal); }
-.plain-ring { border:1px solid rgba(124,116,201,.32); box-shadow:0 0 28px rgba(124,116,201,.10), inset 0 0 0 1px rgba(62,201,192,.12); }
-.well { box-shadow:inset 0 0 0 1px rgba(124,116,201,.42), inset 0 -18px 40px 6px rgba(62,201,192,.14), 0 22px 60px -18px rgba(124,116,201,.42), 0 0 46px rgba(62,201,192,.08); }
+/* DeepWell 主题层已收敛至文件末「主题收敛层」（P2-6） */
 .well::after { content:""; position:absolute; inset:7%; border-radius:inherit; pointer-events:none; background:linear-gradient(180deg, rgba(255,255,255,.055), transparent 18%, transparent 76%, rgba(62,201,192,.055)); mix-blend-mode:screen; }
 .hint { border-color:rgba(148,163,184,.18); background:rgba(10,13,20,.82); }
 /* 工业仪表层：冷钢边界 + 信号青活动态 + AI 紫核心 */
-.p2__chat, .tp__panel {
-  background:linear-gradient(135deg,rgba(62,201,192,.035),transparent 28%),linear-gradient(315deg,rgba(124,116,201,.045),transparent 34%),var(--paper-2);
-  border-color:rgba(169,194,204,.20);
-  box-shadow:inset 0 1px 0 rgba(220,242,246,.05),0 18px 42px rgba(0,0,0,.38);
-}
-.chat__head { background:linear-gradient(180deg,#1a252d,#10171e); border-bottom-color:rgba(62,201,192,.28); }
+/* 面板/聊天头主题层已收敛至文件末「主题收敛层」（P2-6） */
 .chat__head::after { background:linear-gradient(90deg,transparent,rgba(62,201,192,.62),rgba(240,163,58,.42),transparent); }
 .chat__limit { border-top-color:rgba(169,194,204,.14); }
-.bubble--ai { background:linear-gradient(135deg,rgba(62,201,192,.10),rgba(124,116,201,.07)),var(--paper-2); border-color:rgba(62,201,192,.34); }
-.seg__item--on { background:linear-gradient(135deg,rgba(62,201,192,.16),rgba(124,116,201,.12)); box-shadow:inset 0 0 0 1px rgba(62,201,192,.28); }
+/* .bubble--ai 已收敛至文件末「主题收敛层」（P2-6） */
+.seg__item--on { background:linear-gradient(135deg,rgba(62,201,192,.16),rgba(124,116,201,.12)); box-shadow:inset 0 0 0 1px var(--primary-a28); }
 .task-bar__send { background:linear-gradient(135deg,#2bb3ab,#3ec9c0 55%,#6d63c9); box-shadow:0 0 0 1px rgba(62,201,192,.18),0 0 24px rgba(62,201,192,.20); }
-.task-bar__send:hover { box-shadow:0 0 0 1px rgba(62,201,192,.30),0 0 32px rgba(62,201,192,.32); }
+.task-bar__send:hover { box-shadow:0 0 0 1px var(--primary-a30),0 0 32px rgba(62,201,192,.32); }
 .agn__face { border-color:rgba(169,194,204,.22); }
 .agn__face--front { background:linear-gradient(135deg,rgba(62,201,192,.09),transparent 38%),linear-gradient(180deg,rgba(255,255,255,.035),transparent 30%),var(--cream); }
 .agn__foil { background:linear-gradient(120deg,#3ec9c0,#5ed3cb 36%,#9a92e0 72%,#334c68); }
 .agn__pen::after, .agn__seg i.on { box-shadow:0 0 9px color-mix(in srgb,var(--agc) 45%,transparent); }
-.well { box-shadow:inset 0 0 0 1px rgba(62,201,192,.30),inset 0 -18px 40px 6px rgba(62,201,192,.11),0 22px 60px -18px rgba(0,0,0,.58),0 0 38px rgba(62,201,192,.10); }
-.plain-ring { border-color:rgba(62,201,192,.28); box-shadow:0 0 24px rgba(62,201,192,.08),inset 0 0 0 1px rgba(124,116,201,.18); }
-.eb-card--orb { border-color:rgba(62,201,192,.30); background:linear-gradient(135deg,rgba(62,201,192,.10),rgba(124,116,201,.06)); }
+/* ============================================================
+   主题收敛层（P2-6）
+   以上选择器原先分散在 4–6 个位置层层覆盖（暗→浅→暖→深），
+   现按「逐属性获胜值」合并为单一定义。本层置于全部原声明之后，
+   级联净效果与收敛前逐值一致，由 tools/visual 计算样式快照回归证明。
+   注：.p2__chat/.tp__panel 仅收敛主题属性；其几何属性仍保留在原位，
+       以免影响 @media 中的响应式覆盖。
+   ============================================================ */
+.well {
+  position:absolute; inset:0; margin:auto;
+  aspect-ratio:1; width:min(57vh, 42vw, 57rem); border-radius:99.9rem;
+  background:radial-gradient(circle at 50% 30%, #2a3040 0%, #161b26 42%, #0c0f16 72%, #07090e 100%);
+  box-shadow:inset 0 0 0 1px var(--primary-a30),inset 0 -18px 40px 6px var(--primary-a11),0 22px 60px -18px rgba(0,0,0,.58),0 0 38px var(--primary-a10);
+}
+.plain-ring {
+  pointer-events:none; position:absolute; inset:0; margin:auto;
+  aspect-ratio:1; width:min(66vh, 49vw, 66rem); border-radius:99.9rem;
+  -webkit-mask:radial-gradient(circle closest-side at center, transparent 0 87%, #000 88% 99.4%, transparent 100%);
+  mask:radial-gradient(circle closest-side at center, transparent 0 87%, #000 88% 99.4%, transparent 100%);
+  background:transparent;
+  border:1px solid var(--primary-a28);
+  box-shadow:0 0 24px var(--primary-a08),inset 0 0 0 1px var(--violet-a18);
+}
+.well-inner-shadow {
+  pointer-events:none; position:absolute; inset:6%; border-radius:99.9rem; z-index:2;
+  box-shadow:inset 0 -14px 32px 8px var(--violet-a16);
+}
+.eb-card--orb {
+  border-color:var(--primary-a30);
+  background:linear-gradient(135deg,var(--primary-a10),var(--violet-a06));
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.04), 0 0 24px var(--primary-a08);
+}
+.chat__head {
+  border-bottom:1px solid var(--primary-a28);
+  background:linear-gradient(180deg,#1a252d,#10171e);
+  box-shadow:0 1px 0 rgba(255, 255, 255, 0.07) inset;
+}
+.bubble--ai {
+  background:linear-gradient(135deg,var(--primary-a10),var(--violet-a07)),var(--paper-2);
+  border-color:var(--primary-a34);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.045), 0 8px 22px rgba(0,0,0,.22);
+}
+.p2__chat, .tp__panel {
+  background:linear-gradient(135deg,var(--primary-a035),transparent 28%),linear-gradient(315deg,var(--violet-a045),transparent 34%),var(--paper-2);
+  border-color:var(--steel-a20);
+  box-shadow:inset 0 1px 0 rgba(220,242,246,.05),0 18px 42px rgba(0,0,0,.38);
+}
 .p2__badges .agn__think { background:rgba(62,201,192,.045); border-left-color:var(--agc); }
-.p2__badges .agn__face--back { background:linear-gradient(145deg,rgba(62,201,192,.08),transparent 48%),var(--paper-2); }
+.p2__badges .agn__face--back { background:linear-gradient(145deg,var(--primary-a08),transparent 48%),var(--paper-2); }
 .p2__badges .agn__back-strip { background:linear-gradient(90deg,#435768,#1b252d 45%,#667d8d); }
 .p2__badges .agn::after { background:radial-gradient(ellipse at 50% 0,rgba(62,201,192,.18),transparent 72%); }
 

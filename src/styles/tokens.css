@@ -116,4 +116,22 @@
   /* 玻璃模糊：与共享层统一 */
   --glass-blur:blur(16px) saturate(150%);
   --glass-blur-sm:blur(14px) saturate(150%);
+
+  /* ---------- 品牌色透明度分档（P2-4 同值收口）----------
+     window2 主题层原先散落 rgba(62,201,192,α)=--primary 与 rgba(124,116,201,α)=--neon-violet
+     的硬编码副本；此处按 α 分档收口为 token，取值逐一相同，视觉零变化。 */
+  --primary-a035:rgba(62,201,192,.035);
+  --primary-a08:rgba(62,201,192,.08);
+  --primary-a10:rgba(62,201,192,.10);
+  --primary-a11:rgba(62,201,192,.11);
+  --primary-a28:rgba(62,201,192,.28);
+  --primary-a30:rgba(62,201,192,.30);
+  --primary-a34:rgba(62,201,192,.34);
+  --violet-a045:rgba(124,116,201,.045);
+  --violet-a06:rgba(124,116,201,.06);
+  --violet-a07:rgba(124,116,201,.07);
+  --violet-a16:rgba(124,116,201,.16);
+  --violet-a18:rgba(124,116,201,.18);
+  /* 冷钢/石板中性色分档（window2 面板边界） */
+  --steel-a20:rgba(169,194,204,.20);
 }
