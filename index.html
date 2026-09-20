@@ -14,7 +14,7 @@
     <span class="h-eyebrow">AI AUTONOMOUS OPERATIONS</span>
     <span class="pill pill--sage">设计稿 v2.0 · 世界引擎</span>
     <span class="launch__spacer"></span>
-    <span class="t-muted">Soft-Editorial · 企业级 · 无人值守</span>
+    <span class="t-muted">深色工业控制室 · 企业级 · 无人值守</span>
   </header>
 
   <main class="launch__body">
@@ -22,45 +22,48 @@
       <span class="h-eyebrow">运行入口</span>
       <h1 class="h-display">打开两个窗口，<br>观看全自主经营体运转。</h1>
       <p class="t-soft launch__lede">
-        这是一套未来形态的全自主 AI 数字公司：接单 → 需求拆解 → 并行生产 → 交付验收 → 归档入库，全程无人力接入，产出自动沉淀为组织资产。
-        第一屏为运营驾驶舱（交付节律 / 任务管线 / 交付资产）；第 2 / 3 / 4 屏组成横向卷轴，进入默认停在第 3 屏（主 AI 中枢）。
-        世界引擎驱动所有数字实时演化，两窗口自动同步。
+        全自主 AI 数字公司：接单 → 需求拆解 → 并行生产 → 交付验收 → 归档入库，全程无人力接入。
+        第一屏为运营驾驶舱（交付节律 / 任务管线 / 交付资产）；第 2 / 3 / 4 屏组成横向卷轴，默认停在第 3 屏（主 AI 中枢）。
+        两窗口由世界引擎驱动，数据自动同步。
       </p>
       <div class="launch__cta">
         <button class="btn btn--primary" data-action="open-both">
-          <svg class="ic" viewBox="0 0 24 24"><path d="M5 3l14 9-14 9V3z"/></svg>
+          <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3l14 9-14 9V3z"/></svg>
           <span>运行并打开两个窗口</span>
         </button>
-        <span class="t-muted" id="launch-warn" hidden>弹出窗口被拦截——请允许弹窗，或点击右侧卡片逐个打开</span>
+        <span class="t-muted" id="launch-warn" hidden role="status">弹出窗口被拦截——请允许弹窗，或点击右侧卡片逐个打开</span>
       </div>
-      <div class="size-row">
+
+      <div class="size-row" role="group" aria-label="按桌面尺寸预览第一屏">
         <span class="h-eyebrow">按桌面尺寸预览第一屏</span>
         <div class="launch__sizes">
-          <button class="btn btn--ghost" data-action="open-sized" data-size="1280x800">1280 × 800</button>
-          <button class="btn btn--ghost" data-action="open-sized" data-size="1440x900">1440 × 900</button>
-          <button class="btn btn--ghost" data-action="open-sized" data-size="1920x1080">1920 × 1080</button>
-          <button class="btn btn--ghost" data-action="open-sized" data-size="2560x1300">2560 × 1300</button>
+          <button type="button" class="btn btn--ghost" aria-pressed="false" data-action="open-sized" data-size="1280x800">1280 × 800</button>
+          <button type="button" class="btn btn--ghost" aria-pressed="false" data-action="open-sized" data-size="1440x900">1440 × 900</button>
+          <button type="button" class="btn btn--ghost" aria-pressed="false" data-action="open-sized" data-size="1920x1080">1920 × 1080</button>
+          <button type="button" class="btn btn--ghost" aria-pressed="false" data-action="open-sized" data-size="2560x1300">2560 × 1300</button>
         </div>
       </div>
     </section>
 
-    <section class="launch__cards">
-      <div class="launch-card" data-action="open-window" data-target="screen1" role="link" tabindex="0" aria-label="打开第一屏运营驾驶舱">
-        <span class="launch-card__no">01</span>
-        <div class="bot-demo bot-white" id="bot-demo-main"></div>
-        <div class="launch-card__txt">
+    <section class="launch__cards" aria-label="页面入口">
+      <!-- 用原生 button 而非 div[role=link]：这两个入口执行的是「打开新窗口」，
+           不是导航到 URL，role=link 语义错误，且需自行补键盘处理。 -->
+      <button type="button" class="launch-card" data-action="open-window" data-target="screen1">
+        <span class="launch-card__no" aria-hidden="true">01</span>
+        <div class="bot-demo bot-white" id="bot-demo-main" aria-hidden="true"></div>
+        <span class="launch-card__txt">
           <b>screen1.html · 第一屏（独立满屏）</b>
           <span>运营驾驶舱 · 交付节律与任务管线 · 交付资产 · 团队状态</span>
-        </div>
-      </div>
-      <div class="launch-card" data-action="open-window" data-target="window2" role="link" tabindex="0" aria-label="打开横向卷轴屏">
-        <span class="launch-card__no">02</span>
-        <div class="bot-demo" id="bot-demo-reel"></div>
-        <div class="launch-card__txt">
+        </span>
+      </button>
+      <button type="button" class="launch-card" data-action="open-window" data-target="window2">
+        <span class="launch-card__no" aria-hidden="true">02</span>
+        <div class="bot-demo" id="bot-demo-reel" aria-hidden="true"></div>
+        <span class="launch-card__txt">
           <b>window2.html · 横向卷轴（第 2/3/4 屏）</b>
-          <span>员工工牌与经营直播群 · 主 AI 中枢与监管终端 · 知识星图</span>
-        </div>
-      </div>
+          <span>数字员工工牌与经营直播群 · 主 AI 中枢与监管终端 · 知识星图</span>
+        </span>
+      </button>
     </section>
   </main>
 

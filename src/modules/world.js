@@ -9,7 +9,7 @@
    时间戳取自真实系统时钟（src/modules/time.js）。
    ============================================================ */
 import {
-  DEMAND_POOL, ROLE_BY_NAME, BLOCK_REASONS,
+  DEMAND_POOL, ROLE_BY_NAME, BLOCK_REASONS, APPROVAL_REASONS,
   TEMPLATES, INIT
 } from '../data/worldData.js';
 import { hmAgo, dateKey, wallMin } from '../modules/time.js';
@@ -113,6 +113,32 @@ function buildState() {
   };
 }
 
+/* 快照对齐：localStorage 快照可能写于「角色增删」之前，其 employees 键集会落后于
+ * 当前 INIT.CAST0。此处以 CAST0 为唯一基准校正（补缺失键 / 剔过期键），
+ * 保证 renderBadges 等「按 CAST 遍历 + 直读 employees[key]」的渲染不会读到 undefined。
+ * 与 buildState() 同构生成缺省员工；幂等且 O(CAST0)，仅在启动/采纳快照时执行，不在热路径。 */
+function reconcileEmployees(target) {
+  if (!target || typeof target !== 'object') return;
+  const emp = (target.employees && typeof target.employees === 'object')
+    ? target.employees
+    : (target.employees = {});
+  const { EARN0, CAST0, EMP_LOG } = INIT;
+  const keys = new Set();
+  CAST0.forEach(([k, st, task, pct, tid]) => {
+    keys.add(k);
+    if (!emp[k]) {
+      emp[k] = {
+        status: st, task, pct, earned: EARN0[k] || 0, current: tid,
+        log: (EMP_LOG[k] || []).map(l => ({ t: hmAgo(l.ago), s: l.s, txt: l.txt }))
+      };
+    } else if (!Array.isArray(emp[k].log)) {
+      emp[k].log = [];            /* 轻量归一：仅保证 log 可用，不改写既有数值 */
+    }
+  });
+  /* 剔除 CAST0 已不存在的过期键，维持「employees 键集 ≡ CAST0 键集」的不变量 */
+  Object.keys(emp).forEach(k => { if (!keys.has(k)) delete emp[k]; });
+}
+
 /* ---------------- 状态 / 时间 ---------------- */
 let state = buildState();
 let seq = 0;
@@ -189,17 +215,31 @@ const reducer = {
     const t = state.tasks[e.id];
     if (!t || t.status !== 'doing') return;
     t.status = 'blocked'; t.reason = e.reason || '依赖方响应超时';
+    t.needsAuth = APPROVAL_REASONS.has(t.reason);   // 供界面标注「等待授权」
     const emp = t.owner && state.employees[t.owner];
-    if (emp) { emp.status = 'wait'; empLog(t.owner, 'wait', `阻塞：${t.title}`); }
-    logEvent(`阻塞：${t.title} — ${t.reason}`, 'risk');
+    if (emp) {
+      emp.status = 'wait';
+      empLog(t.owner, 'wait', `${t.needsAuth ? '待授权' : '阻塞'}：${t.title}`);
+    }
+    logEvent(`${t.needsAuth ? '等待授权' : '阻塞'}：${t.title} — ${t.reason}`, 'risk');
   },
   unblock(e) {
     const t = state.tasks[e.id];
     if (!t || t.status !== 'blocked') return;
     t.status = 'doing';
+    t.needsAuth = false;
+    /* 恢复语义按阻塞性质分叉：技术类阻塞是「自动重试成功」，
+       授权类阻塞是「人工/主管放行」—— 真实项目管理里这两件事的观感完全不同。 */
+    const waited = APPROVAL_REASONS.has(t.reason);
     const emp = t.owner && state.employees[t.owner];
-    if (emp && emp.current === t.id) { emp.status = 'run'; empLog(t.owner, 'run', `重试成功：${t.title}`); }
-    logEvent(`自动重试成功：「${t.title}」恢复执行`, 'done');
+    if (emp && emp.current === t.id) {
+      emp.status = 'run';
+      empLog(t.owner, 'run', waited ? `复核通过：${t.title}` : `重试成功：${t.title}`);
+    }
+    logEvent(
+      waited ? `自动复核通过，放行：「${t.title}」恢复执行（${t.reason}）` : `自动重试成功：「${t.title}」恢复执行`,
+      waited ? 'dispatch' : 'done'
+    );
   },
   order(e) {
     const tpl = tplOf();
@@ -336,9 +376,13 @@ function tick() {
     const doing = taskDoing().filter(t => !t.user);
     if (doing.length) {
       const t = pick(doing);
-      applyBatch([{ type: 'block', id: t.id, reason: pick(BLOCK_REASONS) }]);
+      const reason = pick(BLOCK_REASONS);
+      applyBatch([{ type: 'block', id: t.id, reason }]);
       const bid = t.id;
-      later(() => { if (leader) applyBatch([{ type: 'unblock', id: bid }]); }, (9000 + rnd() * 12000) / Math.max(1, sp));
+      /* 授权类阻塞要「等人」：停留时间约为技术类阻塞的 3 倍，
+         演示时能真实看到「卡在审批上」，而不是几秒后自愈。 */
+      const dwell = APPROVAL_REASONS.has(reason) ? 26000 + rnd() * 34000 : 9000 + rnd() * 12000;
+      later(() => { if (leader) applyBatch([{ type: 'unblock', id: bid }]); }, dwell / Math.max(1, sp));
     }
   }
 
@@ -463,6 +507,7 @@ function adoptSnapshot(snap) {
   seq = Math.max(seq, snap.seq || 0);
   const prevSpeed = state.time ? state.time.speed : 1;
   state = snap.state;
+  reconcileEmployees(state);
   if (!snap.time || !state.time || !state.time.wall) {
     state.time = { wall: Date.now(), min: realMin(), speed: prevSpeed };
   }
@@ -652,6 +697,7 @@ export { World };
   const snap = syncOK ? lsGet(STORE_KEY) : null;
   if (snap && snap.state && snap.state.v === 2 && snap.ts && Date.now() - snap.ts < 10 * 60 * 1000) {
     state = snap.state; seq = snap.seq || 0; appliedTs = snap.ts;
+    reconcileEmployees(state);
     if (!state.time || !state.time.wall) state.time = { wall: Date.now(), min: realMin(), speed: 1 };
   }
   claimLeadership();

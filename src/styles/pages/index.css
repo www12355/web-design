@@ -1,13 +1,13 @@
 /* ============================================================
    启动页 · 运行入口（index.html 独有样式）
-   柔和编辑部 Soft-Editorial · 无导航栏 · 暖调纸感
-   依赖 src/styles/components.css 的设计 token
+   深色工业控制室 · 无导航栏 · hairline 分隔
+   token 全部来自 tokens.css；共享组件来自 components.css。
    ============================================================ */
 
 .launch {
   height:100vh; height:100dvh;
   display:flex; flex-direction:column;
-  background:var(--paper);
+  background:transparent;
 }
 
 .launch__head {
@@ -15,73 +15,107 @@
   padding:2.4rem 4.8rem;
   border-bottom:1px solid var(--line);
 }
-.launch__head .t-muted { font-size:1.2rem; }
+.launch__head .t-muted { font-size:var(--fs-micro); }
 
+/* 两栏构图：左栏承载主张与操作，右栏承载入口。
+   原来是「两端居中 + 大留白」，稀疏内容飘在正中读作空洞；
+   改为按内容宽度分栏，让留白集中在两侧而非上下。 */
 .launch__body {
-  flex:1;
-  display:flex; align-items:center; justify-content:center;
-  gap:clamp(4.8rem, 5vw, 8.8rem);
-  padding:3.2rem 4.8rem;
+  flex:1; min-height:0;
+  display:grid;
+  grid-template-columns:minmax(0, 1.1fr) minmax(42rem, 0.9fr);
+  /* 两栏共用同一条顶基线：此前 align-items:center 让较矮的右栏在行内单独居中，
+     于是右栏顶部低于左栏、底部又高于左栏，读作「飘在中间」而非成组；
+     改为顶对齐 + 整行垂直居中（content:center），
+     既消掉顶栏下方那条空槽，也让两栏从同一条线起读。 */
+  align-items:start;
+  align-content:center;
+  gap:clamp(4.8rem, 6vw, 10rem);
+  padding:clamp(3.2rem, 6vh, 7.2rem) 4.8rem;
 }
 
-.launch__hero { max-width:56rem; display:flex; flex-direction:column; gap:2rem; }
-.launch__hero .h-display { font-size:clamp(3.4rem, 2.6vw, 4.6rem); line-height:1.14; letter-spacing:-0.02em; }
-.launch__hero p { line-height:1.7; }
+.launch__hero { max-width:58rem; display:flex; flex-direction:column; gap:2rem; }
+.launch__hero .h-display { font-size:clamp(3.6rem, 2.9vw, 5.2rem); line-height:1.12; letter-spacing:-0.025em; }
+.launch__hero p { line-height:1.75; }
 
-.launch__cards { display:flex; flex-direction:column; gap:0; min-width:42rem; }
+.launch__cards { display:flex; flex-direction:column; min-width:0; border-top:1px solid var(--line); }
 
-/* 卡片：hairline 分隔，hover 上浮 + 左侧强调 */
+/* 入口卡：原生 button 重置为版式行，靠「左缘强调条 + 底色」两级表达悬停。
+   原先同时改 background + translateX + box-shadow + 序号变色 + 小球放大，
+   五项一起动会盖过「这是一行可点区域」这个唯一要传达的信息。 */
 .launch-card {
   position:relative;
-  display:flex; align-items:center; gap:1.8rem;
-  padding:2.4rem 1.6rem 2.4rem 2rem;
-  border-bottom:1px solid var(--line);
-  border-radius:var(--r-md);
-  margin-left:-1.2rem;
-  transition:background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+  display:flex; align-items:center; gap:2rem;
+  width:100%;
+  padding:3rem 1.6rem 3rem 2.4rem;
+  border:none; border-bottom:1px solid var(--line);
+  border-radius:0;
+  background:transparent;
+  font:inherit; color:inherit; text-align:left;
   cursor:pointer;
+  transition:background var(--dur-1) var(--ease-out);
 }
 .launch-card::before {
   content:""; position:absolute; left:0; top:50%;
   width:0.3rem; height:0; transform:translateY(-50%);
-  border-radius:99.9rem; background:var(--primary);
-  opacity:0; transition:height 0.2s ease, opacity 0.2s ease;
+  border-radius:var(--r-pill); background:var(--primary);
+  opacity:0; transition:height var(--dur-2) var(--ease-out), opacity var(--dur-2) var(--ease-out);
 }
-.launch-card:hover, .launch-card:focus-visible {
-  background:var(--surface-1);
-  transform:translateX(4px);
-  box-shadow:var(--shadow-soft);
-}
-.launch-card:hover::before { height:70%; opacity:1; }
-.launch-card:last-child { border-bottom:none; }
+.launch-card:hover, .launch-card:focus-visible { background:var(--sf-1); }
+.launch-card:hover::before, .launch-card:focus-visible::before { height:64%; opacity:1; }
+.launch-card:active { background:var(--sf-2); }
 .launch-card__no {
   font-family:var(--font-display);
   font-size:1.3rem; letter-spacing:0.1em;
   color:var(--muted); width:3rem; flex:none;
 }
 .launch-card:hover .launch-card__no { color:var(--primary); }
-.launch-card__txt { flex:1; }
-.launch-card__txt b { display:block; font-family:var(--font-display); font-size:1.7rem; font-weight:650; letter-spacing:-0.01em; }
-.launch-card__txt span { font-size:1.4rem; color:var(--muted); line-height:1.6; display:block; margin-top:0.3rem; }
+.launch-card__txt { flex:1; min-width:0; }
+/* 入口卡是这一页真正的主操作对象，标题必须够重：
+   原先 --fs-title(1.7rem) 比说明性大标题低三档，用户要点的东西反而最轻。 */
+.launch-card__txt b { display:block; font-family:var(--font-display); font-size:var(--fs-lead); font-weight:650; letter-spacing:-0.015em; }
+.launch-card__txt span { font-size:var(--fs-body); color:var(--muted); line-height:1.6; display:block; margin-top:0.4rem; }
 
-.bot-demo { width:8.8rem; height:8.8rem; flex:none; filter:drop-shadow(0 12px 20px rgba(62,201,192,.16)); }
-.bot-demo { transition:transform 0.2s ease; }
-.launch-card:hover .bot-demo { transform:scale(1.05); }
+.bot-demo { width:10.4rem; height:10.4rem; flex:none; }
 
-/* 幽灵按钮（尺寸预览） */
+/* 尺寸预览：归为次级操作，用一条 hairline 与主张区分离 */
 .btn--ghost {
-  padding:1rem 1.5rem; font-size:1.25rem; border-radius:1rem;
-  background:var(--paper-3); font-weight:550; color:var(--ink-soft);
-  transition:transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+  padding:1rem 1.6rem; font-size:var(--fs-micro); border-radius:var(--r-ctrl);
+  background:var(--sf-2); font-weight:600; color:var(--ink-soft);
+  transition:border-color var(--dur-1) var(--ease-out), background var(--dur-1) var(--ease-out);
 }
 .btn--ghost:hover { background:var(--cream); border-color:var(--line-strong); }
-.btn--ghost:active { transform:translateY(0); }
+/* 选中是驻留态，与 hover 的瞬态反馈分开表达：
+   只改「边缘光 + 顶缘高光 + 极轻品牌底」（符合光影模型），不改位移与尺寸，
+   这样它既读得出「已选」，又不会与主操作按钮抢注意力。 */
+.btn--ghost[aria-pressed="true"] {
+  border-color:var(--primary-ring);
+  color:var(--ink);
+  background:var(--primary-soft);
+  box-shadow:var(--edge-1), var(--lit-top);
+}
 
-.size-row { display:flex; flex-direction:column; gap:1.2rem; margin-top:0.6rem; }
+.size-row {
+  display:flex; flex-direction:column; gap:1.2rem;
+  margin-top:1.2rem; padding-top:2rem;
+  border-top:1px solid var(--line);
+}
+
+/* ≤1280：1280×800 是本页对外提供的第一个预览尺寸，
+   此前只有 1100 一档，1280 恰好落在缝里（横带内距、栏宽、字号都按更大屏走）。
+   本块必须排在 1100 档之前，否则会在窄屏反向压掉 1100 档的取值。 */
+@media (max-width: 1280px) {
+  .launch__body { gap:clamp(3.2rem, 3.6vw, 5.6rem); padding:2.4rem 3.2rem; }
+  .launch__head, .launch__foot { padding-left:3.2rem; padding-right:3.2rem; }
+  .launch__hero .h-display { font-size:clamp(3rem, 2.6vw, 4rem); }
+  .launch__lede { max-width:42rem; }
+  .launch-card { padding:2.4rem 1.2rem 2.4rem 2rem; }
+  .bot-demo { width:8.8rem; height:8.8rem; }
+}
 
 @media (max-width: 1100px) {
-  .launch__body { flex-direction:column; gap:4rem; padding:0 2.4rem; align-items:stretch; }
-  .launch__cards { min-width:0; width:min(56rem, 100%); }
+  .launch__body { grid-template-columns:1fr; gap:4rem; align-content:start; padding:2.4rem; }
+  .launch__cards { width:min(56rem, 100%); }
   .launch__head, .launch__foot { padding-left:2.4rem; padding-right:2.4rem; }
 }
 
@@ -93,12 +127,28 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .launch-card, .launch-card::before, .bot-demo, .btn--ghost { transition:none; }
-  .launch-card:hover, .launch-card:focus-visible { transform:none; }
+  .launch-card, .launch-card::before, .btn--ghost { transition:none; }
 }
 
 /* ---------- 由内联样式收敛而来的工具类（P2-1/P2-2） ---------- */
 .launch__spacer { flex:1; }
-.launch__lede { font-size:1.5rem; max-width:48rem; }
-.launch__cta { display:flex; gap:1.4rem; margin-top:.8rem; align-items:center; }
+.launch__lede { font-size:var(--fs-body); max-width:50rem; }
+.launch__cta { display:flex; gap:1.4rem; margin-top:.8rem; align-items:center; flex-wrap:wrap; }
 .launch__sizes { display:flex; gap:.8rem; flex-wrap:wrap; }
+
+/* ≥2560：本页对外提供 2560×1300 预览入口，此前却没有任何大屏档 ——
+   6 条横带全按 1920 的量走，在 2.5K/4K 上正文尺度偏小、留白过大。
+   此处只放宽度量与呼吸，不新增版块。 */
+@media (min-width: 2560px) {
+  .launch__body {
+    grid-template-columns:minmax(0, 1.05fr) minmax(56rem, 0.95fr);
+    gap:clamp(6rem, 7vw, 14rem);
+    padding:clamp(4rem, 7vh, 9rem) 8rem;
+  }
+  .launch__head, .launch__foot { padding-left:8rem; padding-right:8rem; }
+  .launch__hero { max-width:74rem; }
+  .launch__lede { font-size:var(--fs-title); max-width:66rem; }
+  .launch-card { padding:4rem 2rem 4rem 3.2rem; }
+  .bot-demo { width:13rem; height:13rem; }
+  .launch__foot { font-size:1.5rem; }
+}

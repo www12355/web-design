@@ -28,16 +28,25 @@ export const CAST = [
     key: 'engineer', name: '工程开发', role: 'ENGINEER', shape: 'capsule', color: '#818cf8', expr: 'neutre', bar: 'violet',
     think0: '预览环境已部署完成，接口时序还差两处确认；先把静态资源与路由打通，等时序回复即可进入联调，整体风险可控。',
     skills: [['前端工程', 93], ['接口联调', 90], ['自动重试', 92], ['压测护航', 85]]
+  },
+  {
+    key: 'qc', name: '质量审查', role: 'QUALITY', shape: 'carre', color: '#34d399', expr: 'attentif', bar: 'emerald',
+    think0: '对照验收口径逐节核查，阻断项先回退修订、建议项并行消化，确保带病产物不归档。',
+    skills: [['验收核查', 95], ['缺陷定位', 90], ['回归验证', 88], ['标准沉淀', 84]]
   }
 ];
 
 export const STATUS_TXT = { run: '运行中', busy: '专注中', idle: '待命', wait: '等待' };
 
+/* ink 取值必须与 tokens.css 的 --c-* 角色色一致：
+   小球、甘特条带、星图图例本就靠这套色指代同一批角色，
+   四色漂移会让「同一个人」在不同区块显示成不同颜色。 */
 export const AVATAR_MAP = {
   main:     { shape: 'cercle',   ink: '#ffffff', paper: '#0d1524' },
-  planner:  { shape: 'hexagone', ink: '#38bdf8', paper: '#0d1524' },
+  planner:  { shape: 'hexagone', ink: '#5ec8ff', paper: '#0d1524' },
   writer:   { shape: 'nuage',    ink: '#2dd4bf', paper: '#0d1524' },
-  analyst:  { shape: 'galet',    ink: '#fbbf24', paper: '#0d1524' },
-  designer: { shape: 'goutte',   ink: '#f472b6', paper: '#0d1524' },
-  engineer: { shape: 'capsule',  ink: '#a78bfa', paper: '#0d1524' }
+  analyst:  { shape: 'galet',    ink: '#ffd23f', paper: '#0d1524' },
+  designer: { shape: 'goutte',   ink: '#c084fc', paper: '#0d1524' },
+  engineer: { shape: 'capsule',  ink: '#818cf8', paper: '#0d1524' },
+  qc:       { shape: 'carre',    ink: '#34d399', paper: '#0d1524' }
 };

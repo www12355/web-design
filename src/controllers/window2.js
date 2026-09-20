@@ -64,7 +64,7 @@ import { initReel } from './window2/reel.js';
   /* ================= 真实时间：静态时间标签归一化（已抽为 ./window2/static-times.js，P2-5） ================= */
   initStaticTimes();
 
-  /* ================= 第 2 屏：五张智能体创意卡（实时同步） ================= */
+  /* ================= 第 2 屏：六张数字员工创意卡（实时同步） ================= */
   const badges = document.getElementById('badges');
   const RING_C = 245.04; // 2π×39
 
@@ -86,7 +86,15 @@ import { initReel } from './window2/reel.js';
       <span class="agn__viznote">色板 · 对比度提级</span>`,
     engineer: m => `
       <span class="agn__seg">${Array.from({ length: 14 }, (_, i) => `<i class="${i < Math.round(World.state.employees[m.key].pct / 100 * 14) ? 'on' : ''}"></i>`).join('')}</span>
-      <span class="agn__viznote">构建进度</span>`
+      <span class="agn__viznote">构建进度</span>`,
+    qc: m => `
+      <svg width="92" height="18" viewBox="0 0 92 18" aria-hidden="true">
+        <circle cx="8" cy="9" r="6" fill="none" stroke="${m.color}" stroke-width="1.6"/>
+        <path d="M4.5 9 7 11.5 11.5 6.5" fill="none" stroke="${m.color}" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="40" cy="9" r="6" fill="none" stroke="${m.color}" stroke-width="1.6" opacity=".5"/>
+        <circle cx="72" cy="9" r="6" fill="none" stroke="${m.color}" stroke-width="1.6"/>
+        <path d="M68.5 9 71 11.5 75.5 6.5" fill="none" stroke="${m.color}" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg><span class="agn__viznote">验收核查 · 阻断回退</span>`
   };
 
   const badgeRefs = {};
@@ -96,7 +104,8 @@ import { initReel } from './window2/reel.js';
     writer: [{ state: 'idle', duration: 2.4, expression: 'heureux' }, { state: 'thinking', duration: 2.8, expression: 'attentif' }],
     analyst: [{ state: 'thinking', duration: 2.7, expression: 'attentif' }, { state: 'idle', duration: 2.5, expression: 'curieux' }],
     designer: [{ state: 'idle', duration: 2.6, expression: 'curieux' }, { state: 'thinking', duration: 2.4, expression: 'heureux' }],
-    engineer: [{ state: 'thinking', duration: 2.9, expression: 'attentif' }, { state: 'idle', duration: 2.2, expression: 'neutre' }]
+    engineer: [{ state: 'thinking', duration: 2.9, expression: 'attentif' }, { state: 'idle', duration: 2.2, expression: 'neutre' }],
+    qc: [{ state: 'thinking', duration: 2.7, expression: 'attentif' }, { state: 'idle', duration: 2.5, expression: 'curieux' }]
   };
   const avatarState = status => status === 'wait' ? 'alert' : (status === 'busy' ? 'thinking' : 'idle');
   const avatarExpression = (m, status) => status === 'wait' ? 'mefiant' : (status === 'busy' ? 'attentif' : m.expr);
@@ -112,6 +121,7 @@ import { initReel } from './window2/reel.js';
   const badgeEls = [];
   CAST.forEach((m, i) => {
     const st = World.state.employees[m.key];
+    if (!st) return;   /* 快照缺键兜底：跳过该项而非中断整张工牌网格 */
     const el = document.createElement('article');
     el.className = 'agn reveal';
     el.style.setProperty('--agc', m.color);
@@ -188,7 +198,7 @@ import { initReel } from './window2/reel.js';
   function updateBadges() {
     CAST.forEach(m => {
       const st = World.state.employees[m.key], r = badgeRefs[m.key];
-      if (!r) return;
+      if (!st || !r) return;   /* 快照缺键兜底 */
       const avatar = badgeAvatars[m.key];
       if (avatar && avatar.engine) {
         const clock = performance.now() / 1000;
@@ -653,7 +663,7 @@ import { initReel } from './window2/reel.js';
       }, 4200);
     }
     /* 用户主动生成 / 自主结算时打开交付审阅弹窗；同文档重复触发由 openDocReview 单例去重 */
-    if (opts.openReview) openDocReview(content, o, { context });
+    if (opts.openReview) openDocReview(content, o, { context, autoClose: opts.autoClose });
     return content;
   }
 
@@ -719,12 +729,12 @@ import { initReel } from './window2/reel.js';
     let reply;
     if (RE_GREET.test(text)) { const _tpl = World.templates[World.template] || World.templates.daily; reply = `你好！我是主 AI 统筹者。当前运行「${_tpl.name}」模拟模板，本经营体全自动运转：在产订单 ${producing} 个、任务进行 ${doing} 项，今日已完成归档 ${st.kb.today} 项——随时观察即可，也可以向我下达监管指令。`; }
     else if (RE_THANKS.test(text)) reply = '不客气，价值创造是本体的本能。想看哪条产线的细节，说一声就好。';
-    else if (RE_WHO.test(text)) reply = '我是主 AI「统筹者」：自动接单、拆解任务、调度 5 名分身、把控交付与归档，全程无人力接入。';
-    else reply = '收到，已记入上下文。下达监管指令请带上「修订 / 分析 / 开发」这类动词，或直接 @某位分身，回车即可。';
+    else if (RE_WHO.test(text)) reply = '我是主 AI：自动接单、拆解任务、调度 6 名数字员工、把控交付与归档，全程无人力接入。';
+    else reply = '收到，已记入上下文。下达监管指令请带上「修订 / 分析 / 开发」这类动词，或直接 @某位数字员工，回车即可。';
     thinkQuick('对话识别',
       `收到信息：「${text.slice(0, 20)}」。`,
-      `意图判定：属日常对话，未命中任务动词与 @分身，不占用产线。`,
-      `主 AI 亲自回应，分身继续原任务。`,
+      `意图判定：属日常对话，未命中任务动词与 @数字员工，不占用产线。`,
+      `主 AI 亲自回应，数字员工继续原任务。`,
       { prio: 3 });
     ebBall.clearGaze();
     ebBall.setEmotion('10');
@@ -784,7 +794,7 @@ import { initReel } from './window2/reel.js';
     thinkChain(`监管指令 · ${title}`, [
       { p: 'obs',   t: `接收到监管指令：「${text}」。` },
       { p: 'cut',   t: `意图识别：命中任务动词，判定为执行类指令而非对话，进入派发路径。` },
-      { p: 'sim',   t: `职责路由：对比 5 名分身的职责域，语义与「${emp.name}」最匹配，判定由其承接。` },
+      { p: 'sim',   t: `职责路由：对比 6 名数字员工的职责域，语义与「${emp.name}」最匹配，判定由其承接。` },
       { p: 'judge', t: `上下文切换：其原任务「${prevTask || '待命'}」暂存回任务池，保留断点不丢弃。` },
       { p: 'sim',   t: `参数拆解：验收口径、依赖输入与交付格式已生成，纳入任务池第 ${s0.st.counters.total + 1} 项。` },
       { p: 'concl', t: `「${title}」已派发至 ${emp.name}，预计 ${eta} 分钟出初稿。` }
@@ -840,7 +850,11 @@ import { initReel } from './window2/reel.js';
       tag: 'div',
       esc: (v) => String(v == null ? '' : v),
       renderText: chatEsc,
-      labelOf: (kind) => EV_TAG[kind] || ''
+      labelOf: (kind) => EV_TAG[kind] || '',
+      /* 空态：renderEventRows 支持 emptyHTML，但本页一直没传 ——
+         事件清空/未接入时整块渲染成空白，用户分不清「没有事件」还是「坏了」。
+         .ev-row.is-empty 的样式本来就在 components.css 里等着，只是一直没被用上。 */
+      emptyHTML: '<div class="ev-row is-empty">世界引擎已就绪，等待第一条经营事件…</div>'
     });
     eventLogEls.forEach((el) => { el.innerHTML = html; });
   }
@@ -879,7 +893,7 @@ import { initReel } from './window2/reel.js';
     if (kbSettleEl) kbSettleEl.textContent = st.kb.settledToday;
   }
 
-  /* 知识图谱联动：任务完成点亮对应智能体锚点（戴森球上的球形脉冲） */
+  /* 知识图谱联动：任务完成点亮对应数字员工锚点（戴森球上的球形脉冲） */
   function pulseAgent(key) {
     if (!key || !Nebula) return;
     Nebula.pulse(key);
@@ -937,7 +951,7 @@ import { initReel } from './window2/reel.js';
     order(e, st) {
       const o = st.orders[e.id]; if (!o) return;
       const n = (e.tasks || []).length;
-      const roleNames = [...new Set((e.tasks || []).map(tt => (CAST.find(c => c.key === tt._role) || {}).name || '分身'))].join('、');
+      const roleNames = [...new Set((e.tasks || []).map(tt => (CAST.find(c => c.key === tt._role) || {}).name || '数字员工'))].join('、');
       const s0 = snapWorld();
       queueChat('planner', `新订单已自动受理：${o.client} · ${o.demand}，已进入生产队列。`, false,
         `评估「${o.client}」需求复杂度与交付窗口；依赖已解析，自动受理并排入生产队列。`);
@@ -946,7 +960,7 @@ import { initReel } from './window2/reel.js';
         { p: 'obs',   t: `受理信号：${o.demand}，客户 ${o.client}，需求复杂度评估完毕。` },
         { p: 'cut',   t: `需求拆解：${n} 项子任务，涉及 ${roleNames || '待定'}。` },
         { p: 'sim',   t: `并行度推演：在产 ${s0.producing} 单 · 进行 ${s0.doing} 项 · 排队 ${s0.queued} 项，${s0.queued > 12 ? '队列偏长，先消化再扩容' : '产能仍有富余'}。` },
-        { p: 'judge', t: `调度判定：关键路径优先，空闲分身即时承接，其余按依赖顺序排队。` },
+        { p: 'judge', t: `调度判定：关键路径优先，空闲数字员工即时承接，其余按依赖顺序排队。` },
         { p: 'concl', t: `已自动受理并排入并行生产，交付窗口不变。` }
       ], { prio: 7 });
       AIC.toast({ title: '新订单自动受理', body: `${o.client} · ${o.demand} · 已进入生产队列`, color: 'var(--pine)', tag: nowHM() });
@@ -955,7 +969,7 @@ import { initReel } from './window2/reel.js';
     taskDone(e, st) {
       const t = st.tasks[e.id]; if (!t) return;
       pulseAgent(t.owner);
-      /* 智能体每完成一次思考/产出，把最佳结果写入戴森球知识点 */
+      /* 数字员工每完成一次思考/产出，把最佳结果写入戴森球知识点 */
       if (Nebula && Nebula.addKnowledge) {
         if (t.owner) Nebula.addKnowledge(t.owner, t.title);
         else if (t.regen) Nebula.addKnowledge('main', t.title);
@@ -1003,7 +1017,7 @@ import { initReel } from './window2/reel.js';
       AIC.toast({ title: '交付验收完成', body: `${o.client} · ${o.demand} · 已归档`, color: 'var(--pine)', tag: nowHM() });
       if (!taskBusy && !sleeping) { ebBall.setEmotion('33'); if (ebBall.burst) ebBall.burst(); later(() => { if (!taskBusy) ebBall.setEmotion('02'); }, 3600); }
       /* 交付后自动织一份 Word 交付文档并弹窗审阅（只做加法，不影响既有分支） */
-      later(() => { generateDeliverableDoc(o, false, { openReview: true }); }, 4200);
+      later(() => { generateDeliverableDoc(o, false, { openReview: true, autoClose: true }); }, 4200);
     },
     block(e, st) {
       const t = st.tasks[e.id]; if (!t) return;
@@ -1056,7 +1070,7 @@ import { initReel } from './window2/reel.js';
       const _tt = (e.task || {}).title || '监管任务';
       thinkQuick(`入池 · ${_tt}`,
         `指令进入任务池：${_tt}。`,
-        `推演：与在产任务比对依赖，避免二次占用同一分身。`,
+        `推演：与在产任务比对依赖，避免二次占用同一数字员工。`,
         `已登记，等待调度执行。`,
         { prio: 5 });
     },
@@ -1126,9 +1140,20 @@ import { initReel } from './window2/reel.js';
   /* ================= 第 4 屏：知识统计 + 搜索联动 ================= */
   const catSearch = document.getElementById('cat-search');
   if (catSearch) {
+    const catalog = document.querySelector('.atlas-catalog');
     const groups = [...document.querySelectorAll('.atlas-catalog .shelf-group')];
+    /* 无匹配时所有分组都会被隐藏，滚动区变成一片空白 ——
+       用户分不清是「确实没有这条知识」还是「列表坏了」。补一条空态。 */
+    const catEmpty = document.createElement('div');
+    catEmpty.className = 'cat-empty';
+    catEmpty.hidden = true;
+    catEmpty.textContent = '没有匹配的知识条目 —— 换个关键词，或清空搜索框查看全部。';
+    const catScroll = catalog && catalog.querySelector('.cat-scroll');
+    if (catScroll) catScroll.appendChild(catEmpty);
+
     catSearch.addEventListener('input', () => {
       const q = catSearch.value.trim().toLowerCase();
+      let total = 0;
       groups.forEach(g => {
         let vis = 0;
         g.querySelectorAll('.shelf-row').forEach(r => {
@@ -1137,11 +1162,14 @@ import { initReel } from './window2/reel.js';
           if (hit) vis++;
         });
         g.hidden = vis === 0;
+        total += vis;
       });
+      catEmpty.hidden = total > 0;
     });
     catSearch.addEventListener('keydown', (e) => {
       if (e.key !== 'Enter') return;
-      const first = document.querySelector('.atlas-catalog .shelf-row:not([hidden])');
+      /* 限定在知识索引内取首行：原先查的是整个文档，会捞到别的区块的行 */
+      const first = catalog ? catalog.querySelector('.shelf-row:not([hidden])') : null;
       if (first) { first.click(); wakeIdle(); }
     });
   }
@@ -1167,11 +1195,32 @@ import { initReel } from './window2/reel.js';
     const d = DOCS.find(x => x.id === row.dataset.doc);
     if (!d) return;
     row.title = '单击打开交付审阅 · 双击定位知识图谱';
-    row.addEventListener('click', () => {
+    const open = () => {
       const { order, context, content } = docContentFromCatalog(d);
       setDocRef(content.meta.docNo, { content, order, context });
       wakeIdle();
       openDocReview(content, order, { context });
+    };
+    /* 键盘可达：这些行是可点行但不是原生控件，原先只绑了 click ——
+       Tab 到不了、回车也打不开，键盘用户根本进不去交付审阅。 */
+    row.tabIndex = 0;
+    row.setAttribute('role', 'button');
+    row.addEventListener('click', open);
+    row.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(); }
+    });
+  });
+
+  /* 其余「看着能点、键盘够不着」的元素：统一补 tabindex + Enter/Space。
+     只补语义与键盘入口，不改动任何既有 click 行为。 */
+  ['.agn', '.well'].forEach(sel => {
+    document.querySelectorAll(sel).forEach(el => {
+      if (el.tabIndex >= 0) return;
+      el.tabIndex = 0;
+      el.setAttribute('role', 'button');
+      el.addEventListener('keydown', e => {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); el.click(); }
+      });
     });
   });
 

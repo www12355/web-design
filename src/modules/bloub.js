@@ -299,6 +299,9 @@
     { id: 'capsule', radii: capsuleRadii },
     { id: 'triangle', radii: regularPolygonProfile(3, 1.12, 0.34, -90) },
     { id: 'hexagone', radii: regularPolygonProfile(6, 1.04, 0.26, 0) },
+    /* 正方形：rot=45 让平面朝上/下/左/右（而非菱形）。
+       平面外伸 = (1.3-0.24)*cos45 + 0.24 ≈ 0.99，与 cercle 等宽；角点 1.3 < DEMI_VIEWBOX 不裁切。 */
+    { id: 'carre', radii: regularPolygonProfile(4, 1.3, 0.24, 45) },
     { id: 'nuage', radii: cloud },
     { id: 'goutte', radii: droplet }
   ];

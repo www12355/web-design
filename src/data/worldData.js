@@ -19,7 +19,17 @@ export const DEMAND_POOL = [
 
 export const ROLE_BY_NAME = { '规划协调': 'planner', '内容撰写': 'writer', '数据分析': 'analyst', '视觉设计': 'designer', '工程开发': 'engineer' };
 
-export const BLOCK_REASONS = ['依赖方接口时序响应超时', '上游数据集未按窗口回传', '素材库版本冲突待合并', '审校规则命中灰度冲突', '构建产物哈希校验失败'];
+export const BLOCK_REASONS = [
+  '依赖方接口时序响应超时', '上游数据集未按窗口回传', '素材库版本冲突待合并',
+  '审校规则命中灰度冲突', '构建产物哈希校验失败',
+  /* 以下三条属「需要人授权」的阻塞：等待更久，恢复语义是「获放行」而非「自动重试」 */
+  '对外口径未通过自动复核放行', '交付范围超出自动授权阈值', '客户侧验收凭证缺失'
+];
+
+/* 需要人工授权的阻塞原因：用于区分等待时长与恢复文案（见 world.js 的 unblock） */
+export const APPROVAL_REASONS = new Set([
+  '对外口径未通过自动复核放行', '交付范围超出自动授权阈值', '客户侧验收凭证缺失'
+]);
 
 export const DEMAND_FLASH = [
   { demand: '大促秒杀活动页', tasks: [['视觉设计', '秒杀页主视觉'], ['工程开发', '秒杀页切图部署'], ['内容撰写', '秒杀卖点文案']] },
@@ -89,14 +99,15 @@ export const TEMPLATES = {
 
 /* ---------------- 初始账本 / 规模基准 ---------------- */
 export const INIT = {
-  EARN0: { planner: 8600, writer: 6400, analyst: 7800, designer: 2100, engineer: 7100 },
+  EARN0: { planner: 8600, writer: 6400, analyst: 7800, designer: 2100, engineer: 7100, qc: 5300 },
   /* [key, status, task, pct, taskId] */
   CAST0: [
     ['planner', 'run', '依赖路径重排', 82, 't01'],
     ['writer', 'run', '发布会主文案终校', 64, 't02'],
     ['analyst', 'busy', '漏斗异常定位补录', 91, 't03'],
     ['designer', 'idle', '视觉规范对比度修订', 38, 't04'],
-    ['engineer', 'run', '落地页联调 · 时序确认', 57, 't05']
+    ['engineer', 'run', '落地页联调 · 时序确认', 57, 't05'],
+    ['qc', 'busy', '交付物终检', 72, 't06']
   ],
   /* 员工日志（t 用 minutesAgo 表达） */
   EMP_LOG: {

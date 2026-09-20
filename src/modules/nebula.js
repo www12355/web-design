@@ -40,7 +40,7 @@ import { AGENTS, DOCS, TOPICS } from '../data/documents.js';
   const popConf=document.getElementById('pop-conf');
   let popId=null;
 
-  const bestTemplate = (p) => `${agentByKey.get(p.agentKey)?.name || '智能体'}提炼「${p.title}」：保留可复用结论，先校验输入与验收口径，再将稳定结果同步到相关知识节点。`;
+  const bestTemplate = (p) => `${agentByKey.get(p.agentKey)?.name || '数字员工'}提炼「${p.title}」：保留可复用结论，先校验输入与验收口径，再将稳定结果同步到相关知识节点。`;
   const nowLabel = () => new Date().toLocaleTimeString('zh-CN',{hour:'2-digit',minute:'2-digit'});
   function spherePoint(i, total) {
     const base=fib(i,total); const layer=i%20===0?.90:(i%7===0?.95:1); return {x:base.x*layer,y:base.y*layer,z:base.z*layer};
@@ -70,7 +70,7 @@ import { AGENTS, DOCS, TOPICS } from '../data/documents.js';
   function inspectNext(){ const p=chooseNext(); return p&&inspect(p); }
   function getPoint(id){ return points.find(p=>p.id===id)||null; }
   function stats(){ return {points:points.length+anchors.length,links:links.length,coverage:Math.min(100,Math.round(points.length/targetCount()*100)),inspected:inspectCount,improved:improveCount,current:inspecting?.id||null}; }
-  function showPop(p){ if(!pop||!p)return; popId=p.id; pop.hidden=false; if(popAgent){const a=agentByKey.get(p.agentKey);popAgent.textContent=a?.name||'智能体';popAgent.style.color=a?.color||'';} if(popTitle)popTitle.textContent=p.title; refreshPop(); }
+  function showPop(p){ if(!pop||!p)return; popId=p.id; pop.hidden=false; if(popAgent){const a=agentByKey.get(p.agentKey);popAgent.textContent=a?.name||'数字员工';popAgent.style.color=a?.color||'';} if(popTitle)popTitle.textContent=p.title; refreshPop(); }
   function refreshPop(){ if(!pop||pop.hidden||!popId)return; const p=points.find(x=>x.id===popId); if(!p){hidePop();return;} const s=project(p.p); pop.style.left=Math.round(s.x)+'px'; pop.style.top=Math.round(s.y)+'px'; if(popConf)popConf.textContent=`置信度 ${Math.round(p.confidence*100)}%`; }
   function hidePop(){ popId=null; if(pop)pop.hidden=true; }
   function resize(){ const r=cv.parentElement.getBoundingClientRect(); const dpr=Math.min(devicePixelRatio||1,3); W=Math.max(2,r.width);H=Math.max(2,r.height);cv.width=W*dpr;cv.height=H*dpr;ctx.setTransform(dpr,0,0,dpr,0,0); const pad=Math.max(28,Math.min(84,W*.032)); const cat=W>=1920?Math.min(320,W*.22):Math.min(258,W*.215); const fig=W>=1920?Math.min(430,W*.30):Math.min(318,W*.245); const left=pad+cat+46,right=W-pad-fig-40,top=138,bottom=H-88;CX=(left+right)/2;CY=(top+bottom)/2;R=Math.max(150,Math.min((right-left)/2,(bottom-top)/2));kick();}

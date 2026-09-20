@@ -1,5 +1,5 @@
 /* ============================================================
- * 知识图谱 · 智能体 / 文档 / 知识点（PL.04 Knowledge Graph）
+ * 知识图谱 · 数字员工 / 文档 / 知识点（PL.04 Knowledge Graph）
  * 纯数据模块：文档入库时间用 minutesAgo 表达，由 time 模块转真实时钟
  * ============================================================ */
 
@@ -9,7 +9,8 @@ export const AGENTS = [
   { key: 'writer',   name: '内容',  color: '#2dd4bf', rel: '撰写', ball: { shape: 'nuage',    ink: '#2dd4bf', paper: '#0d1524' }, expr: 'heureux'  },
   { key: 'analyst',  name: '数据',  color: '#ffd23f', rel: '分析', ball: { shape: 'galet',    ink: '#ffd23f', paper: '#0d1524' }, expr: 'attentif' },
   { key: 'designer', name: '设计',  color: '#c084fc', rel: '设计', ball: { shape: 'goutte',   ink: '#c084fc', paper: '#0d1524' }, expr: 'curieux'  },
-  { key: 'engineer', name: '工程',  color: '#818cf8', rel: '开发', ball: { shape: 'capsule',  ink: '#818cf8', paper: '#0d1524' }, expr: 'neutre'   }
+  { key: 'engineer', name: '工程',  color: '#818cf8', rel: '开发', ball: { shape: 'capsule',  ink: '#818cf8', paper: '#0d1524' }, expr: 'neutre'   },
+  { key: 'qc',       name: '质检',  color: '#34d399', rel: '审查', ball: { shape: 'carre',    ink: '#34d399', paper: '#0d1524' }, expr: 'attentif' }
 ];
 
 /* DOCS：time 字段为「入库分钟前」，由 nebula 按真实时钟换算展示 */

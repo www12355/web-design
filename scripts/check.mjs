@@ -6,6 +6,9 @@
    3) 未用导出：启发式扫描 export 名称在全仓的引用计数（仅告警）
    4) World 冒烟：Node 内 stub 浏览器环境，验证 reducer 与只读派生 API
    5) 颜色等价：ball-core 与原两套实现的逐值等价回归（1100 组）
+   6) DOM 契约：JS 里的 #id / .class / [data-*] 选择器必须在 HTML/CSS 中有定义
+      （此类缺陷不报错、不崩溃，只会静默失效；历史事故：改动类名后
+       入场时间线仍指向旧选择器，元素带着 opacity:0 永久不可见）
    失败即 process.exit(1)。零运行时依赖、零 devDependency。
    ============================================================ */
 import { readFileSync, readdirSync, statSync, existsSync } from 'node:fs';
@@ -270,6 +273,89 @@ function colorEquivalence() {
   if (BC.COLORS.length !== 12) throw new Error(`调色板长度异常：${BC.COLORS.length}`);
   return `hexToRgb/rgbToHex/lerpColor 与原实现 ${total} 组逐值一致，COLORS=${BC.COLORS.length}`;
 }
+
+/* ---------------- 6. DOM 契约（JS 选择器 ↔ HTML/CSS 实际定义） ----------------
+   这一类缺陷不报错、不崩溃，只会静默失效：改一个类名或删一个元素，对应的 JS
+   只是从此匹配不到任何东西。历史事故：`交付脊` 领读标签改名后，入场时间线仍
+   指向旧类名，元素带着 .reveal 的 opacity:0 永久不可见，而门禁 5/5 全绿。
+   此处把 JS 里出现的 #id / .class / [data-*] 与三页 HTML + 全站 CSS 做契约比对。 */
+(function domContract() {
+  const htmlText = HTML_PAGES.map((p) => readFileSync(join(ROOT, p), 'utf8')).join('\n');
+  const cssText = walk(join(ROOT, 'src'), ['.css'])
+    .map((f) => readFileSync(f, 'utf8'))
+    .join('\n');
+  const corpus = htmlText + '\n' + cssText;
+
+  const ids = new Set([...htmlText.matchAll(/\bid="([^"]+)"/g)].map((m) => m[1]));
+  const classes = new Set();
+  for (const m of corpus.matchAll(/\bclass="([^"]+)"/g)) {
+    for (const c of m[1].split(/\s+/)) if (c) classes.add(c);
+  }
+  for (const m of cssText.matchAll(/\.([A-Za-z_][\w-]*)/g)) classes.add(m[1]);
+  const attrs = new Set([...corpus.matchAll(/\b(data-[\w-]+)/g)].map((m) => m[1]));
+
+  /* 运行期由脚本自行创建、因而 HTML 中本就不存在的锚点。
+     每一项都必须在下面注明创建点，否则白名单会掩盖真实缺陷。 */
+  const RUNTIME_CREATED = new Set([
+    'aic-toasts', // AIC.toast：首次调用时 createElement 并 append
+    'aic-miniscreen', // AIC.smallScreenNotice：窄屏时创建
+    'aic-ft-sprite' // AIC.injectSprite：图标精灵注入后即存在
+  ]);
+
+  const badIds = [];
+  const badCls = [];
+  const badAttrs = [];
+  const jsFiles = [...walk(join(ROOT, 'src'), ['.js']), ...walk(join(ROOT, 'scripts'), ['.mjs'])];
+
+  /* 由 JS 在运行期写出的 data-* 属性（如 dataset.ms = … / data-sec="…"）。
+     生产者与消费者靠前一个字符区分：属性赋值（写）不以 [ 开头，选择器（读）必然带 [。
+     这样选择器不会把自己论证成「已定义」，也就不必硬编码白名单。 */
+  const producedAttrs = new Set();
+  for (const f of jsFiles) {
+    const txt = readFileSync(f, 'utf8');
+    for (const m of txt.matchAll(/dataset\.([A-Za-z]\w*)\s*=/g)) {
+      producedAttrs.add('data-' + m[1].replace(/[A-Z]/g, (c) => '-' + c.toLowerCase()));
+    }
+    for (const m of txt.matchAll(/setAttribute\(\s*['"]data-([\w-]+)['"]/g)) {
+      producedAttrs.add(`data-${m[1]}`);
+    }
+    for (const m of txt.matchAll(/(?<!\[)data-([\w-]+)=/g)) producedAttrs.add(`data-${m[1]}`);
+  }
+
+  for (const f of jsFiles) {
+    const txt = readFileSync(f, 'utf8');
+    const where = rel(f);
+    for (const m of txt.matchAll(
+      /\$\(\s*['"]#([\w-]+)['"]\s*\)|getElementById\(\s*['"]([\w-]+)['"]\s*\)/g
+    )) {
+      const id = m[1] || m[2];
+      if (!ids.has(id) && !RUNTIME_CREATED.has(id)) badIds.push(`#${id}（${where}）`);
+    }
+    /* 同时覆盖 querySelector(All)('…') 与 $('…')；选择器允许反引号模板串，
+       其中的 ${…} 不影响 .class / [data-*] 的提取。 */
+    for (const m of txt.matchAll(
+      /(?:querySelector(?:All)?|\$)[ \t]*\([ \t]*['"`]([^'"`]+)['"`]/g
+    )) {
+      const sel = m[1];
+      if (sel.startsWith('#')) {
+        const id = sel.slice(1);
+        if (!ids.has(id) && !RUNTIME_CREATED.has(id)) badIds.push(`#${id}（${where}）`);
+      }
+      for (const c of sel.matchAll(/\.([A-Za-z_][\w-]*)/g)) {
+        if (!classes.has(c[1])) badCls.push(`.${c[1]} ← "${sel}"（${where}）`);
+      }
+      for (const a of sel.matchAll(/\[(data-[\w-]+)/g)) {
+        if (!attrs.has(a[1]) && !producedAttrs.has(a[1])) {
+          badAttrs.push(`[${a[1]}] ← "${sel}"（${where}）`);
+        }
+      }
+    }
+  }
+
+  const bad = [...new Set([...badIds, ...badCls, ...badAttrs])];
+  if (bad.length) fail('DOM 契约', bad.join('; '));
+  else ok('DOM 契约', `JS 选择器全部有定义（${ids.size} 个 id · ${classes.size} 个类）`);
+})();
 
 /* ---------------- 汇总 ---------------- */
 (async () => {

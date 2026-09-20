@@ -94,7 +94,7 @@ export function buildDocContent(order, opts = {}) {
 function defaultLines(client, demand) {
   return [
     `客户「${client}」提出「${demand}」需求。目标是在既定交付窗口内，以足够质量交付可验收的产物，并沉淀为可复用的知识资产。`,
-    '经营体按「接单 → 报拆解 → 并行生产 → 交叉质检 → 交付归档」的链路推进，全程由主 AI 统筹、5 名 AI 分身并行协作。'
+    '经营体按「接单 → 报拆解 → 并行生产 → 交叉质检 → 交付归档」的链路推进，全程由主 AI 统筹、6 名 AI 数字员工并行协作。'
   ];
 }
 function defaultScope() {
@@ -106,7 +106,7 @@ function defaultScope() {
 function defaultPlan() {
   return [
     '阶段 1 · 拆解派发：解析需求依赖，建立关键路径并将任务并行排入生产队列；',
-    '阶段 2 · 并行生产：各分身按验收口径推进，交叉质检并自动回退返工；',
+    '阶段 2 · 并行生产：各数字员工按验收口径推进，交叉质检并自动回退返工；',
     '阶段 3 · 交付归档：汇总产物、复核验收标准、归档入库并同步知识图谱。'
   ];
 }
@@ -170,6 +170,67 @@ export function reviewDoc(content, context = {}) {
 
   const score = Math.max(0, 100 - findings.reduce((a, f) => a + ({ high: 18, mid: 10, low: 5 }[f.level] || 8), 0));
   return { findings, pass: findings.length === 0, score };
+}
+
+/* ---------------- 修订痕迹 + 页边批注（模拟 AI 边审边改） ----------------
+   完全由 reviewDoc() 的 findings 驱动：每条可定位到正文的 finding 生成一处
+   「删除线原句 + 下划线插入改后句」修订，并在页边浮出对应批注气泡；序号与
+   右侧「AI 分析与评审」栏、页边批注三者一一联动。无对应段落的 finding 仅保留右侧栏。 */
+const REV_SEC_MAP = {
+  '验收标准': 'acceptance', '结论': 'conclusion', '风险与结论': 'conclusion',
+  '交付清单': 'deliverables', '执行与排期': 'plan',
+  '订单信息': 'meta', '交付状态': 'meta'
+};
+const REV_SOURCE_AUTHOR = {
+  '文档结构': '主 AI · 结构', '订单字段': '数据分析', '任务状态': '规划协调',
+  '群聊风险': '主 AI', '风险与结论': '主 AI'
+};
+/* 修订模板：del 取正文原句（须与 buildDocContent 的 default* 文案一致，删除线才对齐），ins 为改写后句子 */
+function revTemplate(section, meta = {}) {
+  switch (section) {
+    case '验收标准': return {
+      del: '关键节点通过率 ≥ 95%，接入方确认无阻断性缺陷后签署验收确认单，方可归档入库。',
+      ins: '关键节点通过率 ≥ 95%、性能阈值达标（首屏加载 ≤ 1.2s、接口错误率 < 0.5%），接入方书面签字确认且无阻断性缺陷后签署验收确认单，方可归档入库。'
+    };
+    case '交付清单': return {
+      del: '详见下表交付物、格式与归属。',
+      ins: '详见下表交付物、格式与归属；已补全并行任务产出，逐项标注责任 AI 与交付格式。'
+    };
+    case '执行与排期': return {
+      del: '阶段 1 · 拆解派发：解析需求依赖，建立关键路径并将任务并行排入生产队列；',
+      ins: '阶段 1 · 拆解派发：解析需求依赖、建立关键路径（含接口时序依赖），将任务并行排入生产队列并标注责任 AI；'
+    };
+    case '结论': return {
+      del: `「${meta.demand}」各项交付物已完成并归档，满足验收口径。交付记录与知识资产已同步沉淀。`,
+      ins: `「${meta.demand}」阶段性交付物已生成，待未闭环任务复核、阻塞解除并二次确认后进入最终归档；交付记录与知识资产同步沉淀中。`
+    };
+    /* 群聊风险：不改写原句，改为在结论段后补一段「风险说明」（避免与结论修订重叠） */
+    case '风险与结论': return {
+      mode: 'append',
+      del: '',
+      ins: `补充风险说明：群聊中关于「${meta.demand}」的未闭环风险已登记，处理结论与责任人同步至交付备注，未闭环前不写入最终归档。`
+    };
+    default: return { del: '', ins: '' };
+  }
+}
+export function buildRevisions(content, findings) {
+  const meta = (content && content.meta) || {};
+  const out = [];
+  let no = 0;
+  (findings || []).forEach(f => {
+    const secId = REV_SEC_MAP[f.section];
+    if (!secId) return;                       // 无对应正文段落的 finding 仅保留右侧栏展示
+    const tpl = revTemplate(f.section, meta);
+    if (!tpl.ins) return;                     // 无改写文案：仅保留右侧栏，不在正文留空标记
+    no++;
+    out.push({
+      no, secId, anchor: secId === 'meta' ? 'meta' : 'sec', mode: tpl.mode || 'replace',
+      del: tpl.del, ins: tpl.ins,
+      level: f.level, source: f.source, author: REV_SOURCE_AUTHOR[f.source] || f.source,
+      issue: f.issue, suggestion: f.suggestion
+    });
+  });
+  return out;
 }
 
 /* ---------------- 真实 .docx 下载（尽力而为，失败降级） ---------------- */
@@ -236,10 +297,14 @@ export function openDocReview(content, order, opts = {}) {
   let round = 0;
   let returnFocus = null;          /* 打开前的焦点，关闭时归还 */
   const timers = [];
+  const intervals = [];
   const later = (fn, ms) => { const id = setTimeout(fn, ms); timers.push(id); return id; };
-  const clearTimers = () => { while (timers.length) clearTimeout(timers.pop()); };
+  const every = (fn, ms) => { const id = setInterval(fn, ms); intervals.push(id); return id; };
+  const clearTimers = () => { while (timers.length) clearTimeout(timers.pop()); while (intervals.length) clearInterval(intervals.pop()); };
   root.dataset.docNo = docNo;
 
+  const rail = el('#dr-rail');
+  if (rail) rail.innerHTML = '';                 // 复用 DOM：清掉上一轮的批注气泡
   renderDocPreview(paper, content);
   el('#dr-title').textContent = `${content.title}.docx  - Word`;
   if (auditBtn) { auditBtn.disabled = false; auditBtn.textContent = '开始 AI 审阅'; }
@@ -272,6 +337,63 @@ export function openDocReview(content, order, opts = {}) {
     chat.scrollTop = chat.scrollHeight;
   }
 
+  /* 在正文对应段落插入修订痕迹（删除线原句 + 下划线插入），并标注序号 */
+  function injectRevision(rev) {
+    const marker = `<sup class="dr-cm dr-cm--${rev.level}" data-no="${rev.no}" title="${esc(rev.issue)}">${rev.no}</sup>`;
+    if (rev.anchor === 'meta') {
+      const tbl = paper.querySelector('.dr-meta');
+      if (tbl) {
+        tbl.classList.add('dr-meta--flag');
+        const cell = tbl.querySelector('th');
+        if (cell) cell.insertAdjacentHTML('beforeend', ' ' + marker);   // 多条元信息问题各自留标记
+      }
+      return;
+    }
+    const sec = paper.querySelector(`.dr-sec[data-sec="${rev.secId}"]`);
+    if (!sec) return;
+    /* 追加式修订（如群聊风险说明）：在段落末尾新增一段插入文字，不改写原文 */
+    if (rev.mode === 'append') {
+      const add = document.createElement('p');
+      add.className = 'dr-rev-add';
+      add.innerHTML = `<ins class="dr-ins dr-rev--flash">${esc(rev.ins)}</ins>${marker}`;
+      const tbl = sec.querySelector('.dr-table');
+      if (tbl) sec.insertBefore(add, tbl); else sec.appendChild(add);
+      return;
+    }
+    let p = rev.del ? [...sec.querySelectorAll('p')].find(x => x.textContent.includes(rev.del)) : null;
+    if (!p) p = sec.querySelector('p');
+    if (!p) return;
+    if (rev.del) {
+      const escDel = esc(rev.del);
+      const html = p.innerHTML;
+      const idx = html.indexOf(escDel);
+      if (idx >= 0) {
+        p.innerHTML = html.slice(0, idx) + `<del class="dr-del">${escDel}</del><ins class="dr-ins dr-rev--flash">${esc(rev.ins)}</ins>${marker}` + html.slice(idx + escDel.length);
+        return;
+      }
+    }
+    /* 兜底：原句无法精确定位时整段改写（删除线 + 插入） */
+    const inner = p.innerHTML;
+    p.innerHTML = `<del class="dr-del">${inner}</del><ins class="dr-ins dr-rev--flash">${esc(rev.ins)}</ins>${marker}`;
+  }
+  /* 在页边批注栏浮出对应气泡（带序号、作者、意见），点击联动正文高亮 */
+  function appendRailCard(rev) {
+    const rail = el('#dr-rail');
+    if (!rail) return;
+    const card = document.createElement('div');
+    card.className = `dr-comment dr-comment--${rev.level} dr-rev--flash`;
+    card.dataset.no = rev.no;
+    card.innerHTML = `<span class="dr-comment__no">${rev.no}</span><div class="dr-comment__body"><b>${esc(rev.author)}</b><span class="dr-comment__issue">${esc(rev.issue)}</span><em>${esc(rev.suggestion)}</em></div>`;
+    card.addEventListener('click', () => {
+      const m = paper.querySelector(`.dr-cm[data-no="${rev.no}"]`);
+      if (!m) return;
+      m.scrollIntoView({ block: 'center', behavior: 'smooth' });
+      m.classList.add('dr-cm--pulse');
+      setTimeout(() => m.classList.remove('dr-cm--pulse'), 1200);
+    });
+    rail.appendChild(card);
+  }
+
   function run() {
     if (running) return;
     clearTimers();            // 重入前清掉上一轮挂起的步骤，避免重复追加
@@ -299,15 +421,20 @@ export function openDocReview(content, order, opts = {}) {
       }
       sideList.innerHTML = pass
         ? '<div class="dr-pass"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg><b>无不足 · 文档规范</b><span>真实订单、任务状态、交付清单与群聊证据均已对齐，可直接签署归档。</span></div>'
-        : findings.map(f => `<div class="dr-find dr-find--${f.level}"><span class="dr-find__tag">${levelLabel(f.level)}</span><div><b>${esc(f.source)} · ${esc(f.section)}</b><strong>${esc(f.issue)}</strong><span>证据：${esc(f.evidence)}</span><em>建议：${esc(f.suggestion)}</em></div></div>`).join('');
+        : findings.map((f, i) => `<div class="dr-find dr-find--${f.level}"><span class="dr-find__no">${i + 1}</span><span class="dr-find__tag">${levelLabel(f.level)}</span><div><b>${esc(f.source)} · ${esc(f.section)}</b><strong>${esc(f.issue)}</strong><span>证据：${esc(f.evidence)}</span><em>建议：${esc(f.suggestion)}</em></div></div>`).join('');
       auditBtn.disabled = false;
       auditBtn.textContent = '重新审阅';
       running = false;
+      /* 修订与批注：按 findings 逐条定位正文，随审阅结果渐进浮现（带高亮脉冲） */
+      const revisions = buildRevisions(content, findings);
+      revisions.forEach((rev, i) => later(() => { injectRevision(rev); appendRailCard(rev); }, 320 + i * 240));
       if (typeof onFindings === 'function') onFindings(res, content, order, round);
     }, 2600);
   }
 
-  function onKeydown(e) { if (e.key === 'Escape') { e.stopPropagation(); close(); } }
+  function onKeydown(e) {
+    if (e.key === 'Escape') { e.stopPropagation(); close(); }
+  }
   /* 点击遮罩空白关闭：window2-review.css 下弹窗满屏，此分支通常不可达，保留以兼容居中布局 */
   function onBackdrop(e) { if (e.target === root) close(); }
 
@@ -324,15 +451,24 @@ export function openDocReview(content, order, opts = {}) {
     root.removeEventListener('click', onBackdrop);
     running = false;
   }
-  function close() {
+  function doClose() {
     destroy();
     root.hidden = true;
-    root.classList.remove('dr-on');
+    root.classList.remove('dr-on', 'dr-closing');
     document.body.classList.remove('dr-lock');
     if (activeReview && activeReview.docNo === docNo) activeReview = null;
     /* 焦点归还触发元素（chip / 群聊气泡 / 知识目录行），键盘流不中断 */
     if (returnFocus && returnFocus.isConnected && typeof returnFocus.focus === 'function') returnFocus.focus();
     returnFocus = null;
+  }
+  function close(fade) {
+    /* fade=true：自动关闭走淡出（.dr-closing 过渡结束再隐藏），手动关闭（ESC/×/遮罩）仍即时 */
+    if (fade && root.classList.contains('dr-on')) {
+      root.classList.add('dr-closing');
+      later(doClose, 340);
+      return;
+    }
+    doClose();
   }
   function open() {
     /* 记住触发元素，并把焦点移进弹窗：否则 Tab 仍在背景内容里游走、ESC 之后也不知身在何处。
@@ -347,6 +483,21 @@ export function openDocReview(content, order, opts = {}) {
   open();
   mountTimeTicker();
   if (opts.auto !== false) run();
+  /* 自动关闭：仅「交付结算后自动弹出」场景（opts.autoClose）打开即从 0 计时，5 秒后淡出返回第 2 屏；
+     手动点开不传 autoClose，保持原行为（ESC / × / 返回第 2 屏 / 遮罩均可关闭）。 */
+  const cdEl = el('#dr-countdown');
+  if (cdEl) cdEl.hidden = !opts.autoClose;
+  if (opts.autoClose) {
+    const total = 5000;
+    let left = total;
+    const tick = () => {
+      const sec = Math.max(0, Math.ceil(left / 1000));
+      if (cdEl) { cdEl.textContent = `${sec} 秒后自动返回第 2 屏`; cdEl.classList.toggle('dr-countdown--warn', sec <= 3); }
+    };
+    tick();
+    every(() => { left -= 1000; if (left > 0) tick(); }, 1000);
+    later(() => close(true), total);
+  }
   const api = { close, docNo, isOpen: () => root.classList.contains('dr-on') };
   activeReview = { docNo, destroy, api };
   return api;

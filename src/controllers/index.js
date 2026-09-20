@@ -29,12 +29,15 @@ function openSized(w, h) {
   window.open('screen1.html', 'screen1', `width=${w},height=${h}`);
 }
 
-// 卡片支持键盘打开
-document.querySelectorAll('.launch-card[role="link"]').forEach(card => {
-  card.addEventListener('keydown', e => {
-    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); card.click(); }
-  });
-});
+// 页面入口卡片已改为原生 <button>，键盘 Enter/Space 由浏览器原生提供，
+// 原先为 div[role=link] 手写的 keydown 兼容层随之删除。
+
+// 尺寸预览的选中是「驻留态」：点了哪一个尺寸，哪一个就停在选中态。
+// 此前只有瞬态 :active，松手后无从判断上一次按的是哪一档。
+const sizeBtns = Array.from(document.querySelectorAll('[data-action="open-sized"]'));
+function markSized(active) {
+  sizeBtns.forEach(b => b.setAttribute('aria-pressed', String(b === active)));
+}
 
 // 由 data-action 驱动事件绑定，避免内联 onclick 与 window 全局污染（P2-1）
 document.querySelectorAll('[data-action]').forEach(el => {
@@ -44,7 +47,7 @@ document.querySelectorAll('[data-action]').forEach(el => {
       openBoth();
     } else if (act === 'open-sized') {
       const [w, h] = String(el.dataset.size || '').split('x').map(Number);
-      if (w && h) openSized(w, h);
+      if (w && h) { openSized(w, h); markSized(el); }
     } else if (act === 'open-window') {
       const t = el.dataset.target;
       if (t) window.open(t + '.html', t);

@@ -7,24 +7,24 @@
 :root {
   /* 背景：低彩度冷灰阶（沉稳高阶暗色） */
   --paper:#070b11;          /* 基底近黑 */
-  --paper-2:#0e151e;        /* 冷钢面板 */
-  --paper-3:#16212c;        /* 抬升层 · 工业仪表 */
+  --paper-2:#121b27;        /* 冷钢面板（提亮一档，拉开与基底的明暗差） */
+  --paper-3:#1c2836;        /* 抬升层 · 工业仪表（提亮一档） */
   --surface-0:#070b11;      /* 基底 */
-  --surface-1:#0d141d;      /* 卡片 */
-  --surface-2:#141f2b;      /* 抬升 */
-  --surface-3:#0a121b;      /* 凹陷 */
-  --cream:#101a24;          /* 深色玻璃钢板表面 */
+  --surface-1:#121b27;      /* 卡片（与 paper-2 同源） */
+  --surface-2:#1c2836;      /* 抬升（与 paper-3 同源） */
+  --surface-3:#101822;      /* 凹陷 */
+  --cream:#16212e;          /* 深色玻璃钢板表面（介于面板与抬升之间） */
 
   /* 文字阶（WCAG AA，深底高对比） */
   --ink:#eaf2f6;            /* 主文字 · 冷白 */
-  --ink-soft:#aeb9c2;       /* 次级文字 · 钢灰 */
-  --muted:#7e8b96;          /* 弱化文字 */
+  --ink-soft:#bcc6cf;       /* 次级文字 · 钢灰（提亮，深底约 11:1） */
+  --muted:#94a1ac;          /* 弱化文字（提亮，深底约 7.3:1，仍明显次级） */
   --ink-faint:#5d6b76;      /* 极弱 · 仅装饰 */
 
   /* 发丝边框 / 内高光 */
-  --line:rgba(158,182,205,.10);
-  --line-strong:rgba(170,194,216,.18);
-  --hairline:inset 0 1px 0 rgba(255,255,255,.05);
+  --line:rgba(158,182,205,.16);
+  --line-strong:rgba(170,194,216,.28);
+  --hairline:inset 0 1px 0 rgba(255,255,255,.06);
 
   /* 克制单主色（界面），小球仍用 --c-* 亮色 */
   --primary:#3ec9c0;        /* 收敛青/teal */
@@ -36,10 +36,10 @@
   --accent-ring:var(--primary-ring);
   --pine:var(--primary);
   --pine-teal:#2fccc2;      /* 在线 / 成功 · 信号（收敛） */
-  --clay:#e0a23a;           /* 忙碌 / 警告 · 琥珀（收敛） */
-  --sage:#7f8a97;
+  --clay:#e8893a;           /* 忙碌 / 警告 · 橙（向橙偏移，与 amber 拉开相） */
+  --sage:#8a97a4;           /* 待派发 · 冷灰（提亮，明确次级语义） */
   --neon-violet:#7c74c9;
-  --neon-amber:#e0a23a;
+  --neon-amber:#f2b53c;     /* 阻塞 · 金黄（原与 clay 同值，现分离） */
 
   /* 渐变与辉光（克制） */
   --brand-grad:linear-gradient(100deg, #2bb3ab 0%, #3ec9c0 48%, #7c74c9 100%);
@@ -48,8 +48,8 @@
   --glow-rose:0 0 20px rgba(124,116,201,.16);
   --glow-strong:0 0 34px rgba(62,201,192,.26);
   --grid:rgba(150,185,215,.040);
-  --glass:rgba(16,26,38,.55);
-  --glass-brd:rgba(158,190,215,.15);
+  --glass:rgba(22,33,46,.60);
+  --glass-brd:rgba(158,190,215,.22);
 
   /* 角色色：亮色小球（保留，作画面信号灯） */
   --c-planner:#5ec8ff;   /* 规划 · 霓虹蓝 */
@@ -57,10 +57,14 @@
   --c-analyst:#ffd23f;   /* 分析 · 霓虹黄 */
   --c-designer:#c084fc;  /* 设计 · 霓虹紫 */
   --c-engineer:#818cf8;  /* 工程 · 靛蓝 */
+  --c-qc:#34d399;        /* 质量审查 · 翡翠绿 */
 
-  /* 分层冷调阴影 */
-  --shadow-soft:0 1px 2px rgba(0,0,0,.45), 0 8px 22px rgba(0,0,0,.34);
-  --shadow-lift:0 2px 8px rgba(0,0,0,.50), 0 20px 42px rgba(0,0,0,.46);
+  /* ---------- 遗留投影 → 光影模型（就地统一，调用点零改动）----------
+     近黑底上黑色投影不可见：既表达不了层级，又与 --edge-* / --lit-top / --elev-*
+     并存成两套深度语言。故把这两个遗留 token 直接指向光影模型。
+     新代码请直接使用 --edge-1 / --lit-top / --elev-1 / --elev-2 / --contact-*。 */
+  --shadow-soft:var(--edge-1), var(--lit-top);
+  --shadow-lift:var(--elev-2);
   --shadow-inset:inset 0 1px 0 rgba(255,255,255,.04), inset 0 0 0 1px rgba(255,255,255,.02);
 
   /* 圆角阶梯 */
@@ -92,16 +96,82 @@
   --mono:var(--font-mono);
   --sans:var(--font-sans);
 
-  /* 语义圆角：与「工业收口」取值对齐，供页面层语义引用 */
-  --r-card:1.4rem;
+  /* ---------- 表面阶梯：暗色下唯一的层级语言 ----------
+     近黑底上黑色投影不可见，层级改由「亮度台阶」表达：
+     sf-0 基底 → sf-1 面板 → sf-2 抬升控件 → sf-3 浮层。
+     取值与既有 --paper/--paper-2/--paper-3 同源，仅补齐最高一阶。 */
+  --sf-0:var(--paper);
+  --sf-1:var(--paper-2);
+  --sf-2:var(--paper-3);
+  --sf-3:#243446;
+
+  /* 边缘发丝：替代近黑底上不可见的投影，负责「读得出这是一层」 */
+  --edge-1:inset 0 0 0 1px rgba(170,194,216,.16);
+  --edge-2:inset 0 1px 0 rgba(255,255,255,.07), inset 0 0 0 1px rgba(170,194,216,.24);
+  /* 组合深度：发丝边为主，环境光为辅（仅浮起层使用） */
+  --elev-1:var(--edge-1), 0 8px 22px rgba(0,0,0,.34);
+  --elev-2:var(--edge-2), 0 20px 42px rgba(0,0,0,.46);
+
+  /* 遮蔽黑分档：原 --ink-a* 语义为「投影/压暗」而非文字墨色，在此正名 */
+  --shade-a04:rgba(0,0,0,.04);
+  --shade-a05:rgba(0,0,0,.05);
+  --shade-a06:rgba(0,0,0,.06);
+  --shade-a07:rgba(0,0,0,.07);
+  --shade-a09:rgba(0,0,0,.09);
+  --shade-a10:rgba(0,0,0,.10);
+  --shade-a14:rgba(0,0,0,.14);
+  --shade-a16:rgba(0,0,0,.16);
+  --shade-a22:rgba(0,0,0,.22);
+
+  /* ---------- 光影模型：顶部单主光 + 冷色环境 + 品牌补光 ----------
+     主光方向：正上方略前倾（顶缘光）；色温：冷白 ~6500K（#cfe3f5）；
+     强度：低-中；投射范围：全局环境场 + 逐层局部，抬升面只吃顶缘光。
+     近黑底上黑色投影不可见，光感只由四件事表达：
+       1) 顶缘镜面高光 --lit-top / --lit-top-2（仅抬升面）
+       2) 凹陷环境遮蔽 --ao-inset（轨道 / 凹槽 / 输入框）
+       3) 浮层接触影 --contact-*（仅真正脱离文档流的层）
+       4) 环境光场 --light-field（青左上 + 紫右下，全站唯一来源）
+     纪律：高光只给抬升面、遮蔽只给凹陷面；静态面不吃接触影、不挂玻璃折射；
+     辉光仍只服务活动态与浮层；全站不引入暖光。 */
+  --lit-hi:#cfe3f5;                                    /* 主光高光色（冷白 6500K） */
+  --lit-top:inset 0 1px 0 rgba(207,227,245,.07);        /* 顶缘高光 · 常规档 */
+  --lit-top-2:inset 0 1px 0 rgba(207,227,245,.12);      /* 顶缘高光 · 强调档 */
+  --ao-inset:inset 0 1px 2px rgba(0,0,0,.45), inset 0 0 0 1px rgba(0,0,0,.18);
+  --contact-1:0 6px 18px rgba(0,0,0,.38);
+  --contact-2:0 18px 40px rgba(0,0,0,.48);
+  --glass-sheen:linear-gradient(180deg, rgba(207,227,245,.055), rgba(207,227,245,0) 42%);
+  --light-field:
+    radial-gradient(60% 50% at 14% 6%, rgba(62,201,192,.07), transparent 70%),
+    radial-gradient(56% 44% at 90% 94%, rgba(124,116,201,.09), transparent 70%),
+    linear-gradient(180deg, #06090f, #0b1119 58%, #080d13);
+
+  /* ---------- 圆角语义：禁止一刀切 ----------
+     bar 进度条条芯 → ctrl 控件 → card 卡片 → panel 面板 → pill 药丸。
+     组件按自身语义取档，不再统一压成一个值。 */
+  --r-bar:.2rem;
   --r-ctrl:.6rem;
+  --r-card:1.2rem;
+  --r-panel:1.6rem;
   --r-chip:.5rem;
 
-  /* 动效节奏变量：统一时长与缓动 */
+  /* ---------- 字阶：1.2rem 为绝对下限（1920 基准下 = 12px）----------
+     低于此值的正文/标签一律归入 micro 档；仅纯装饰性描边可例外。 */
+  --fs-micro:1.2rem;
+  --fs-body:1.4rem;
+  --fs-title:1.7rem;
+  --fs-lead:2.2rem;
+
+  /* ---------- 动效节奏：仅三档时长 ----------
+     dur-1 微反馈（hover/按压）· dur-2 状态切换 · dur-3 层进出
+     数值动效与呼吸动效为内容节奏，单独保留。 */
+  --dur-1:.14s;
+  --dur-2:.22s;
+  --dur-3:.4s;
   --dur-fast:.18s;
   --dur-base:.24s;
   --dur-num:.9s;
   --dur-breath:2.8s;
+  --ease-out:cubic-bezier(.22,1,.36,1);
 
   /* 状态语义色 */
   --c-danger:#e2624f;
@@ -134,4 +204,23 @@
   --violet-a18:rgba(124,116,201,.18);
   /* 冷钢/石板中性色分档（window2 面板边界） */
   --steel-a20:rgba(169,194,204,.20);
+}
+
+/* ---------- 高对比增强档：面向强光 / 低视力 / 高对比需求设备（加法式，不反向覆盖） ----------
+   仅加法式重声明少量 token；不触碰页面层、不破坏单一权威层与 reduced-motion 块。 */
+@media (prefers-contrast: more) {
+  :root {
+    --line:rgba(158,182,205,.24);
+    --line-strong:rgba(170,194,216,.40);
+    --ink-soft:#cdd6de;
+    --muted:#aab4bd;
+    --sage:#9aa6b2;
+    --sf-1:#16242f;
+    --sf-2:#21303f;
+    --sf-3:#2c3f54;
+    --edge-1:inset 0 0 0 1px rgba(170,194,216,.24);
+    --edge-2:inset 0 1px 0 rgba(255,255,255,.10), inset 0 0 0 1px rgba(170,194,216,.32);
+    /* 光影模型随对比度增强：顶缘高光提档，弱视设备仍读得出层 */
+    --lit-top:inset 0 1px 0 rgba(207,227,245,.12);
+  }
 }

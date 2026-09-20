@@ -22,13 +22,6 @@
       <div class="mast__title">
         <span class="h-eyebrow">AUTONOMOUS OPS · 全自主 AI 经营体 · 无人值守</span>
         <h1><span>运营驾驶舱</span> <span class="mast__no num">N°06 / 18</span></h1>
-        <!-- 运行模板切换器：真实联动，World.setTemplate 双窗同步生效 -->
-        <div class="tpl-wrap" id="tpl-wrap">
-          <button type="button" class="tpl-chip" id="tpl-chip" aria-haspopup="true" aria-expanded="false">
-            <i aria-hidden="true"></i>运行模板 · <b id="tpl-chip-name">日常经营</b>
-          </button>
-          <div class="tpl-pop" id="tpl-pop" role="menu" aria-label="运行模板"></div>
-        </div>
       </div>
       <div class="mast__vals mast__ops" aria-label="实时运营指标">
         <div class="val reveal"><b><span id="mast-progress" data-count="72">72</span><i class="u">%</i></b><span class="lbl">整体交付进度</span></div>
@@ -38,19 +31,20 @@
       </div>
     </div>
     <div class="spine">
-      <div class="spine__pct reveal"><b><span id="spine-pct" data-count="72">72</span><i class="u">%</i></b><span class="lbl">整体交付进度</span></div>
+      <!-- 领读标签：原为「72% 整体交付进度」，与刊头 KPI 同值同标签在同一屏重复出现，
+           现只说明「这一段是什么」，进度数值由刊头独占。 -->
+      <div class="spine__lead reveal"><span class="lbl">交付脊 · 五段流转</span></div>
       <div class="spine__track">
-        <div class="spine__step is-done"><div class="seg"><i class="seg-fill--full"></i></div><span>需求接收 ✓</span></div>
-        <div class="spine__step is-done"><div class="seg"><i class="seg-fill--full"></i></div><span>方案确认 ✓</span></div>
-        <div class="spine__step is-now"><div class="seg"><i id="spine-prod" class="flow-sheen" style="width:72%"></i></div><span>并行生产</span></div>
+        <div class="spine__step"><div class="seg"><i id="spine-req" class="flow-sheen" style="width:0%"></i></div><span>需求接收</span></div>
+        <div class="spine__step"><div class="seg"><i id="spine-confirm" class="flow-sheen" style="width:0%"></i></div><span>方案确认</span></div>
+        <div class="spine__step"><div class="seg"><i id="spine-prod" class="flow-sheen" style="width:0%"></i></div><span>并行生产</span></div>
         <div class="spine__step"><div class="seg"><i id="spine-accept" class="flow-sheen" style="width:0%"></i></div><span>交付验收</span></div>
         <div class="spine__step"><div class="seg"><i id="spine-settle" class="flow-sheen" style="width:0%"></i></div><span>交付归档</span></div>
       </div>
+      <!-- 只保留刊头没有的一项（已完成）。任务总量 / 进行中 / 准时率
+           在刊头 KPI 已各出现一次，此处重复只增加读数负担。 -->
       <div class="spine__stats">
-        <span><b id="st-total">48</b>任务</span>
         <span><b id="st-done" class="s1-num--pine">31</b>已完成</span>
-        <span><b id="st-doing" class="s1-num--clay">9</b>进行中</span>
-        <span><b id="st-ontime">96.4%</b>准时率</span>
       </div>
     </div>
   </header>
@@ -357,87 +351,87 @@
     </aside>
   </div>
 
-  <!-- ============ 甘特横带：全任务排期（任务 × 日期周期） ============ -->
+  <!-- ============ 甘特横带：全任务排期（多任务泳道 · 依赖/里程碑/缓冲/冲突/优先级 · 由 Schedule 引擎实时驱动） ============ -->
   <section class="sched band">
     <div class="sched__head reveal">
       <span class="h-eyebrow">全任务排期</span>
-      <span class="sched__range num">09.01 – 09.30</span>
-      <span class="sched__meta">全 5 项任务 · 4 个渠道 · 月度周期</span>
+      <span class="sched__range num" id="sched-range">09.01 – 10.26</span>
+      <span class="sched__meta" id="sched-meta">排期计算中…</span>
+      <button type="button" class="sched__imp-btn" id="sched-impact-btn" aria-expanded="false" aria-controls="sched-impact">
+        <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 3h12M2 8h12M2 13h12" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round"/></svg>
+        变更影响
+      </button>
     </div>
     <i class="tile__no rc--planner" aria-hidden="true">05</i>
     <div class="sched__body">
-      <div class="sched__weeks" aria-hidden="true">
-        <span style="left:12.5%">W1</span><span style="left:37.5%">W2</span>
-        <span style="left:62.5%">W3</span><span style="left:87.5%">W4</span>
+      <!-- 非工作日 / 节假日竖向底纹（JS 注入） -->
+      <div class="sched__nwd" id="sched-nwd" aria-hidden="true"></div>
+      <!-- 里程碑行（JS 注入菱形节点） -->
+      <div class="ms-row" id="ms-row" aria-hidden="true"></div>
+      <!-- 周刻度（JS 注入） -->
+      <div class="sched__weeks" id="sched-weeks" aria-hidden="true"></div>
+
+      <div class="lane reveal" data-role="planner">
+        <span class="lane__name" data-lane="planner">官网</span>
+        <div class="lane__track" data-role="planner"></div>
+        <span class="sched__period num"></span>
+      </div>
+      <div class="lane reveal" data-role="writer">
+        <span class="lane__name" data-lane="writer">社媒</span>
+        <div class="lane__track" data-role="writer"></div>
+        <span class="sched__period num"></span>
+      </div>
+      <div class="lane reveal" data-role="analyst">
+        <span class="lane__name" data-lane="analyst">EDM</span>
+        <div class="lane__track" data-role="analyst"></div>
+        <span class="sched__period num"></span>
+      </div>
+      <div class="lane reveal" data-role="designer">
+        <span class="lane__name" data-lane="designer">设计</span>
+        <div class="lane__track" data-role="designer"></div>
+        <span class="sched__period num"></span>
+      </div>
+      <div class="lane reveal" data-role="engineer">
+        <span class="lane__name" data-lane="engineer">媒介</span>
+        <div class="lane__track" data-role="engineer"></div>
+        <span class="sched__period num"></span>
       </div>
 
-      <div class="lane reveal">
-        <span class="lane__name">官网</span>
-        <div class="lane__track"><i class="bar bar--planner flow-sheen" style="left:0%; width:40%">预告页上线</i></div>
-        <span class="sched__period num">09.01 – 09.12<i>12 天</i></span>
-        <span class="tip"><b>预告页上线</b> · 负责人 规划 · 产出 官网预告页 v1</span>
-      </div>
-      <div class="lane reveal">
-        <span class="lane__name">社媒</span>
-        <div class="lane__track"><i class="bar bar--writer flow-sheen" style="left:13.33%; width:33.33%">话题预热期</i></div>
-        <span class="sched__period num">09.05 – 09.14<i>10 天</i></span>
-        <span class="tip"><b>话题预热期</b> · 负责人 内容 · 产出 话题池 20 条</span>
-      </div>
-      <div class="lane reveal">
-        <span class="lane__name">EDM</span>
-        <div class="lane__track"><i class="bar bar--analyst flow-sheen" style="left:26.67%; width:30%">新品预热</i></div>
-        <span class="sched__period num">09.09 – 09.17<i>9 天</i></span>
-        <span class="tip"><b>新品预热</b> · 负责人 数据 · 产出 唤醒邮件 3 封</span>
-      </div>
-      <div class="lane reveal">
-        <span class="lane__name">媒介</span>
-        <div class="lane__track"><i class="bar bar--engineer flow-sheen" style="left:40%; width:33.33%">KOL 矩阵</i></div>
-        <span class="sched__period num">09.13 – 09.22<i>10 天</i></span>
-        <span class="tip"><b>KOL 矩阵</b> · 负责人 工程 · 产出 达人排期表</span>
-      </div>
-      <div class="lane reveal">
-        <span class="lane__name">社媒</span>
-        <div class="lane__track"><i class="bar bar--designer flow-sheen" style="left:63.33%; width:16.67%">上线倒数</i></div>
-        <span class="sched__period num">09.20 – 09.24<i>5 天</i></span>
-        <span class="tip"><b>上线倒数</b> · 负责人 设计 · 产出 倒计时物料 9 张</span>
-      </div>
-
+      <!-- 依赖箭头覆盖层（JS 绘制 finish-to-start 连线） -->
+      <svg class="sched__deps" id="sched-deps" aria-hidden="true">
+        <!-- markerUnits=userSpaceOnUse：箭头恒定像素大小，不随线宽缩放 -->
+        <defs>
+          <marker id="arr" viewBox="0 0 7 7" refX="6.4" refY="3.5" markerWidth="7" markerHeight="7" markerUnits="userSpaceOnUse" orient="auto">
+            <path class="deps-arrow" d="M0 0 L7 3.5 L0 7 z"></path>
+          </marker>
+          <marker id="arr-crit" viewBox="0 0 7 7" refX="6.4" refY="3.5" markerWidth="7" markerHeight="7" markerUnits="userSpaceOnUse" orient="auto">
+            <path class="deps-arrow is-crit" d="M0 0 L7 3.5 L0 7 z"></path>
+          </marker>
+          <marker id="arr-hi" viewBox="0 0 7 7" refX="6.4" refY="3.5" markerWidth="8" markerHeight="8" markerUnits="userSpaceOnUse" orient="auto">
+            <path class="deps-arrow is-hi" d="M0 0 L7 3.5 L0 7 z"></path>
+          </marker>
+        </defs>
+        <g id="deps-lines"></g>
+      </svg>
+      <!-- 今日线 -->
       <div class="sched__grid">
         <div class="today" id="today-line"><b>今日</b></div>
       </div>
     </div>
-  </section>
 
-  <!-- ============ 跨屏联动台（真实联动 · World 引擎） ============
-       第一屏既被动反映世界引擎，也能下发指令：流速 / 派发 / 模板。
-       状态指示与事件流让「联动是否生效」在演示时自证。 -->
-  <section class="s1-bridge band" aria-label="跨屏联动">
-    <div class="s1-bridge__sync reveal">
-      <i class="s1-bridge__dot" id="link-dot" aria-hidden="true"></i>
-      <div class="s1-bridge__txt">
-        <b id="link-state">检测中</b>
-        <span id="link-sub" class="t-muted">正在读取世界引擎领导者租约…</span>
+    <!-- 影响分析面板：变更历史 + 波及范围 -->
+    <div class="sched-impact" id="sched-impact" hidden>
+      <div class="imp__head">
+        <b>变更历史与影响分析</b>
+        <span class="imp__hint">点选变更查看波及任务 · 里程碑触险 · 关键路径变化</span>
+        <button type="button" class="imp__close" id="sched-impact-close" aria-label="收起面板">×</button>
       </div>
-      <button type="button" class="s1-bridge__open" id="link-open">打开联动窗口 →</button>
-    </div>
-
-    <div class="s1-bridge__stream reveal">
-      <span class="h-eyebrow">最近事件流</span>
-      <ol class="s1-bridge__events" id="link-events" aria-live="polite"></ol>
-    </div>
-
-    <div class="s1-bridge__cmd reveal">
-      <span class="s1-bridge__lbl">流速</span>
-      <span class="s1-seg" id="link-speed">
-        <button type="button" data-speed="1" class="on">1×</button>
-        <button type="button" data-speed="4">4×</button>
-        <button type="button" data-speed="8">8×</button>
-      </span>
-      <span class="s1-bridge__field">
-        <input id="link-input" type="text" autocomplete="off"
-               placeholder="监管派发：描述任务，回车下发到产线">
-        <button type="button" id="link-send">派发</button>
-      </span>
+      <div class="imp__body">
+        <ol class="imp__hist" id="imp-hist" aria-live="polite"></ol>
+        <div class="imp__detail" id="imp-detail">
+          <p class="imp__empty">选择左侧任一变更，查看其影响链：受波及任务、里程碑是否触险、关键路径长度变化。</p>
+        </div>
+      </div>
     </div>
   </section>
 

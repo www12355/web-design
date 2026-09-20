@@ -17,7 +17,7 @@
   <section class="reel__page" data-page="0">
     <div class="screen">
       <main class="p2">
-        <!-- 左：五张拟态工牌 -->
+        <!-- 左：六张拟态工牌 -->
         <div class="p2__badges" id="badges"></div>
 
         <!-- 右：协作群聊 -->
@@ -27,7 +27,7 @@
             <div class="bot bot-white" id="chat-main"></div>
             <div>
               <b class="chat-title">主 AI 经营群</b>
-              <div class="chat-sub">6 名成员 · 全自主经营 · 无人值守</div>
+              <div class="chat-sub">1 位主 AI · 6 名数字员工 · 无人值守</div>
             </div>
             <span class="pill pill--sage pill--push"><i class="dot dot--run"></i>全员在线</span>
             <span class="pill" id="chat-pool">任务池 48 · 进行 9</span>
@@ -204,7 +204,7 @@
             <i class="spinner spinner--sm" aria-hidden="true"></i>
           </button>
         </div>
-        <div class="task-hint">全自主运转中 · 打招呼主 AI 会亲自回话 · 带任务动词或 @分身 则派发执行</div>
+        <div class="task-hint">全自主运转中 · 打招呼主 AI 会亲自回话 · 带任务动词或 @数字员工 则派发执行</div>
       </div>
 
       <!-- 右倾斜面板：主 AI 思考过程 -->
@@ -250,7 +250,7 @@
         <div class="p4__nebula">
           <canvas id="nebula"></canvas>
           <div class="sphere-pop" id="sphere-pop" aria-live="polite" hidden>
-            <span class="sphere-pop__agent" id="pop-agent">智能体</span>
+            <span class="sphere-pop__agent" id="pop-agent">数字员工</span>
             <h3 id="pop-title">—</h3>
             <div class="sphere-pop__conf" id="pop-conf">—</div>
           </div>
@@ -539,6 +539,7 @@
             <span><i class="r-dot--analyst"></i>数据</span>
             <span><i class="r-dot--designer"></i>设计</span>
             <span><i class="r-dot--engineer"></i>工程</span>
+            <span><i class="r-dot--qc"></i>质检</span>
           </div>
           <div class="atlas-pagenav">
             <button type="button" data-nav="prev" title="上一屏" aria-label="上一屏"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button>
@@ -552,12 +553,12 @@
 
 <div class="doc-review" id="doc-review" hidden>
   <div class="doc-review__window" role="dialog" aria-modal="true" aria-labelledby="dr-title">
-    <div class="doc-review__titlebar"><span class="doc-review__name" id="dr-title">交付方案.docx - Word</span><span class="dr-workspace-label">DELIVERY REVIEW WORKSPACE</span><button type="button" class="doc-review__close" id="dr-close" aria-label="返回第 2 屏">×</button></div>
+    <div class="doc-review__titlebar"><span class="doc-review__name" id="dr-title">交付方案.docx - Word</span><span class="dr-workspace-label">DELIVERY REVIEW WORKSPACE</span><span class="dr-countdown" id="dr-countdown" hidden>5 秒后自动返回第 2 屏</span><button type="button" class="doc-review__close" id="dr-close" aria-label="返回第 2 屏">×</button></div>
     <div class="doc-review__body">
       <section class="doc-review__chat-panel"><div class="dr-chat-head"><div><span class="dr-kicker">第 2 屏 · 真实讨论</span><b>主 AI 经营群</b><span>交付方案协作记录</span></div><span class="dr-live"><i></i>实时同步</span></div><div class="dr-chat" id="dr-chat"></div><div class="dr-chat-compose"><span>审阅意见会自动回写到群聊</span><span class="dr-compose-lock">仅 AI 可发言</span></div></section>
       <section class="doc-review__review-panel">
         <div class="doc-review__ribbon"><span class="dr-tab dr-tab--on">文档内容</span><span class="dr-tab">审阅思考流</span><span class="dr-spacer"></span><span class="dr-status dr-status--wait" id="dr-status">等待 AI 审阅</span></div>
-        <div class="doc-review__stage"><div class="doc-review__paper" id="dr-paper"></div></div>
+        <div class="doc-review__stage"><div class="doc-review__paper" id="dr-paper"></div><div class="dr-rev-rail" id="dr-rail" aria-hidden="true"></div></div>
         <aside class="doc-review__side" id="dr-side"><div class="dr-side__head"><b>AI 分析与评审</b><i id="dr-batch">第 1 轮</i></div><div id="dr-score"></div><div class="dr-review-stream" id="dr-review-stream"><div class="dr-stream-line">等待数据分析读取订单、任务和群聊证据…</div></div><div class="dr-side__list" id="dr-findings"><div class="dr-empty">审阅结果将在这里显示</div></div><div class="dr-side__actions"><button type="button" class="dr-btn dr-btn--prim" id="dr-audit">开始 AI 审阅</button><button type="button" class="dr-btn" id="dr-download">下载 .docx</button><button type="button" class="dr-btn" id="dr-close2">返回第 2 屏</button></div></aside>
       </section>
     </div>

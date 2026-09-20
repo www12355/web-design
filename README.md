@@ -12,9 +12,9 @@ node serve.js          # 默认 http://localhost:4173
 
 浏览器打开：
 
-- `index.html` —— 启动器（浅色）
-- `screen1.html` —— 运营驾驶舱（浅色，单窗口）
-- `window2.html` —— 深色横向卷轴（屏 2 / 屏 3 / 屏 4，多窗口）
+- `index.html` —— 启动器（深色）
+- `screen1.html` —— 运营驾驶舱（深色，单窗口）
+- `window2.html` —— 横向卷轴（屏 2 / 屏 3 / 屏 4，多窗口）
 
 ## 架构
 
