@@ -194,6 +194,25 @@ AIC.flushNums = function () {
 /* 后台窗口 rAF 暂停会让补间停在中间值：恢复可见先落终值，再交给上层重绘 */
 document.addEventListener('visibilitychange', () => { if (!document.hidden) AIC.flushNums(); });
 
+/* ---------------- 状态图标（颜色 + 形状 + 文案 三冗余编码） ----------------
+ * 全站状态一律「颜色 + 图标 + 中文文案」三重编码（见 DESIGN.md），
+ * 色盲用户与灰度打印下同样可读。图标来自 icons.js 的精灵，默认随文案色，
+ * 只在需要表达状态时由 CSS（.pill--* / .ev-tag--* / .aic-toast--*）上色。
+ * kind: success | running | warning | blocked | neutral | auto
+ */
+const STATE_ICON = {
+  success: 'ic-check',
+  running: 'ic-clock',
+  warning: 'ic-warn',
+  blocked: 'ic-x',
+  neutral: 'ic-circle',
+  auto: 'ic-bolt'
+};
+AIC.stateIcon = function (kind, cls) {
+  const id = STATE_ICON[kind] || STATE_ICON.neutral;
+  return `<svg class="${cls || 'pill__ic'}" aria-hidden="true"><use href="#${id}"/></svg>`;
+};
+
 /* ---------------- Toast 通知（右下角，两窗口共用样式） ---------------- */
 AIC.toast = function (o) {
   let host = document.getElementById('aic-toasts');
@@ -208,10 +227,12 @@ AIC.toast = function (o) {
   const title = AIC.stripMoney(o.title);
   const body = AIC.stripMoney(o.body);
   const tag = AIC.stripMoney(o.tag);
+  /* tone → 状态图标：颜色由 .aic-toast--* 负责，形状由此处决定，两者互为冗余 */
+  const kind = o.tone === 'clay' ? 'warning' : o.tone === 'rose' ? 'blocked' : o.tone === 'run' ? 'running' : 'success';
   const el = document.createElement('div');
   el.className = 'aic-toast' + (o.tone ? ' aic-toast--' + o.tone : '');
   el.innerHTML = `
-    <i class="aic-toast__dot" style="background:${o.color || 'var(--pine)'}"></i>
+    <svg class="aic-toast__ic"${o.color ? ` style="stroke:${o.color}"` : ''} aria-hidden="true"><use href="#${STATE_ICON[kind]}"/></svg>
     <div class="aic-toast__bd">
       <b>${title}</b>
       ${body ? `<span>${body}</span>` : ''}

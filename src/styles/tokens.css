@@ -1,226 +1,360 @@
 /* ============================================================
-   Design Tokens · 单一 token 来源
-   仅声明 :root 设计变量；组件样式在 components.css（其顶部 @import 本文件）。
-   （原 tokens.css 仅 @import 整份 components.css，名不副实，已修正，见 ARCHITECTURE-REVIEW.md P2-3）
+   Design Tokens · 单一 token 来源（v2 · Apple 式材质温润）
+   ------------------------------------------------------------
+   本文件是全站唯一 :root。组件样式在 components.css（其顶部 @import 本文件），
+   页面层只允许写本页独有规则，不得重声明 token。
+
+   v2 相对 v1 的改动方向（见 DESIGN.md）：
+     · 底色由「带蓝味的冷钢灰」改为中性石墨灰阶，层次靠材质与明度差建立；
+     · 全站只有一支强调色 --color-accent（#0A84FF），青/紫/橙/玫红并列强调全部废弃；
+     · 状态色降亮并收窄用途：只做状态点、图标描边、1px 细边框、8–12% 淡底；
+     · 阴影只留中性黑两档；浮层统一 blur(24px) + rgba(44,44,46,.72)；
+     · 文字最多三级（#F5F5F7 / 60% / 32%），正文不再使用纯白。
+
+   命名：v2 规范名为 --color-* / --bg-* / --border-* / --text-* / --shadow-* /
+   --font-size-* / --space-* / --radius-* / --size-* / --icon-*；
+   文件末「遗留别名」把旧名逐一指向 v2 取值，旧调用点无需改动、新代码禁止再用旧名。
    ============================================================ */
 
 :root {
-  /* 背景：低彩度冷灰阶（沉稳高阶暗色） */
-  --paper:#070b11;          /* 基底近黑 */
-  --paper-2:#121b27;        /* 冷钢面板（提亮一档，拉开与基底的明暗差） */
-  --paper-3:#1c2836;        /* 抬升层 · 工业仪表（提亮一档） */
-  --surface-0:#070b11;      /* 基底 */
-  --surface-1:#121b27;      /* 卡片（与 paper-2 同源） */
-  --surface-2:#1c2836;      /* 抬升（与 paper-3 同源） */
-  --surface-3:#101822;      /* 凹陷 */
-  --cream:#16212e;          /* 深色玻璃钢板表面（介于面板与抬升之间） */
+  /* ============================================================
+     1. 色彩 · 强调色（全局唯一一支）
+     ============================================================ */
+  --color-accent:#0A84FF;                            /* 主 CTA / 激活态 / 选中态 / 链接 / 焦点环 */
+  --color-accent-surface:rgba(10, 132, 255, 0.12);   /* 选中态淡底 */
+  --color-accent-border:rgba(10, 132, 255, 0.40);    /* 描边 / 焦点环 */
+  --color-accent-hover:#3D9BFF;                      /* 主按钮 hover 提亮（工程延伸值） */
 
-  /* 文字阶（WCAG AA，深底高对比） */
-  --ink:#eaf2f6;            /* 主文字 · 冷白 */
-  --ink-soft:#bcc6cf;       /* 次级文字 · 钢灰（提亮，深底约 11:1） */
-  --muted:#94a1ac;          /* 弱化文字（提亮，深底约 7.3:1，仍明显次级） */
-  --ink-faint:#5d6b76;      /* 极弱 · 仅装饰 */
+  /* ============================================================
+     2. 色彩 · 状态色（温润降亮）
+        只允许四种形态：状态点 / 图标描边 / 1px 边框 / 8–12% 淡底。
+     ============================================================ */
+  --color-success:#3FB950;                            /* 成功 · 正常 · 已完成 */
+  --color-success-surface:rgba(63, 185, 80, 0.10);
+  --color-success-border:rgba(63, 185, 80, 0.32);
 
-  /* 发丝边框 / 内高光 */
-  --line:rgba(158,182,205,.16);
-  --line-strong:rgba(170,194,216,.28);
-  --hairline:inset 0 1px 0 rgba(255,255,255,.06);
+  --color-running:#8B7FE8;                            /* 进行中 · 执行中 */
+  --color-running-surface:rgba(139, 127, 232, 0.10);
+  --color-running-border:rgba(139, 127, 232, 0.32);
 
-  /* 克制单主色（界面），小球仍用 --c-* 亮色 */
-  --primary:#3ec9c0;        /* 收敛青/teal */
-  --primary-strong:#2bb3ab;
-  --primary-soft:rgba(62,201,192,.12);
-  --primary-ring:rgba(62,201,192,.34);
-  --accent:var(--primary);
-  --accent-strong:var(--primary-strong);
-  --accent-ring:var(--primary-ring);
-  --pine:var(--primary);
-  --pine-teal:#2fccc2;      /* 在线 / 成功 · 信号（收敛） */
-  --clay:#e8893a;           /* 忙碌 / 警告 · 橙（向橙偏移，与 amber 拉开相） */
-  --sage:#8a97a4;           /* 待派发 · 冷灰（提亮，明确次级语义） */
-  --neon-violet:#7c74c9;
-  --neon-amber:#f2b53c;     /* 阻塞 · 金黄（原与 clay 同值，现分离） */
+  --color-warning:#E5A33C;                            /* 警告 · 风险 · 需关注 */
+  --color-warning-surface:rgba(229, 163, 60, 0.10);
+  --color-warning-border:rgba(229, 163, 60, 0.32);
 
-  /* 渐变与辉光（克制） */
-  --brand-grad:linear-gradient(100deg, #2bb3ab 0%, #3ec9c0 48%, #7c74c9 100%);
-  --glow:0 0 22px rgba(62,201,192,.18);
-  --glow-cyan:0 0 20px rgba(62,201,192,.16);
-  --glow-rose:0 0 20px rgba(124,116,201,.16);
-  --glow-strong:0 0 34px rgba(62,201,192,.26);
-  --grid:rgba(150,185,215,.040);
-  --glass:rgba(22,33,46,.60);
-  --glass-brd:rgba(158,190,215,.22);
+  --color-blocked:#E5534B;                            /* 阻塞 · 失败 · 已取消 */
+  --color-blocked-surface:rgba(229, 83, 75, 0.10);
+  --color-blocked-border:rgba(229, 83, 75, 0.32);
 
-  /* 角色色：亮色小球（保留，作画面信号灯） */
-  --c-planner:#5ec8ff;   /* 规划 · 霓虹蓝 */
-  --c-writer:#2dd4bf;    /* 撰写 · 信号青 */
-  --c-analyst:#ffd23f;   /* 分析 · 霓虹黄 */
-  --c-designer:#c084fc;  /* 设计 · 霓虹紫 */
-  --c-engineer:#818cf8;  /* 工程 · 靛蓝 */
-  --c-qc:#34d399;        /* 质量审查 · 翡翠绿 */
+  --color-neutral:#8B8F9A;                            /* 未开始 · 无状态 */
+  --color-neutral-surface:rgba(139, 143, 154, 0.10);
+  --color-neutral-border:rgba(139, 143, 154, 0.32);
 
-  /* ---------- 遗留投影 → 光影模型（就地统一，调用点零改动）----------
-     近黑底上黑色投影不可见：既表达不了层级，又与 --edge-* / --lit-top / --elev-*
-     并存成两套深度语言。故把这两个遗留 token 直接指向光影模型。
-     新代码请直接使用 --edge-1 / --lit-top / --elev-1 / --elev-2 / --contact-*。 */
+  /* ============================================================
+     3. 背景与材质（Apple 石墨灰阶 · 中性微冷，不带蓝味）
+        层级必须逐层递进：base → card → elevated → overlay，禁止跳层。
+     ============================================================ */
+  --bg-base:#0A0A0B;                                  /* L1 页面画布最底 */
+  --bg-card:#1C1C1E;                                  /* L2 一级卡片 / 面板 */
+  --bg-elevated:#2C2C2E;                              /* L3 二级卡片 / hover / 嵌套块 */
+  --bg-overlay:#3A3A3C;                               /* L4 下拉 / Popover / Tooltip */
+  --bg-scrim:rgba(0, 0, 0, 0.48);                     /* 模态遮罩 */
+  --border-divider:rgba(255, 255, 255, 0.08);         /* 全局唯一 1px 分割线 / 卡片描边 */
+  --border-highlight:rgba(255, 255, 255, 0.10);       /* 卡片 / 浮层顶部 1px 高光边 */
+  --border-strong:rgba(255, 255, 255, 0.16);          /* 强调描边 / 输入框 hover（工程延伸值） */
+
+  /* 浮层材质：模糊值全站统一 24px，底色固定 rgba(44,44,46,.72) */
+  --blur-overlay:24px;
+  --overlay-surface:rgba(44, 44, 46, 0.72);
+  --glass-sheen:linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0) 42%);
+
+  /* ============================================================
+     4. 文本层级（不用纯白；同屏最多三级）
+     ============================================================ */
+  --text-primary:#F5F5F7;                             /* 正文 / 卡片标题 / KPI 数字 / 徽章文字 */
+  --text-secondary:rgba(235, 235, 245, 0.60);         /* 次要说明 / 标签 / 元数据 / 图标默认色 */
+  --text-tertiary:rgba(235, 235, 245, 0.32);          /* 时间戳 / 占位符 / 装饰（不得承载关键信息） */
+  --text-disabled:rgba(235, 235, 245, 0.20);
+
+  /* ============================================================
+     5. 阴影与光影模型
+        阴影只能是中性黑，禁止彩色投影 / 多层叠加光晕。
+        近黑底上黑色投影有限，层级主要由表面阶梯 + 边缘发丝 + 顶缘高光表达。
+     ============================================================ */
+  --shadow-card:0 1px 2px rgba(0, 0, 0, 0.36), 0 8px 24px rgba(0, 0, 0, 0.24);
+  --shadow-overlay:0 16px 48px rgba(0, 0, 0, 0.48);
+
+  --lit-hi:#FFFFFF;                                   /* 主光高光色（冷白） */
+  --lit-top:inset 0 1px 0 var(--border-highlight);    /* 顶缘高光 · 常规档（抬升面唯一光感） */
+  --lit-top-2:inset 0 1px 0 rgba(255, 255, 255, 0.18);/* 顶缘高光 · 强调档 */
+  --ao-inset:inset 0 1px 2px rgba(0, 0, 0, 0.50);     /* 凹陷面（轨道 / 槽 / 输入框）环境遮蔽 */
+  --contact-1:0 6px 18px rgba(0, 0, 0, 0.38);         /* 浮层接触影 · 近 */
+  --contact-2:0 18px 40px rgba(0, 0, 0, 0.48);        /* 浮层接触影 · 远 */
+
+  /* 边缘发丝：1px 描边即「读得出这是一层」，与顶缘高光共同构成暗色下的层级语言 */
+  --edge-1:inset 0 0 0 1px var(--border-divider);
+  --edge-2:var(--lit-top), inset 0 0 0 1px var(--border-divider);
+  --elev-1:var(--edge-1), 0 8px 24px rgba(0, 0, 0, 0.24);
+  --elev-2:var(--edge-2), 0 16px 48px rgba(0, 0, 0, 0.48);
+
+  /* 遮蔽黑分档（作用于图形的压暗 / 分离，不是文字墨色） */
+  --shade-a04:rgba(0, 0, 0, 0.04);
+  --shade-a05:rgba(0, 0, 0, 0.05);
+  --shade-a06:rgba(0, 0, 0, 0.06);
+  --shade-a07:rgba(0, 0, 0, 0.07);
+  --shade-a09:rgba(0, 0, 0, 0.09);
+  --shade-a10:rgba(0, 0, 0, 0.10);
+  --shade-a14:rgba(0, 0, 0, 0.14);
+  --shade-a16:rgba(0, 0, 0, 0.16);
+  --shade-a22:rgba(0, 0, 0, 0.22);
+
+  /* ============================================================
+     6. 字号梯度（五档基线）
+        H1 32 / H2 20 / H3 16 / Body 14 / Caption 12（1920 基准）。
+        字重只用 400 / 500 / 600；中文标题 letter-spacing .01em，英文全大写 .06em。
+     ============================================================ */
+  --font-size-h1:2.4rem;      --font-size-h1-en:2.3rem;
+  --font-size-h2:2rem;        --font-size-h2-en:1.9rem;
+  --font-size-h3:1.6rem;      --font-size-h3-en:1.5rem;
+  --font-size-body:1.4rem;    --font-size-body-en:1.3rem;
+  --font-size-caption:1.2rem; --font-size-caption-en:1.2rem;
+
+  --font-weight-regular:400;
+  --font-weight-medium:500;
+  --font-weight-semibold:600;
+
+  /* 行高：中文 1.6 / 英文 1.45，数值取整到 4px 栅格（rem） */
+  --line-height-cn:1.6;
+  --line-height-en:1.45;
+  --line-height-h1:3.2rem;      --line-height-h1-en:3.2rem;
+  --line-height-h2:3.2rem;      --line-height-h2-en:2.8rem;
+  --line-height-h3:2.4rem;      --line-height-h3-en:2.4rem;
+  --line-height-body:2.4rem;    --line-height-body-en:2rem;
+  --line-height-caption:2rem;   --line-height-caption-en:1.6rem;
+
+  --letter-spacing-cn-title:0.01em;
+  --letter-spacing-en-caps:0.06em;
+
+  /* 字体栈：拉丁优先（同一文本块内拉丁字号 = 中文 − 1px，视觉重量才一致） */
+  --font-family-cn:"Inter", "SF Pro Text", "PingFang SC", "HarmonyOS Sans SC", "Microsoft YaHei", system-ui, sans-serif;
+  --font-family-en:"Inter", "SF Pro Text", system-ui, sans-serif;
+  --font-family-mono:"JetBrains Mono", "SF Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+  --font-sans:var(--font-family-cn);
+  --font-display:var(--font-family-cn);
+  --font-mono:var(--font-family-mono);
+
+  /* ============================================================
+     7. 间距（8px 栅格；N = px ÷ 4，只允许以下 7 个值）
+     ============================================================ */
+  --space-1:0.4rem;   /* 图标与文字、徽章内间距 */
+  --space-2:0.8rem;   /* 表单项内部、小元素之间 */
+  --space-3:1.2rem;   /* 按钮组间距（强制）、列表项纵向间距 */
+  --space-4:1.6rem;   /* 卡片内部元素间距、栅格 gap */
+  --space-6:2.4rem;   /* 卡片内 padding（默认）、区块之间 */
+  --space-8:3.2rem;   /* 模块之间、页面区块分隔 */
+  --space-12:4.8rem;  /* 页面级大区块、首屏上下留白 */
+
+  /* 卡片内 padding 白名单（三值，栅格外白名单） */
+  --card-padding:var(--space-6);
+  --card-padding-relaxed:2.8rem;
+  --card-padding-compact:2rem;
+  --gap-button-group:var(--space-3);
+
+  /* 页面左右安全边距：24px（≥1440px 视口 32px） */
+  --pad-x:clamp(2.4rem, 1.6vw + 1.2rem, 3.2rem);
+
+  /* ============================================================
+     8. 圆角（整体放大，更温润）
+        外大内小：卡片 14 → 内部按钮 10 → 内部徽章 8；v1 的 4/6/12/16 全部作废。
+     ============================================================ */
+  --radius-sm:0.8rem;      /* 徽章 / 标签 / 复选框 / 进度条 / 骨架条 */
+  --radius-button:1rem;    /* 按钮 / 输入框 / 下拉 / 分段控件 */
+  --radius-card:1.4rem;    /* 卡片 / 面板 / 抽屉内容块 / Toast */
+  --radius-modal:2rem;     /* 模态 / 大尺寸浮层 */
+  --radius-full:9999rem;   /* 头像 / 状态点 / 圆形 FAB / 药丸 */
+
+  /* ============================================================
+     9. 组件尺寸基线
+     ============================================================ */
+  --size-button:3.6rem;          /* 普通按钮 */
+  --size-button-cta:4rem;        /* 核心 CTA */
+  --size-button-float:4.8rem;    /* 悬浮主操作 */
+  --size-input:4rem;             /* 单行输入 */
+  --size-input-multiline:8.8rem; /* 多行输入下限 */
+  --size-input-chat:6.4rem;      /* 主控台对话输入起始高度 */
+  --size-badge:2.4rem;           /* 状态徽章 */
+  --height-topnav:5.6rem;
+
+  /* 触摸 / 点击目标下限（键盘与触控可达） */
+  --size-hit:4.4rem;
+
+  --icon-16:1.6rem; --icon-20:2rem; --icon-24:2.4rem; --icon-32:3.2rem;
+  --icon-stroke:1.5;
+
+  /* ============================================================
+     10. 动效基线（只三档时长 + 一条标准缓动）
+     ============================================================ */
+  --duration-fast:0.12s;   /* 颜色 / hover 微反馈 */
+  --duration-base:0.2s;    /* 状态切换 / 展开位移 */
+  --duration-slow:0.32s;   /* 抽屉 / 模态层级进出 */
+  --ease-standard:cubic-bezier(0.2, 0, 0.2, 1);
+  --dur-num:0.9s;          /* 数字滚动（内容节奏） */
+  --dur-breath:1.6s;       /* 进行中呼吸（内容节奏，只改 opacity） */
+
+  /* ============================================================
+     11. 角色色（数据可视化信号点专用）
+        纪律：角色色只做泳道名前的圆点 / 图例色点 / 角色小球，
+        图形本体（进度条、甘特条、柱）只表达状态，不得铺角色色。
+     ============================================================ */
+  --c-planner:#0A84FF;   /* 规划 · 系统蓝 */
+  --c-writer:#5AC8FA;    /* 撰写 · 浅蓝 */
+  --c-analyst:#FFD60A;   /* 分析 · 系统黄 */
+  --c-designer:#BF5AF2;  /* 设计 · 系统紫 */
+  --c-engineer:#5E5CE6;  /* 工程 · 系统靛 */
+  --c-qc:#30D158;        /* 质量审查 · 系统绿 */
+
+  /* ============================================================
+     12. 文档表面（暗色玻璃承载纸感）
+     ============================================================ */
+  --doc-bg:var(--bg-elevated);
+  --doc-line:var(--border-divider);
+  --doc-ink:var(--text-secondary);
+  --doc-ink-strong:var(--text-primary);
+
+  /* ============================================================
+     13. 遗留别名（旧名 → v2 取值）
+     ------------------------------------------------------------
+     仅为兼容 v1 调用点而保留，取值全部指向上方 v2 token。
+     新代码禁止再使用以下名字（尤其是 --paper* / --ink* / --pine* / --glow* /
+     --brand-grad / --light-field），否则又会分叉出第二套色彩语言。
+     ============================================================ */
+  /* 背景阶 */
+  --paper:var(--bg-base);
+  --paper-2:var(--bg-card);
+  --paper-3:var(--bg-elevated);
+  --surface-0:var(--bg-base);
+  --surface-1:var(--bg-card);
+  --surface-2:var(--bg-elevated);
+  --surface-3:var(--bg-base);      /* 凹陷 */
+  --cream:var(--bg-card);
+  --sf-0:var(--bg-base);
+  --sf-1:var(--bg-card);
+  --sf-2:var(--bg-elevated);
+  --sf-3:var(--bg-overlay);
+
+  /* 文字阶（旧四级 → v2 三级；--muted 归入次级，弱读信息统一走 --ink-faint） */
+  --ink:var(--text-primary);
+  --ink-soft:var(--text-secondary);
+  --muted:var(--text-secondary);
+  --ink-faint:var(--text-tertiary);
+
+  /* 边框 / 发丝 */
+  --line:var(--border-divider);
+  --line-strong:var(--border-strong);
+  --hairline:var(--lit-top);
+
+  /* 强调色与状态语义 */
+  --primary:var(--color-accent);
+  --primary-strong:var(--color-accent);
+  --primary-soft:var(--color-accent-surface);
+  --primary-ring:var(--color-accent-border);
+  --accent:var(--color-accent);
+  --accent-strong:var(--color-accent);
+  --accent-ring:var(--color-accent-border);
+  --pine:var(--color-accent);          /* 旧「品牌青」= 现在的唯一强调色 */
+  --pine-teal:var(--color-success);    /* 旧「在线 / 已完成」 */
+  --clay:var(--color-warning);         /* 旧「忙碌 / 警告」 */
+  --sage:var(--color-neutral);         /* 旧「待派发 / 中性」 */
+  --neon-violet:var(--color-running);  /* 旧「执行中」 */
+  --neon-amber:var(--color-warning);
+  --c-danger:var(--color-blocked);
+  --c-danger-soft:var(--color-blocked-surface);
+
+  /* 强调色透明度分档（原按具体 alpha 命名的副本，就地指向 v2 分档） */
+  --primary-a035:rgba(10, 132, 255, 0.035);
+  --primary-a08:rgba(10, 132, 255, 0.08);
+  --primary-a10:rgba(10, 132, 255, 0.10);
+  --primary-a11:rgba(10, 132, 255, 0.11);
+  --primary-a28:rgba(10, 132, 255, 0.28);
+  --primary-a30:rgba(10, 132, 255, 0.30);
+  --primary-a34:rgba(10, 132, 255, 0.34);
+  --violet-a045:rgba(139, 127, 232, 0.045);
+  --violet-a06:rgba(139, 127, 232, 0.06);
+  --violet-a07:rgba(139, 127, 232, 0.07);
+  --violet-a16:rgba(139, 127, 232, 0.16);
+  --violet-a18:rgba(139, 127, 232, 0.18);
+  --steel-a20:rgba(255, 255, 255, 0.12);
+
+  /* 材质与浮层 */
+  --glass:var(--overlay-surface);
+  --glass-brd:var(--border-divider);
+  --glass-blur:blur(var(--blur-overlay));
+  --glass-blur-sm:blur(var(--blur-overlay));
+  --light-field:var(--bg-base);        /* v1 的青紫径向光场已废弃：底色回到纯石墨 */
+  --brand-grad:var(--color-accent);    /* v1 的青紫渐变已废弃：主按钮改为强调色实底 */
+
+  /* 深度（旧名 → 光影模型） */
   --shadow-soft:var(--edge-1), var(--lit-top);
   --shadow-lift:var(--elev-2);
-  --shadow-inset:inset 0 1px 0 rgba(255,255,255,.04), inset 0 0 0 1px rgba(255,255,255,.02);
+  --shadow-inset:var(--ao-inset);
 
-  /* 圆角阶梯 */
-  --r-xs:.4rem; --r-sm:.8rem; --r-md:1.2rem; --r-lg:1.8rem; --r-xl:2.4rem; --r-pill:99.9rem;
+  /* 圆角阶梯（旧名 → v2 五档） */
+  --r-xs:var(--radius-sm); --r-sm:var(--radius-sm); --r-md:var(--radius-button);
+  --r-lg:var(--radius-card); --r-xl:var(--radius-modal); --r-pill:var(--radius-full);
+  --r-bar:var(--radius-sm);
+  --r-ctrl:var(--radius-button);
+  --r-card:var(--radius-card);
+  --r-panel:var(--radius-modal);
+  --r-chip:var(--radius-sm);
 
-  /* 间距阶梯（4/8 基准） */
-  --space-1:.4rem; --space-2:.8rem; --space-3:1.2rem; --space-4:1.6rem;
-  --space-5:2.4rem; --space-6:3.2rem; --space-7:4.8rem; --space-8:6.4rem;
+  /* 字阶（旧名 → v2 档位；--fs-micro 1.2rem 是绝对下限） */
+  --fs-display:3.6rem;
+  --fs-h1:var(--font-size-h1);
+  --fs-h2:var(--font-size-h2);
+  --fs-h3:var(--font-size-h3);
+  --fs-body:var(--font-size-body);
+  --fs-micro:var(--font-size-caption);
+  --fs-cap:var(--font-size-caption);
+  --fs-title:var(--font-size-h3);
+  --fs-lead:var(--font-size-h2);
+  --fs-kpi:clamp(2.4rem, 0.85vw + 1.2rem, 3.4rem);   /* 大屏 KPI 数字（≥16px/600，可用状态色） */
+  --lh-tight:1.2;
+  --lh-body:var(--line-height-cn);
+  --ls-display:var(--letter-spacing-cn-title);
 
-  /* 字体层级 */
-  --fs-display:clamp(2.6rem, 1.4vw + 1.6rem, 3.6rem);
-  --fs-h1:2.2rem; --fs-h2:1.7rem; --fs-h3:1.4rem; --fs-cap:1.2rem;
-  --ls-display:-0.02em; --lh-tight:1.2; --lh-body:1.55;
+  /* 动效（旧名 → v2 三档） */
+  --dur-1:var(--duration-fast);
+  --dur-2:var(--duration-base);
+  --dur-3:var(--duration-slow);
+  --dur-fast:var(--duration-fast);
+  --dur-base:var(--duration-base);
+  --ease:var(--ease-standard);
+  --ease-out:var(--ease-standard);
+  --ease-soft:var(--ease-standard);
+  --ease-spring:var(--ease-standard);
 
-  /* 缓动 */
-  --ease:cubic-bezier(.22,1,.36,1);
-  --ease-soft:cubic-bezier(.16,1,.3,1);
-  --ease-spring:cubic-bezier(.34,1.46,.42,1);
-
-  --font-sans:"Inter", "Segoe UI", "PingFang SC", "Microsoft YaHei", -apple-system, "Helvetica Neue", Arial, sans-serif;
-  --font-display:"Inter", "Segoe UI Semibold", "PingFang SC", "Microsoft YaHei", sans-serif;
-  --font-mono:"Cascadia Mono", "SF Mono", Consolas, monospace;
-  --pad-x:clamp(2.8rem, 3.2vw, 8.4rem);
+  /* 其它别名 */
+  --mono:var(--font-family-mono);
+  --sans:var(--font-family-cn);
   --kpi-w:clamp(30rem, 23vw, 42rem);
-  --fs-kpi:clamp(2.4rem, 0.85vw + 1.2rem, 3.4rem);
-
-  /* ---------- 一致性对齐补充 token（纯加法，不影响既有规则） ---------- */
-  /* 字体别名：修复 window2 中 var(--mono,...) / var(--sans,...) 回退失效 */
-  --mono:var(--font-mono);
-  --sans:var(--font-sans);
-
-  /* ---------- 表面阶梯：暗色下唯一的层级语言 ----------
-     近黑底上黑色投影不可见，层级改由「亮度台阶」表达：
-     sf-0 基底 → sf-1 面板 → sf-2 抬升控件 → sf-3 浮层。
-     取值与既有 --paper/--paper-2/--paper-3 同源，仅补齐最高一阶。 */
-  --sf-0:var(--paper);
-  --sf-1:var(--paper-2);
-  --sf-2:var(--paper-3);
-  --sf-3:#243446;
-
-  /* 边缘发丝：替代近黑底上不可见的投影，负责「读得出这是一层」 */
-  --edge-1:inset 0 0 0 1px rgba(170,194,216,.16);
-  --edge-2:inset 0 1px 0 rgba(255,255,255,.07), inset 0 0 0 1px rgba(170,194,216,.24);
-  /* 组合深度：发丝边为主，环境光为辅（仅浮起层使用） */
-  --elev-1:var(--edge-1), 0 8px 22px rgba(0,0,0,.34);
-  --elev-2:var(--edge-2), 0 20px 42px rgba(0,0,0,.46);
-
-  /* 遮蔽黑分档：原 --ink-a* 语义为「投影/压暗」而非文字墨色，在此正名 */
-  --shade-a04:rgba(0,0,0,.04);
-  --shade-a05:rgba(0,0,0,.05);
-  --shade-a06:rgba(0,0,0,.06);
-  --shade-a07:rgba(0,0,0,.07);
-  --shade-a09:rgba(0,0,0,.09);
-  --shade-a10:rgba(0,0,0,.10);
-  --shade-a14:rgba(0,0,0,.14);
-  --shade-a16:rgba(0,0,0,.16);
-  --shade-a22:rgba(0,0,0,.22);
-
-  /* ---------- 光影模型：顶部单主光 + 冷色环境 + 品牌补光 ----------
-     主光方向：正上方略前倾（顶缘光）；色温：冷白 ~6500K（#cfe3f5）；
-     强度：低-中；投射范围：全局环境场 + 逐层局部，抬升面只吃顶缘光。
-     近黑底上黑色投影不可见，光感只由四件事表达：
-       1) 顶缘镜面高光 --lit-top / --lit-top-2（仅抬升面）
-       2) 凹陷环境遮蔽 --ao-inset（轨道 / 凹槽 / 输入框）
-       3) 浮层接触影 --contact-*（仅真正脱离文档流的层）
-       4) 环境光场 --light-field（青左上 + 紫右下，全站唯一来源）
-     纪律：高光只给抬升面、遮蔽只给凹陷面；静态面不吃接触影、不挂玻璃折射；
-     辉光仍只服务活动态与浮层；全站不引入暖光。 */
-  --lit-hi:#cfe3f5;                                    /* 主光高光色（冷白 6500K） */
-  --lit-top:inset 0 1px 0 rgba(207,227,245,.07);        /* 顶缘高光 · 常规档 */
-  --lit-top-2:inset 0 1px 0 rgba(207,227,245,.12);      /* 顶缘高光 · 强调档 */
-  --ao-inset:inset 0 1px 2px rgba(0,0,0,.45), inset 0 0 0 1px rgba(0,0,0,.18);
-  --contact-1:0 6px 18px rgba(0,0,0,.38);
-  --contact-2:0 18px 40px rgba(0,0,0,.48);
-  --glass-sheen:linear-gradient(180deg, rgba(207,227,245,.055), rgba(207,227,245,0) 42%);
-  --light-field:
-    radial-gradient(60% 50% at 14% 6%, rgba(62,201,192,.07), transparent 70%),
-    radial-gradient(56% 44% at 90% 94%, rgba(124,116,201,.09), transparent 70%),
-    linear-gradient(180deg, #06090f, #0b1119 58%, #080d13);
-
-  /* ---------- 圆角语义：禁止一刀切 ----------
-     bar 进度条条芯 → ctrl 控件 → card 卡片 → panel 面板 → pill 药丸。
-     组件按自身语义取档，不再统一压成一个值。 */
-  --r-bar:.2rem;
-  --r-ctrl:.6rem;
-  --r-card:1.2rem;
-  --r-panel:1.6rem;
-  --r-chip:.5rem;
-
-  /* ---------- 字阶：1.2rem 为绝对下限（1920 基准下 = 12px）----------
-     低于此值的正文/标签一律归入 micro 档；仅纯装饰性描边可例外。 */
-  --fs-micro:1.2rem;
-  --fs-body:1.4rem;
-  --fs-title:1.7rem;
-  --fs-lead:2.2rem;
-
-  /* ---------- 动效节奏：仅三档时长 ----------
-     dur-1 微反馈（hover/按压）· dur-2 状态切换 · dur-3 层进出
-     数值动效与呼吸动效为内容节奏，单独保留。 */
-  --dur-1:.14s;
-  --dur-2:.22s;
-  --dur-3:.4s;
-  --dur-fast:.18s;
-  --dur-base:.24s;
-  --dur-num:.9s;
-  --dur-breath:2.8s;
-  --ease-out:cubic-bezier(.22,1,.36,1);
-
-  /* 状态语义色 */
-  --c-danger:#e2624f;
-  --c-danger-soft:rgba(226,98,79,.12);
-
-  /* 冷色「文档」表面：以暗色玻璃承载纸感，取代浅色 parchment */
-  --doc-bg:var(--cream);
-  --doc-line:var(--line);
-  --doc-ink:var(--ink-soft);
-  --doc-ink-strong:var(--ink);
-
-  /* 玻璃模糊：与共享层统一 */
-  --glass-blur:blur(16px) saturate(150%);
-  --glass-blur-sm:blur(14px) saturate(150%);
-
-  /* ---------- 品牌色透明度分档（P2-4 同值收口）----------
-     window2 主题层原先散落 rgba(62,201,192,α)=--primary 与 rgba(124,116,201,α)=--neon-violet
-     的硬编码副本；此处按 α 分档收口为 token，取值逐一相同，视觉零变化。 */
-  --primary-a035:rgba(62,201,192,.035);
-  --primary-a08:rgba(62,201,192,.08);
-  --primary-a10:rgba(62,201,192,.10);
-  --primary-a11:rgba(62,201,192,.11);
-  --primary-a28:rgba(62,201,192,.28);
-  --primary-a30:rgba(62,201,192,.30);
-  --primary-a34:rgba(62,201,192,.34);
-  --violet-a045:rgba(124,116,201,.045);
-  --violet-a06:rgba(124,116,201,.06);
-  --violet-a07:rgba(124,116,201,.07);
-  --violet-a16:rgba(124,116,201,.16);
-  --violet-a18:rgba(124,116,201,.18);
-  /* 冷钢/石板中性色分档（window2 面板边界） */
-  --steel-a20:rgba(169,194,204,.20);
 }
 
 /* ---------- 高对比增强档：面向强光 / 低视力 / 高对比需求设备（加法式，不反向覆盖） ----------
    仅加法式重声明少量 token；不触碰页面层、不破坏单一权威层与 reduced-motion 块。 */
 @media (prefers-contrast: more) {
   :root {
-    --line:rgba(158,182,205,.24);
-    --line-strong:rgba(170,194,216,.40);
-    --ink-soft:#cdd6de;
-    --muted:#aab4bd;
-    --sage:#9aa6b2;
-    --sf-1:#16242f;
-    --sf-2:#21303f;
-    --sf-3:#2c3f54;
-    --edge-1:inset 0 0 0 1px rgba(170,194,216,.24);
-    --edge-2:inset 0 1px 0 rgba(255,255,255,.10), inset 0 0 0 1px rgba(170,194,216,.32);
-    /* 光影模型随对比度增强：顶缘高光提档，弱视设备仍读得出层 */
-    --lit-top:inset 0 1px 0 rgba(207,227,245,.12);
+    --border-divider:rgba(255, 255, 255, 0.20);
+    --border-highlight:rgba(255, 255, 255, 0.22);
+    --text-secondary:rgba(235, 235, 245, 0.78);
+    --text-tertiary:rgba(235, 235, 245, 0.46);
+    --bg-card:#212123;
+    --bg-elevated:#313133;
+    --bg-overlay:#414144;
+    --sf-0:var(--bg-base);
+    --sf-1:var(--bg-card);
+    --sf-2:var(--bg-elevated);
+    --sf-3:var(--bg-overlay);
+    --edge-1:inset 0 0 0 1px var(--border-divider);
+    --edge-2:var(--lit-top), inset 0 0 0 1px var(--border-divider);
+    --lit-top:inset 0 1px 0 var(--border-highlight);
   }
 }

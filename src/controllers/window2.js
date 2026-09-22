@@ -71,29 +71,29 @@ import { initReel } from './window2/reel.js';
   const VIZ = {
     planner: m => `
       <svg width="76" height="14" viewBox="0 0 76 14" aria-hidden="true">
-        <line x1="7" y1="7" x2="31" y2="7" stroke="${m.color}" stroke-width="1.2" stroke-dasharray="3 3" opacity=".65"/>
-        <line x1="45" y1="7" x2="69" y2="7" stroke="${m.color}" stroke-width="1.2" stroke-dasharray="3 3" opacity=".65"/>
-        <circle cx="7" cy="7" r="3" fill="${m.color}"/><circle cx="38" cy="7" r="3.8" fill="${m.color}"/><circle cx="69" cy="7" r="3" fill="${m.color}"/>
+        <line x1="7" y1="7" x2="31" y2="7" stroke="var(--color-accent)" stroke-width="1.2" stroke-dasharray="3 3" opacity=".65"/>
+        <line x1="45" y1="7" x2="69" y2="7" stroke="var(--color-accent)" stroke-width="1.2" stroke-dasharray="3 3" opacity=".65"/>
+        <circle cx="7" cy="7" r="3" fill="var(--color-accent)"/><circle cx="38" cy="7" r="3.8" fill="var(--color-accent)"/><circle cx="69" cy="7" r="3" fill="var(--color-accent)"/>
       </svg><span class="agn__viznote">依赖链已重排</span>`,
     writer: m => `<span class="agn__pen" style="--p:${World.state.employees[m.key].pct}%"></span><span class="agn__viznote">主稿推进线</span>`,
     analyst: m => `
       <svg width="112" height="18" viewBox="0 0 112 18" aria-hidden="true">
-        <polyline points="0,14 18,10 36,13 54,5 72,9 90,3 110,6" fill="none" stroke="${m.color}" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
-        <circle cx="54" cy="5" r="2.4" fill="#fff" stroke="${m.color}" stroke-width="1.4"/>
+        <polyline points="0,14 18,10 36,13 54,5 72,9 90,3 110,6" fill="none" stroke="var(--color-accent)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="54" cy="5" r="2.4" fill="var(--paper-2)" stroke="var(--color-accent)" stroke-width="1.4"/>
       </svg><span class="agn__viznote">漏斗趋势 · 异常定位</span>`,
     designer: m => `
-      <span class="agn__sw"><i style="background:${m.color}"></i><i style="background:#22d3ee"></i><i style="background:#fb923c"></i><i style="background:#fbbf24"></i></span>
+      <span class="agn__sw"><i style="background:var(--color-accent)"></i><i style="background:var(--color-success)"></i><i style="background:var(--color-warning)"></i><i style="background:var(--color-blocked)"></i></span>
       <span class="agn__viznote">色板 · 对比度提级</span>`,
     engineer: m => `
       <span class="agn__seg">${Array.from({ length: 14 }, (_, i) => `<i class="${i < Math.round(World.state.employees[m.key].pct / 100 * 14) ? 'on' : ''}"></i>`).join('')}</span>
       <span class="agn__viznote">构建进度</span>`,
     qc: m => `
       <svg width="92" height="18" viewBox="0 0 92 18" aria-hidden="true">
-        <circle cx="8" cy="9" r="6" fill="none" stroke="${m.color}" stroke-width="1.6"/>
-        <path d="M4.5 9 7 11.5 11.5 6.5" fill="none" stroke="${m.color}" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
-        <circle cx="40" cy="9" r="6" fill="none" stroke="${m.color}" stroke-width="1.6" opacity=".5"/>
-        <circle cx="72" cy="9" r="6" fill="none" stroke="${m.color}" stroke-width="1.6"/>
-        <path d="M68.5 9 71 11.5 75.5 6.5" fill="none" stroke="${m.color}" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="8" cy="9" r="6" fill="none" stroke="var(--color-accent)" stroke-width="1.6"/>
+        <path d="M4.5 9 7 11.5 11.5 6.5" fill="none" stroke="var(--color-accent)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="40" cy="9" r="6" fill="none" stroke="var(--color-accent)" stroke-width="1.6" opacity=".5"/>
+        <circle cx="72" cy="9" r="6" fill="none" stroke="var(--color-accent)" stroke-width="1.6"/>
+        <path d="M68.5 9 71 11.5 75.5 6.5" fill="none" stroke="var(--color-accent)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
       </svg><span class="agn__viznote">验收核查 · 阻断回退</span>`
   };
 
@@ -337,7 +337,7 @@ import { initReel } from './window2/reel.js';
     later(() => {
       const r = document.createElement('span');
       r.className = 'msg-react';
-      r.textContent = txt;
+      r.innerHTML = `<svg class="msg-react__ic" aria-hidden="true"><use href="#ic-check"/></svg>${txt}`;
       row.after(r);
       if (gsapOK()) gsap.from(r, { scale: 0.6, autoAlpha: 0, duration: 0.35, ease: 'back.out(2)' });
     }, 2200 + Math.random() * 2200);
@@ -356,7 +356,7 @@ import { initReel } from './window2/reel.js';
       <div class="meta"><span class="tag">整合</span><span class="num" data-ts="${Date.now()}">${fmtAgo(Date.now())}</span><span class="pill">DOC</span></div>`;
     group.insertBefore(row, group.querySelector('.shelf-row'));
     row.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
-    if (gsapOK()) gsap.from(row, { backgroundColor: 'rgba(31,111,92,0.16)', duration: 1.8, ease: 'power2.out' });
+    if (gsapOK()) gsap.from(row, { backgroundColor: 'rgba(10,132,255,0.12)', duration: 1.8, ease: 'power2.out' });
   }
 
   /* ================= 思考流面板：内容全部由下方「思考链」调度器生成 ================= */
@@ -821,7 +821,7 @@ import { initReel } from './window2/reel.js';
       if (ebBall.burst) ebBall.burst();
       World.completeTask(id);
       addShelfRow(`${title} · 已入知识库`);
-      AIC.toast({ title: '监管指令完成', body: `「${title}」已交付并写入知识库`, color: emp.color, tag: nowHM() });
+      AIC.toast({ title: '监管指令完成', body: `「${title}」已交付并写入知识库`, color: 'var(--color-accent)', tag: nowHM() });
       later(() => {
         const nxt = World.pickNextQueued();
         if (nxt) World.applyClaim(nxt, owner);
@@ -981,7 +981,7 @@ import { initReel } from './window2/reel.js';
         if (Math.random() < 0.4) later(() => {
           const rows = thread.querySelectorAll('.chat-row');
           const last = rows[rows.length - 1];
-          if (last) addReact(last, '👍 2');
+          if (last) addReact(last, '2 人认可');
         }, 3800);
       } else if (t.regen) {
         thinkQuick(`合稿 · v0.${t.regen}`,

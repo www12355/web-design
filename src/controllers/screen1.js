@@ -147,6 +147,15 @@ function syncPipeZero() {
   const $ = s => document.querySelector(s);
   const st0 = World.state;
 
+  /* 状态徽章的唯一写法：类（颜色）+ 图标（形状）+ 中文文案（语义）三重编码，
+     三者缺一不可（DESIGN.md §5）。图标由 common.js 注入的精灵提供。
+     kind: success | running | warning | blocked | neutral | auto */
+  function setPill(el, text, cls, kind) {
+    if (!el) return;
+    el.className = 'pill ' + cls;
+    el.innerHTML = (kind ? AIC.stateIcon(kind) : '') + text;
+  }
+
   /* 把世界引擎当前值写进刊头 / 脊线的 data-count。
    * 必须在入场动画读取 data-count 之前调用，否则 HTML 里的设计稿静态值（72/48/9/96.4）
    * 会先进入数字管线，再被世界真实值覆盖，出现一帧旧数据。 */
@@ -166,12 +175,13 @@ function syncPipeZero() {
   }
 
   // ---- 接力线：主 AI 领跑 + 六名员工（状态实时同步） ----
-  /* 浅色主题下小球「底纸」取纸面同色（主 AI 用深一档米色托住白球），
-     与 .rider__orb 的 box-shadow 遮线色一致，避免发丝线穿球。 */
-  const ORB_PAPER_MAIN = '#d8d0bf';
-  const ORB_PAPER = '#f5f2ea';
+  /* 小球「底纸」必须等于页面底色：.rider__orb 用 box-shadow 在同色上做遮线环，
+     两者不一致就会在球外露出一圈异色（v1 的浅色主题残留 #d8d0bf/#f5f2ea
+     在 v2 石墨底上就是四块亮斑）。取值直接读共享 token，不再硬编码 hex。 */
+  const cssVar = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+  const ORB_PAPER = cssVar('--bg-base');
   const RIDERS = [
-    { key: 'main', name: '主 AI', shape: 'cercle', ink: '#ffffff', paper: ORB_PAPER_MAIN, expr: 'attentif', status: 'busy', st: '统筹中', task: '统筹全局 · 自动接单与归档', main: true },
+    { key: 'main', name: '主 AI', shape: 'cercle', ink: cssVar('--text-primary'), paper: ORB_PAPER, expr: 'attentif', status: 'busy', st: '统筹中', task: '统筹全局 · 自动接单与归档', main: true },
     ...CAST.map(m => {
       /* 快照缺键兜底：降级为「待命」而非抛错，保证接力线整体可渲染 */
       const emp = st0.employees[m.key] || {};
@@ -317,10 +327,10 @@ function syncPipeZero() {
     heroTrack.style.width = t.pct + '%';
     heroNum.textContent = Math.round(t.pct) + '% · 已合并 ' + Math.max(3, Math.round(t.pct / 100 * 5)) + ' / 5 份源文档';
     if (t.status === 'done') {
-      heroPill.textContent = '已归档'; heroPill.className = 'pill pill--pine';
+      setPill(heroPill, '已归档', 'pill--success', 'success');
       heroVer.textContent = 'v0.' + (t.regen + 1);
     } else {
-      heroPill.textContent = '生成中'; heroPill.className = 'pill pill--clay';
+      setPill(heroPill, '生成中', 'pill--run', 'running');
       heroVer.textContent = 'v0.' + t.regen;
     }
     heroSub.textContent = `v0.${t.status === 'done' ? t.regen + 1 : t.regen} · 主 AI 整合生成 · 自动滚动交付`;
@@ -354,12 +364,19 @@ function syncPipeZero() {
     syncPipeZero();
     drawRhythm(deliveryRhythm());
   }
-  /* 角色任务完成时，给对应瓦片短暂提示 */
+  /* 角色任务完成时，给对应瓦片短暂提示。
+     改用 CSS 类（.tile.is-flash）而不是 gsap 内联背景色：
+     颜色取自 --color-accent-surface，不再硬编码 v1 的青绿 rgba；
+     也不再依赖 gsap（CDN 缺失时同样有反馈）。 */
   const EMP_TILE = { designer: '.t-visual', engineer: '.t-web', planner: '.tile--hero', writer: '.tile--hero', analyst: '.t-data' };
   function pulseTile(sel) {
     const el = document.querySelector(sel);
-    if (!el || !window.gsap || reduceMotion) return;
-    gsap.fromTo(el, { backgroundColor: 'rgba(62,201,192,0.10)' }, { backgroundColor: 'rgba(62,201,192,0)', duration: 1.4, ease: 'power2.out', clearProps: 'backgroundColor' });
+    if (!el || reduceMotion) return;
+    el.classList.remove('is-flash');
+    void el.offsetWidth;                 /* 强制重排，保证连击时动画重放 */
+    el.classList.add('is-flash');
+    /* 用 animationend 收尾而不是 setTimeout：不新增需在 pagehide 清理的定时器 */
+    el.addEventListener('animationend', e => { if (e.target === el) el.classList.remove('is-flash'); }, { once: true });
   }
   /* ============ 全任务排期：多任务泳道甘特（由 Schedule 引擎实时驱动） ============ */
   /* 子行高度按视口高自适应：甘特带约占视口 1/3，视口越矮行越紧凑，
@@ -456,7 +473,9 @@ function syncPipeZero() {
       el.dataset.ms = m.id;
       el.style.left = PCT(m.endD) + '%';
       el.title = `${m.name} · ${fmtMD(m.endD)}${risk ? ' · 存在触险风险' : ''}`;
-      el.innerHTML = `<span class="ms__dia${risk ? ' is-risk' : ''}"></span><span class="ms__label${risk ? ' is-risk' : ''}">${m.name}</span>`;
+      /* 触险里程碑：菱形转警示色，标签补 ic-warn 图标（颜色 + 形状 + 文案三冗余） */
+      el.innerHTML = `<span class="ms__dia${risk ? ' is-risk' : ''}"></span>` +
+        `<span class="ms__label${risk ? ' is-risk' : ''}">${risk ? AIC.stateIcon('warning') : ''}${m.name}</span>`;
       row.appendChild(el);
     });
   }
@@ -529,22 +548,24 @@ function syncPipeZero() {
     if (!t) return;
     if (!tipEl) { tipEl = document.createElement('div'); tipEl.className = 'gantt-tip'; document.body.appendChild(tipEl); }
     const depNames = (t.deps || []).map(d => Schedule.nodes[d]).filter(Boolean).map(n => n.name).join('、') || '无前置';
+    /* 状态一律「图标 + 文字」双编码，文字保持 --text-primary；
+       v1 的行内 style="color:var(--pine/clay/c-danger)" 已全部删除。 */
     const buf = t.bufferLeft > 0
-      ? `<span style="color:var(--pine)">${t.bufferLeft} 工作日</span>`
-      : `<span style="color:var(--c-danger)">已超缓冲 ${Math.abs(t.bufferLeft)} 工作日</span>`;
+      ? `<span class="gt-flag gt-flag--ok">${AIC.stateIcon('success')}${t.bufferLeft} 工作日</span>`
+      : `<span class="gt-flag gt-flag--bad">${AIC.stateIcon('blocked')}已超缓冲 ${Math.abs(t.bufferLeft)} 工作日</span>`;
     tipEl.innerHTML =
       `<b>${t.name}</b>` +
       `<div class="gt-row"><span class="gt-k">渠道</span><span>${LANE_LABEL[t.lane] || t.lane}</span></div>` +
       `<div class="gt-row"><span class="gt-k">状态</span><span>${STATUS_LABEL[t.status] || t.status}</span></div>` +
       `<div class="gt-row"><span class="gt-k">优先级</span><span class="gt-pri-${t.priority}">${t.priority}</span></div>` +
       `<div class="gt-row"><span class="gt-k">周期</span><span>${fmtMD(t.startD)} – ${fmtMD(t.endD)}</span></div>` +
-      `<div class="gt-row"><span class="gt-k">工期</span><span>${t.durWd} 工作日${t.slipWd ? ` <span style="color:var(--clay)">(延期 +${t.slipWd})</span>` : ''}</span></div>` +
+      `<div class="gt-row"><span class="gt-k">工期</span><span>${t.durWd} 工作日${t.slipWd ? ` <span class="gt-flag gt-flag--warn">${AIC.stateIcon('warning')}延期 +${t.slipWd}</span>` : ''}</span></div>` +
       (t.wait ? `<div class="gt-row"><span class="gt-k">跨团队等待</span><span>${t.wait} 工作日</span></div>` : '') +
       (t.lead ? `<div class="gt-row"><span class="gt-k">并行重叠</span><span>前置已开工 ${t.lead} 工作日</span></div>` : '') +
       `<div class="gt-row"><span class="gt-k">风险缓冲</span><span>${buf}</span></div>` +
       `<div class="gt-row"><span class="gt-k">关键路径</span><span>${t.crit ? '是' : '否'}</span></div>` +
       `<div class="gt-row"><span class="gt-k">前置依赖</span><span>${depNames}</span></div>` +
-      (t.conflict ? '<div class="gt-row"><span class="gt-k">资源</span><span style="color:var(--c-danger)">同渠道时间重叠冲突</span></div>' : '');
+      (t.conflict ? `<div class="gt-row"><span class="gt-k">资源</span><span class="gt-flag gt-flag--bad">${AIC.stateIcon('blocked')}同渠道时间重叠冲突</span></div>` : '');
     tipEl.classList.add('is-on');
   }
   function moveTip(e) { if (tipEl) { tipEl.style.left = (e.clientX + 14) + 'px'; tipEl.style.top = (e.clientY + 14) + 'px'; } }
@@ -590,8 +611,8 @@ function syncPipeZero() {
     const meta = document.getElementById('sched-meta');
     if (meta) {
       const sm = S.summary();
-      meta.innerHTML = `${sm.tasks} 任务 · ${sm.deps} 依赖 · ${sm.milestones} 里程碑<br>关键路径 <b style="color:var(--pine)">${sm.critLen}</b> 工作日` +
-        (sm.conflicts ? ` · <span style="color:var(--c-danger)">${sm.conflicts} 条资源冲突</span>` : '');
+      meta.innerHTML = `${sm.tasks} 任务 · ${sm.deps} 依赖 · ${sm.milestones} 里程碑<br>关键路径 <b>${sm.critLen}</b> 工作日` +
+        (sm.conflicts ? ` · <span class="sched__conf">${AIC.stateIcon('blocked')}${sm.conflicts} 条资源冲突</span>` : '');
     }
 
     renderNwd();
@@ -684,8 +705,8 @@ function syncPipeZero() {
         const conf = tasks.filter(t => t.conflict).length;
         const blocked = tasks.filter(t => t.status === 'blocked').length;
         period.innerHTML = `${tasks.length} 任务` +
-          (blocked ? ` · <span class="per-conf">${blocked} 阻塞</span>` : '') +
-          (conf ? ` · <span class="per-conf">${conf} 冲突</span>` : '');
+          (blocked ? ` · <span class="per-conf">${AIC.stateIcon('blocked')}${blocked} 阻塞</span>` : '') +
+          (conf ? ` · <span class="per-conf per-conf--warn">${AIC.stateIcon('warning')}${conf} 冲突</span>` : '');
       }
     });
 
@@ -716,7 +737,7 @@ function syncPipeZero() {
           <span class="imp__dot imp__dot--${h.kind}"></span>
           <span class="imp__txt">
             <span class="t">${h.text}</span>
-            <span class="m">${h.t} · 影响 ${(h.affects || []).length} 项${h.milestoneAtRisk ? ' · <span class="risk">里程碑触险</span>' : ''}${h.slip ? ` · 关键路径 ${h.critBefore}→${h.critAfter}d` : ''}</span>
+            <span class="m">${h.t} · 影响 ${(h.affects || []).length} 项${h.milestoneAtRisk ? ` · <span class="risk">${AIC.stateIcon('warning')}里程碑触险</span>` : ''}${h.slip ? ` · 关键路径 ${h.critBefore}→${h.critAfter}d` : ''}</span>
           </span>
         </li>`).join('');
       /* 键盘可达：变更历史行是可选项，原先只绑了 click ——
@@ -752,13 +773,14 @@ function syncPipeZero() {
     ganttHi = new Set(imp.downstream); ganttHi.add(entry.taskId);
     applyHi(); queueDeps();
     const aff = imp.affectedTasks.map(t => `<span class="imp__chip${t.crit ? ' is-crit' : ''}">${t.name}</span>`).join('');
+    /* 里程碑不再用 ◆ 符号兜状态：改用精灵图标（ic-circle / ic-x），与其余状态同语言 */
     const down = imp.downstream.map(id => Schedule.nodes[id]).filter(Boolean)
-      .map(t => `<span class="imp__chip${t.isMilestone ? ' is-risk' : ''}">${t.isMilestone ? '◆ ' + t.name : t.name}</span>`).join('');
-    const riskMs = imp.milestonesAtRisk.map(m => `<span class="imp__chip is-risk">◆ ${m.name} 触险</span>`).join('');
+      .map(t => `<span class="imp__chip${t.isMilestone ? ' is-risk' : ''}">${t.isMilestone ? AIC.stateIcon('blocked') + t.name : t.name}</span>`).join('');
+    const riskMs = imp.milestonesAtRisk.map(m => `<span class="imp__chip is-risk">${AIC.stateIcon('blocked')}${m.name} 触险</span>`).join('');
     det.innerHTML =
       `<div class="imp__ttl">${entry.text}</div>` +
       `<div class="imp__stat">` +
-        `<div class="s"><b class="${entry.critAfter > entry.critBefore ? 'up' : ''}">${entry.critAfter}</b><span>关键路径(工作日)</span></div>` +
+        `<div class="s"><b class="${entry.critAfter > entry.critBefore ? 'up' : ''}">${entry.critAfter}</b><span>${entry.critAfter > entry.critBefore ? AIC.stateIcon('warning') : ''}关键路径(工作日)</span></div>` +
         `<div class="s"><b>${imp.affectedTasks.length}</b><span>直接受影响</span></div>` +
         `<div class="s"><b>${imp.downstream.length}</b><span>波及任务</span></div>` +
       `</div>` +
@@ -842,12 +864,12 @@ function syncPipeZero() {
     evts.forEach(e => {
       if (e.type === 'order' && st.orders[e.id]) {
         const o = st.orders[e.id];
-        AIC.toast({ title: '新任务自动进入', body: `${o.client} · ${o.demand}`, color: 'var(--pine)', tag: '任务池' });
+        AIC.toast({ title: '新任务自动进入', body: `${o.client} · ${o.demand}`, color: 'var(--color-accent)', tag: '任务池' });
       } else if (e.type === 'settle' && st.orders[e.id]) {
         const o = st.orders[e.id];
-        AIC.toast({ title: '交付完成 · 已归档', body: `${o.client} · ${o.demand}`, color: 'var(--pine)', tag: o.settledAt || World.timeHM() });
+        AIC.toast({ title: '交付完成 · 已归档', body: `${o.client} · ${o.demand}`, color: 'var(--color-accent)', tag: o.settledAt || World.timeHM() });
       } else if (e.type === 'block' && st.tasks[e.id]) {
-        AIC.toast({ title: '任务阻塞 · 自动重试', body: st.tasks[e.id].title, color: 'var(--clay)', tone: 'clay', tag: World.timeHM() });
+        AIC.toast({ title: '任务阻塞 · 自动重试', body: st.tasks[e.id].title, color: 'var(--color-warning)', tone: 'clay', tag: World.timeHM() });
       } else if (e.type === 'taskDone' && st.tasks[e.id] && st.tasks[e.id].owner && EMP_TILE[st.tasks[e.id].owner]) {
         pulseTile(EMP_TILE[st.tasks[e.id].owner]);
       }
@@ -899,16 +921,16 @@ function syncPipeZero() {
         const bar = document.querySelector(cfg.bar), num = document.querySelector(cfg.num), pill = document.querySelector(cfg.pill);
         if (!bar || !num || !pill) return;
         const t = roleTask(cfg.role);
-        if (!t) { bar.style.width = '0%'; num.textContent = '等待派单'; pill.textContent = '待命中'; pill.className = 'pill pill--sage'; return; }
+        if (!t) { bar.style.width = '0%'; num.textContent = '等待派单'; setPill(pill, '待命中', 'pill--neutral', 'neutral'); return; }
         if (t.status === 'blocked') {
           bar.style.width = t.pct + '%'; num.textContent = Math.round(t.pct) + '% · 自动重试中';
-          pill.textContent = '阻塞'; pill.className = 'pill pill--clay';
+          setPill(pill, '阻塞', 'pill--bad', 'blocked');
         } else if (t.status === 'doing') {
           bar.style.width = t.pct + '%'; num.textContent = Math.round(t.pct) + '% · ' + t.title;
-          pill.textContent = '生成中'; pill.className = 'pill pill--clay';
+          setPill(pill, '生成中', 'pill--run', 'running');
         } else {
           bar.style.width = '100%'; num.textContent = '已交付 · ' + t.title;
-          pill.textContent = '已交付'; pill.className = 'pill pill--pine';
+          setPill(pill, '已交付', 'pill--success', 'success');
         }
       });
       /* 漏斗转化率随今日接单缓慢漂移（2.5–4.6% 合理带内） */
@@ -934,7 +956,7 @@ function syncPipeZero() {
         else if (e.type === 'rework') {
           const t = World.state.tasks[e.id];
           reworkSeen++;   /* 并入复审占比分子分母：日常模板不产生该事件，只在有样本时才抬高口径 */
-          AIC.toast({ title: '质检返工 · 自动修正', body: t ? t.title : '', color: 'var(--clay)', tone: 'clay', tag: World.timeHM() });
+          AIC.toast({ title: '质检返工 · 自动修正', body: t ? t.title : '', color: 'var(--color-warning)', tone: 'clay', tag: World.timeHM() });
         }
       });
     });

@@ -11,9 +11,9 @@
 }
 
 .launch__head {
-  display:flex; align-items:center; gap:1.8rem;
+  display:flex; align-items:center; gap:var(--space-4);
   padding:2.4rem 4.8rem;
-  border-bottom:1px solid var(--line);
+  border-bottom:1px solid var(--border-divider);
 }
 .launch__head .t-muted { font-size:var(--fs-micro); }
 
@@ -35,10 +35,10 @@
 }
 
 .launch__hero { max-width:58rem; display:flex; flex-direction:column; gap:2rem; }
-.launch__hero .h-display { font-size:clamp(3.6rem, 2.9vw, 5.2rem); line-height:1.12; letter-spacing:-0.025em; }
+.launch__hero .h-display { font-size:clamp(3.6rem, 2.9vw, 5.2rem); line-height:1.12; letter-spacing:var(--letter-spacing-cn-title); }
 .launch__hero p { line-height:1.75; }
 
-.launch__cards { display:flex; flex-direction:column; min-width:0; border-top:1px solid var(--line); }
+.launch__cards { display:flex; flex-direction:column; min-width:0; border-top:1px solid var(--border-divider); }
 
 /* 入口卡：原生 button 重置为版式行，靠「左缘强调条 + 底色」两级表达悬停。
    原先同时改 background + translateX + box-shadow + 序号变色 + 小球放大，
@@ -48,57 +48,63 @@
   display:flex; align-items:center; gap:2rem;
   width:100%;
   padding:3rem 1.6rem 3rem 2.4rem;
-  border:none; border-bottom:1px solid var(--line);
+  border:none; border-bottom:1px solid var(--border-divider);
   border-radius:0;
   background:transparent;
   font:inherit; color:inherit; text-align:left;
   cursor:pointer;
-  transition:background var(--dur-1) var(--ease-out);
+  transition:background var(--duration-fast) var(--ease-standard), filter var(--duration-fast) var(--ease-standard);
 }
+/* 左缘强调条：全站唯一强调色，圆角取 full（药丸形） */
 .launch-card::before {
   content:""; position:absolute; left:0; top:50%;
   width:0.3rem; height:0; transform:translateY(-50%);
-  border-radius:var(--r-pill); background:var(--primary);
-  opacity:0; transition:height var(--dur-2) var(--ease-out), opacity var(--dur-2) var(--ease-out);
+  border-radius:var(--radius-full); background:var(--color-accent);
+  opacity:0; transition:height var(--duration-base) var(--ease-standard), opacity var(--duration-base) var(--ease-standard);
 }
 .launch-card:hover, .launch-card:focus-visible { background:var(--sf-1); }
 .launch-card:hover::before, .launch-card:focus-visible::before { height:64%; opacity:1; }
-.launch-card:active { background:var(--sf-2); }
+/* 按压统一：下沉 1px + 微压暗（与全站一致） */
+.launch-card:active { background:var(--sf-2); transform:translateY(1px); filter:brightness(0.94); }
 .launch-card__no {
   font-family:var(--font-display);
-  font-size:1.3rem; letter-spacing:0.1em;
-  color:var(--muted); width:3rem; flex:none;
+  font-size:var(--font-size-caption); letter-spacing:var(--letter-spacing-en-caps);
+  color:var(--text-secondary); width:3rem; flex:none;
 }
-.launch-card:hover .launch-card__no { color:var(--primary); }
+.launch-card:hover .launch-card__no { color:var(--color-accent); }
 .launch-card__txt { flex:1; min-width:0; }
 /* 入口卡是这一页真正的主操作对象，标题必须够重：
    原先 --fs-title(1.7rem) 比说明性大标题低三档，用户要点的东西反而最轻。 */
-.launch-card__txt b { display:block; font-family:var(--font-display); font-size:var(--fs-lead); font-weight:650; letter-spacing:-0.015em; }
-.launch-card__txt span { font-size:var(--fs-body); color:var(--muted); line-height:1.6; display:block; margin-top:0.4rem; }
+.launch-card__txt b {
+  display:block; font-family:var(--font-display);
+  font-size:var(--font-size-h2); font-weight:var(--font-weight-semibold);
+  letter-spacing:var(--letter-spacing-cn-title);
+}
+.launch-card__txt span { font-size:var(--font-size-body); color:var(--text-secondary); line-height:1.6; display:block; margin-top:0.4rem; }
 
 .bot-demo { width:10.4rem; height:10.4rem; flex:none; }
 
 /* 尺寸预览：归为次级操作，用一条 hairline 与主张区分离 */
 .btn--ghost {
-  padding:1rem 1.6rem; font-size:var(--fs-micro); border-radius:var(--r-ctrl);
-  background:var(--sf-2); font-weight:600; color:var(--ink-soft);
-  transition:border-color var(--dur-1) var(--ease-out), background var(--dur-1) var(--ease-out);
+  min-height:var(--size-button);
+  padding:0 var(--space-3); font-size:var(--fs-micro); border-radius:var(--radius-button);
+  background:var(--sf-2); font-weight:var(--font-weight-medium); color:var(--text-secondary);
+  transition:border-color var(--duration-fast) var(--ease-standard), background var(--duration-fast) var(--ease-standard);
 }
-.btn--ghost:hover { background:var(--cream); border-color:var(--line-strong); }
+.btn--ghost:hover { background:var(--bg-overlay); border-color:var(--border-strong); }
 /* 选中是驻留态，与 hover 的瞬态反馈分开表达：
-   只改「边缘光 + 顶缘高光 + 极轻品牌底」（符合光影模型），不改位移与尺寸，
-   这样它既读得出「已选」，又不会与主操作按钮抢注意力。 */
+   统一选中语言 = accent 淡底 + 1px accent 边框 + --text-primary，
+   不改位移与尺寸，这样它既读得出「已选」，又不会与主操作按钮抢注意力。 */
 .btn--ghost[aria-pressed="true"] {
-  border-color:var(--primary-ring);
-  color:var(--ink);
-  background:var(--primary-soft);
-  box-shadow:var(--edge-1), var(--lit-top);
+  border-color:var(--color-accent);
+  color:var(--text-primary);
+  background:var(--color-accent-surface);
 }
 
 .size-row {
-  display:flex; flex-direction:column; gap:1.2rem;
-  margin-top:1.2rem; padding-top:2rem;
-  border-top:1px solid var(--line);
+  display:flex; flex-direction:column; gap:var(--space-3);
+  margin-top:var(--space-3); padding-top:var(--space-6);
+  border-top:1px solid var(--border-divider);
 }
 
 /* ≤1280：1280×800 是本页对外提供的第一个预览尺寸，
@@ -122,19 +128,15 @@
 .launch__foot {
   display:flex; justify-content:space-between; align-items:center;
   padding:1.6rem 4.8rem;
-  border-top:1px solid var(--line);
-  font-size:1.35rem; color:var(--muted);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .launch-card, .launch-card::before, .btn--ghost { transition:none; }
+  border-top:1px solid var(--border-divider);
+  font-size:var(--font-size-body); color:var(--text-secondary);
 }
 
 /* ---------- 由内联样式收敛而来的工具类（P2-1/P2-2） ---------- */
 .launch__spacer { flex:1; }
-.launch__lede { font-size:var(--fs-body); max-width:50rem; }
-.launch__cta { display:flex; gap:1.4rem; margin-top:.8rem; align-items:center; flex-wrap:wrap; }
-.launch__sizes { display:flex; gap:.8rem; flex-wrap:wrap; }
+.launch__lede { font-size:var(--font-size-body); color:var(--text-secondary); max-width:50rem; }
+.launch__cta { display:flex; gap:var(--space-3); margin-top:var(--space-2); align-items:center; flex-wrap:wrap; }
+.launch__sizes { display:flex; gap:var(--space-2); flex-wrap:wrap; }
 
 /* ≥2560：本页对外提供 2560×1300 预览入口，此前却没有任何大屏档 ——
    6 条横带全按 1920 的量走，在 2.5K/4K 上正文尺度偏小、留白过大。
@@ -147,8 +149,18 @@
   }
   .launch__head, .launch__foot { padding-left:8rem; padding-right:8rem; }
   .launch__hero { max-width:74rem; }
-  .launch__lede { font-size:var(--fs-title); max-width:66rem; }
+  .launch__lede { font-size:var(--font-size-h3); max-width:66rem; }
   .launch-card { padding:4rem 2rem 4rem 3.2rem; }
   .bot-demo { width:13rem; height:13rem; }
-  .launch__foot { font-size:1.5rem; }
+  .launch__foot { font-size:var(--font-size-h3); }
+}
+
+/* ============================================================
+   无障碍收口：prefers-reduced-motion 降级
+   ------------------------------------------------------------
+   必须位于文件最末（DESIGN.md §1）：本文件前段重新声明过 transition，
+   降级规则写在其前会被层叠顺序覆盖而整体失效。
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  .launch-card, .launch-card::before, .btn--ghost { transition:none; animation:none; }
 }
