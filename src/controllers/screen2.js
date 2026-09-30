@@ -4,7 +4,6 @@
 // 世界事件经 handlers 分片订阅（缺 DOM 的处理器自动空转）。
 // ============================================================
 import { initStaticTimes } from './window2/static-times.js';
-import { initNav } from '../modules/nav.js';
 import { initChat } from './window2/sections/chat.js';
 import { initBadges, updateBadges } from './window2/sections/badges.js';
 import { initDocgen } from './window2/sections/docgen.js';
@@ -16,4 +15,3 @@ initBadges();
 initDocgen();
 subscribeWorld([updateBadges, updatePanels, renderEventLog, updateKbStats]);
 updateBadges(); updatePanels(); updateKbStats();
-initNav('screen2');

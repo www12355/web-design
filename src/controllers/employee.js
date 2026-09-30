@@ -10,7 +10,7 @@
 // ============================================================
 import { AIC } from '../modules/common.js';
 import { World } from '../modules/world.js';
-import { initNav, empParam } from '../modules/nav.js';
+import { empParam } from '../modules/nav.js';
 import {
   getRegistry, getMember, buildRoster, staffIdFor, liveAxesFor, orderByRuntime, SKILL_TOOL
 } from '../data/staffRoster.js';
@@ -218,7 +218,6 @@ function syncFooter() {
 }
 
 /* ---------------- 初始化 ---------------- */
-initNav('employee');
 injectSoftwareSprite();
 
 if (FIXED_UID) {
