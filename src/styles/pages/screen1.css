@@ -36,12 +36,10 @@
 .screen1-page .bar--designer,
 .screen1-page .bar--engineer { box-shadow:0 0.1rem 0.2rem var(--shade-a10); }
 .screen1-page .lane:hover .bar { box-shadow:0 0.5rem 1.4rem var(--shade-a14); }
-/* 小球外边一圈「底色环」用来遮住穿过球心的接力发丝线，必须是页面底色而非彩色描边 */
-.screen1-page .rider:not(.rider--main) .rider__orb {
-  box-shadow:0 0 0 7px var(--bg-base), 0 0 0 8px var(--shade-a06);
-}
-.screen1-page .rider__orb svg { filter:drop-shadow(0 0.1rem 0.1rem var(--shade-a16)); }
-.screen1-page .rider--main .rider__orb svg {
+/* 轮播卡头像：中性黑遮蔽投影表达浮起（接力线已由 staff-carousel 接管，
+   卡片自带 --bg-base 底遮住穿行发丝线，不再需要裸球的底色环技巧） */
+.screen1-page .staff-card__orb svg { filter:drop-shadow(0 0.1rem 0.1rem var(--shade-a16)); }
+.screen1-page .staff-card--main .staff-card__orb svg {
   filter:drop-shadow(0 0.1rem 0.2rem var(--shade-a22)) drop-shadow(0 1.2rem 2.2rem var(--shade-a10));
 }
 /* 交付物＝深色舞台上的浅色纸面：用两层遮蔽投影把「纸」压出台面，
@@ -79,6 +77,16 @@
   font-size:.42em; font-weight:var(--font-weight-semibold);
   letter-spacing:var(--letter-spacing-en-caps);
   color:var(--text-primary);
+}
+/* 刊头模板徽标：大轮切换时由 staff-carousel 同拍改写（只读信息，中性芯片） */
+.mast__tpl {
+  display:inline-block; margin-left:1rem; vertical-align:0.15em;
+  font-size:var(--fs-micro); font-weight:var(--font-weight-semibold);
+  letter-spacing:0; color:var(--text-secondary);
+  padding:0.15rem 0.7rem;
+  background:var(--color-neutral-surface);
+  border:1px solid var(--border-divider); border-radius:var(--radius-sm);
+  white-space:nowrap;
 }
 .mast__vals { display:flex; align-items:stretch; flex:none; }
 .val { padding:0.2rem clamp(1.4rem, 1.6vw, 3.2rem) 0; border-left:1px solid var(--border-divider); }
@@ -256,17 +264,26 @@
 .tile-live { flex:none; margin-top:clamp(0.5rem, 0.8vh, 0.7rem); }
 .hero-progress .track { flex:1; height:0.8rem; }
 .hero-progress .num { font-size:var(--fs-micro); color:var(--text-secondary); flex:none; }
-/* 统一进度条填充：强调蓝→亮蓝渐变 + 顶缘高光 + 静态柔光（仅活动填充段可见，不裁切） */
+/* 进度条填充：复用全局 --rc 状态色约定（与 .tile:hover .tile__no 同机制），
+   容器未带状态类时回落到唯一强调色 --color-accent。顶缘高光 + 静态柔光（仅活动填充段可见，不裁切）。
+   用状态色（非角色色）填充进度条符合「图形本体只表达状态」纪律，与进度脊 / 甘特条配色体系一致。 */
 .screen1-page .hero-progress .track,
 .screen1-page .tile-live .track { overflow:visible; }
 .screen1-page .tile-live .track { height:0.7rem; }
 .screen1-page .hero-progress .track > i,
 .screen1-page .tile-live .track > i {
-  background:linear-gradient(90deg, var(--color-accent), var(--color-accent-hover));
+  background:linear-gradient(90deg, var(--rc, var(--color-accent)), color-mix(in srgb, var(--rc, var(--color-accent-hover)) 88%, #fff));
   border-radius:var(--radius-full);
   box-shadow:inset 0 1px 0 rgba(255, 255, 255, .22),
-             0 0 0.5rem color-mix(in srgb, var(--color-accent) 45%, transparent);
+             0 0 0.5rem color-mix(in srgb, var(--rc, var(--color-accent)) 45%, transparent);
 }
+/* 状态修饰类：严格作用域限定，不污染全局同名类（甘特条已占用 .is-blocked 等）。
+   仅向容器注入 --rc，填充色由上面的规则统一承接。 */
+.screen1-page .hero-progress.is-success, .screen1-page .tile-live.is-success { --rc:var(--color-success); }
+.screen1-page .hero-progress.is-run,     .screen1-page .tile-live.is-run     { --rc:var(--color-running); }
+.screen1-page .hero-progress.is-warn,    .screen1-page .tile-live.is-warn    { --rc:var(--color-warning); }
+.screen1-page .hero-progress.is-blocked, .screen1-page .tile-live.is-blocked { --rc:var(--color-blocked); }
+.screen1-page .hero-progress.is-neutral, .screen1-page .tile-live.is-neutral { --rc:var(--color-neutral); }
 
 /* ---------- 甘特横带：全任务排期（多任务泳道甘特） ---------- */
 .sched {
@@ -663,48 +680,63 @@
   .imp__hist { border-right:none; border-bottom:1px solid var(--border-divider); max-height:14rem; }
 }
 
-/* ---------- 接力线 footer：左下角放大 ---------- */
+/* ---------- 接力线 footer · AI 员工轮播 ----------
+   #team 由 staff-carousel 引擎接管：3 套模板 × 3-6 名随机员工。
+   --sc-h 是轮播卡统一高度：三套模板切换不跳带，接力发丝线贴卡高中点。 */
 .relay {
-  --orb:5.6rem;
+  --sc-h:8.6rem;
   flex:none;
   display:flex; align-items:center;
-  gap:clamp(2.4rem, 3vw, 6.4rem);
+  gap:clamp(1.6rem, 2vw, 4rem);
   padding:clamp(1rem, 1.4vh, 1.8rem) var(--pad-x) clamp(1.2rem, 2vh, 2.2rem);
   border-top:1px solid var(--border-divider);
 }
-@media (min-width: 1920px) { .relay { --orb:6.4rem; } }
-.relay__track { position:relative; display:flex; align-items:flex-start; gap:clamp(2rem, 2.6vw, 5.6rem); }
+@media (min-width: 1920px) { .relay { --sc-h:9.2rem; } }
+.relay__track { position:relative; display:flex; align-items:center; gap:1.2rem; }
 .relay__lead {
   flex:1; align-self:center;
   border-top:1px dashed var(--border-strong);
-  margin-top:calc(var(--orb) / 2 - 0.6rem);
 }
-/* 接力hairline：从球心穿过，被球遮住 */
+/* 接力hairline：从卡身中点穿过，被卡片底色遮住 */
 .relay__track::before {
   content:""; position:absolute;
-  top:calc(var(--orb) / 2); left:1.4rem; right:1.4rem;
+  top:calc(var(--sc-h) / 2); left:1.4rem; right:1.4rem;
   border-top:1px solid var(--border-strong);
 }
-.rider { position:relative; display:flex; flex-direction:column; align-items:center; gap:0.7rem; }
-.rider__orb {
-  position:relative; width:var(--orb); height:var(--orb);
-  display:grid; place-items:center;
-  background:var(--bg-base);
-  box-shadow:0 0 0 7px var(--bg-base); /* 用页面底色遮住穿过来的线，不画彩色描边 */
-  border-radius:var(--radius-full);
+
+/* ---- 轮播卡：三套模板共用骨架，layout 变体只改排布 ----
+   默认态安静（底色与页面同层、1px hairline）；焦点卡与影响链高亮同语言：
+   accent 1px 描边 + 淡底，不发光。位移只发生在轨道（transform），不动卡片。 */
+.staff-carousel {
+  flex:0 1 auto; min-width:0;
+  overflow:hidden;
+  transition:transform var(--duration-slow) var(--ease-standard);
 }
-.rider--main .rider__orb { box-shadow:0 0 0 7px var(--bg-base), 0 0 0 8.5px var(--border-strong); }
-/* 主 AI 小球投影改中性黑（v1 的靛蓝双投影已删除） */
-.rider--main .rider__orb svg {
-  filter:drop-shadow(0 1px 2px var(--shade-a22)) drop-shadow(0 12px 20px var(--shade-a16));
+.staff-card {
+  position:relative; flex:none;
+  height:var(--sc-h);
+  display:flex; align-items:center; gap:1.1rem;
+  padding:0 clamp(1.1rem, 1vw, 1.5rem);
+  background:var(--bg-base);              /* 卡底遮住穿行的发丝线 */
+  border:1px solid var(--border-divider);
+  border-radius:var(--radius-card);
+  cursor:pointer;
+  transition:background var(--duration-fast) var(--ease-standard),
+             border-color var(--duration-base) var(--ease-standard),
+             box-shadow var(--duration-base) var(--ease-standard);
 }
-/* 主 AI 领跑圈：1px 强调色描边 + 只做 opacity 呼吸（1.6s），不做缩放扩散 */
-.rider--main::after {
-  content:""; position:absolute;
-  top:calc(var(--orb) / 2); left:50%;
-  width:calc(var(--orb) + 2.4rem); height:calc(var(--orb) + 2.4rem);
-  transform:translate(-50%, -50%);
-  border-radius:var(--radius-full);
+.staff-card:hover { background:var(--bg-elevated); }
+.staff-card.is-active {
+  border-color:var(--color-accent);
+  background:var(--color-accent-surface);
+  box-shadow:var(--contact-1);
+}
+.staff-card__orb { flex:none; width:5.2rem; height:5.2rem; display:grid; place-items:center; }
+.staff-card__orb svg { width:100%; height:100%; display:block; }
+/* 主 AI 常驻领跑：1px 强调色呼吸环（复用 mainBreath），不做缩放扩散 */
+.staff-card--main .staff-card__orb { position:relative; }
+.staff-card--main .staff-card__orb::after {
+  content:""; position:absolute; inset:-1rem; border-radius:var(--radius-full);
   border:1px solid var(--color-accent-border);
   pointer-events:none;
   animation:mainBreath var(--dur-breath) ease-in-out infinite;
@@ -713,30 +745,91 @@
   0%, 100% { opacity:.65; }
   50%      { opacity:1; }
 }
-.rider__orb svg { width:100%; height:100%; display:block; }
-.rider__st {
-  position:absolute; top:0.3rem; right:0.3rem;
-  width:1.3rem; height:1.3rem; border-radius:var(--radius-full);
-  border:3px solid var(--bg-base);
-  box-shadow:0 1px 3px var(--shade-a22),
-    0 0 0 1px var(--shade-a05);
-  transition:box-shadow var(--duration-fast) var(--ease-standard);
+.staff-card__body { flex:1; min-width:0; display:flex; flex-direction:column; gap:0.4rem; }
+.staff-card__head { display:flex; align-items:center; gap:0.6rem; min-width:0; }
+.staff-card__id {
+  flex:none; font-size:var(--fs-micro); font-weight:var(--font-weight-semibold);
+  letter-spacing:var(--letter-spacing-en-caps);
+  color:var(--text-secondary);
+  padding:0.1rem 0.55rem;
+  background:var(--color-neutral-surface);
+  border:1px solid var(--border-divider); border-radius:var(--radius-sm);
+  font-variant-numeric:tabular-nums;
 }
-/* 主 AI 状态点：与领跑圈同语言的中性细环 */
-.rider--main .rider__st {
-  box-shadow:0 0 0 2px var(--bg-base),
-    0 0 0 3.5px var(--border-strong),
-    0 1px 3px var(--shade-a22);
+/* 名单内信号点：员工墨色只在此处出现（数据可视化信号，DESIGN.md §2） */
+.staff-card__sig { flex:none; width:0.7rem; height:0.7rem; border-radius:var(--radius-full); background:var(--sig, var(--color-neutral)); }
+.staff-card__name {
+  min-width:0; font-size:clamp(1.2rem, 0.85vw, 1.4rem);
+  font-weight:var(--font-weight-semibold); color:var(--text-primary);
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
 }
-/* hover 只改边缘，不做缩放抖动（状态点放大不传达任何信息） */
-.rider:hover .rider__st {
-  box-shadow:0 0 0 2px var(--bg-base),
-    0 0 0 3.5px var(--color-accent-border),
-    0 1px 3px var(--shade-a22);
+.staff-card__st {
+  display:inline-flex; align-items:center; gap:0.35rem; margin-left:auto; flex:none;
+  font-size:var(--fs-micro); color:var(--text-secondary); white-space:nowrap;
 }
-.rider b { font-size:clamp(1.2rem, 0.85vw, 1.4rem); font-weight:var(--font-weight-semibold); }
-.rider span { display:flex; align-items:center; gap:0.4rem; font-size:var(--fs-micro); color:var(--text-secondary); }
-.rider .dot { width:0.7rem; height:0.7rem; }
+.staff-card__st .pill__ic { width:1.2rem; height:1.2rem; flex:none; }
+.staff-card__st .dot { width:0.7rem; height:0.7rem; }
+.staff-card__task {
+  margin:0; font-size:var(--fs-micro); color:var(--text-secondary);
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+.staff-card__foot { display:flex; align-items:center; gap:0.8rem; min-height:1.6rem; }
+.staff-card__kb { font-size:var(--fs-micro); color:var(--text-secondary); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.staff-card__prog { display:none; flex:1; align-items:center; gap:0.6rem; min-width:0; }
+.staff-card__prog .track { flex:1; height:0.6rem; }
+.staff-card__prog .track > i { background:var(--color-accent); border-radius:var(--radius-full); }
+.staff-card__pct { flex:none; font-size:var(--fs-micro); color:var(--text-secondary); font-variant-numeric:tabular-nums; }
+
+/* 模板一 · 工牌横卡（badge）：任务 + 知识库贡献常驻 */
+.staff-card--badge .staff-card__prog { display:none; }
+/* 模板二 · 档案竖卡（dossier）：头像居上，任务进度线收底 */
+.staff-card--dossier { flex-direction:column; justify-content:center; gap:0.5rem; padding:0.8rem 1.2rem; }
+.staff-card--dossier .staff-card__orb { width:4.2rem; height:4.2rem; }
+.staff-card--dossier .staff-card__body { align-items:center; }
+.staff-card--dossier .staff-card__head { flex-wrap:wrap; justify-content:center; row-gap:0.3rem; }
+.staff-card--dossier .staff-card__st { margin-left:0; }
+.staff-card--dossier .staff-card__kb { display:none; }
+.staff-card--dossier .staff-card__prog { display:flex; }
+/* 模板三 · 信号极简卡（signal）：只读身份与状态 */
+.staff-card--signal { gap:1.3rem; padding:0 1.6rem; }
+.staff-card--signal .staff-card__orb { width:5.8rem; height:5.8rem; }
+.staff-card--signal .staff-card__task,
+.staff-card--signal .staff-card__foot { display:none; }
+
+/* 轮播控制：与 .sched__imp-btn 同语言的 36px 线性按钮 */
+.staff-ctrl { flex:none; display:flex; gap:0.5rem; }
+.staff-ctrl__btn {
+  display:grid; place-items:center;
+  width:3.6rem; height:3.6rem;
+  background:var(--sf-2); border:1px solid var(--border-divider); border-radius:var(--radius-button);
+  color:var(--text-secondary); cursor:pointer;
+  box-shadow:var(--edge-1), var(--lit-top);
+  transition:border-color var(--duration-base) var(--ease-standard), color var(--duration-base) var(--ease-standard), background var(--duration-base) var(--ease-standard);
+}
+.staff-ctrl__btn:hover, .staff-ctrl__btn[aria-pressed="true"] {
+  color:var(--text-primary); border-color:var(--color-accent-border);
+  background:var(--color-accent-surface);
+  box-shadow:var(--edge-1), var(--lit-top);
+}
+.staff-ctrl__btn svg {
+  width:1.6rem; height:1.6rem;
+  fill:none; stroke:currentColor; stroke-width:1.6;
+  stroke-linecap:round; stroke-linejoin:round;
+}
+
+/* 模板层读数：模板徽标 / 下一班 / 模板点 / 知识库（大轮同拍更新） */
+.staff-tplrow { display:flex; align-items:center; justify-content:flex-end; gap:0.8rem; }
+#staff-tpl { font-size:var(--fs-micro); font-weight:var(--font-weight-semibold); letter-spacing:0; color:var(--text-primary); white-space:nowrap; }
+#staff-note { font-size:var(--fs-micro); white-space:nowrap; }
+#staff-dots { display:flex; gap:0.45rem; margin-left:0.2rem; }
+#staff-dots i {
+  width:0.6rem; height:0.6rem; border-radius:var(--radius-full);
+  background:var(--border-strong); opacity:.5;
+  transition:background var(--duration-base) var(--ease-standard), opacity var(--duration-base) var(--ease-standard);
+}
+#staff-dots i.is-on { background:var(--color-accent); opacity:1; }
+#staff-kb { font-size:var(--fs-micro); white-space:nowrap; }
+#staff-kb b { color:var(--text-primary); font-weight:var(--font-weight-semibold); font-variant-numeric:tabular-nums; }
 
 .relay__note {
   margin-left:auto; text-align:right;
@@ -767,10 +860,7 @@
 .lane .tip { white-space:nowrap; }
 .lane:hover .tip { opacity:1; transform:translate(-50%, 0); }
 
-/* 接力 rider hover：任务浮层即反馈（小球不再上扬 2px，避免整条接力线抖动） */
-.rider .tip { bottom:calc(100% + 1.2rem); font-size:var(--fs-micro); color:var(--text-secondary); }
-.rider .tip b { font-size:var(--fs-micro); }
-.rider:hover .tip { opacity:1; transform:translate(-50%, 0); }
+/* 轮播卡 hover：任务浮层已由卡内 task 行常驻承载，仅保留卡底提亮（上方 .staff-card:hover） */
 
 /* 原来的「减弱动效」块写在此处（文件中部）：DESIGN.md §1 要求降级块留在文件最末，
    否则会被后段规则层叠覆盖；本块已整体移到文件末尾，与其余降级声明合并。 */
@@ -954,12 +1044,14 @@
 @media (prefers-reduced-motion: reduce) {
   /* 过渡：全部关闭（hover 仍靠底色 / 边缘 / 阴影瞬时生效） */
   .val, .val b span, .spine__step .seg, .lane .bar, .bar__fill, .bar,
-  .rider__orb, .rider__st, .rider .tip, .sched__imp-btn, .imp__close,
+  .staff-card, .staff-carousel, .staff-ctrl__btn, #staff-dots i, .mast__tpl,
+  .sched__imp-btn, .imp__close,
   .imp__item, .sched-impact,
   .imp__dot, .s1-step::before, .spine__step .seg > i,
   .hero-progress .track > i, .tile-live .track > i { transition:none; }
   .tile, .tile__no, .tile__thumb svg, .s1-step { transition:none; }
   /* 动效：一处不留（状态只由颜色 + 图标 + 文案表达） */
-  .bar__flag, .bar.is-conflict::after, .rider--main::after, .s1-step,
+  .bar__flag, .bar.is-conflict::after,
+  .staff-card--main .staff-card__orb::after, .s1-step,
   .tile.is-flash { animation:none; }
 }

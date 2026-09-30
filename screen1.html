@@ -21,6 +21,7 @@
     <div class="mast__row1">
       <div class="mast__title">
         <span class="h-eyebrow">AUTONOMOUS OPS · 全自主 AI 经营体 · 无人值守</span>
+        <span class="mast__tpl num" id="mast-tpl">模板 1/3 · 工牌轮播</span>
         <h1><span>运营驾驶舱</span> <span class="mast__no num">N°06 / 18</span></h1>
       </div>
       <div class="mast__vals mast__ops" aria-label="实时运营指标">
@@ -203,7 +204,7 @@
         <span class="tile__name">产品需求规格书</span><span class="tile__ver num">v2.3</span>
         <span class="pill pill--success" id="pill-spec"><svg class="pill__ic" aria-hidden="true"><use href="#ic-check"/></svg>已归档</span>
       </div>
-      <div class="tile-live"><div class="track"><i id="live-spec" style="width:100%"></i></div><span class="num" id="live-spec-num">规划线 · 就绪</span></div>
+      <div class="tile-live is-success"><div class="track"><i id="live-spec" style="width:100%"></i></div><span class="num" id="live-spec-num">规划线 · 就绪</span></div>
     </article>
 
     <!-- 02 · 数据报告 -->
@@ -248,7 +249,7 @@
         <span class="tile__name">市场数据分析报告</span><span class="tile__ver num">v1.8</span>
         <span class="pill pill--success" id="pill-data"><svg class="pill__ic" aria-hidden="true"><use href="#ic-check"/></svg>已归档</span>
       </div>
-      <div class="tile-live"><div class="track"><i id="live-data" style="width:100%"></i></div><span class="num" id="live-data-num">数据线 · 就绪</span></div>
+      <div class="tile-live is-success"><div class="track"><i id="live-data" style="width:100%"></i></div><span class="num" id="live-data-num">数据线 · 就绪</span></div>
     </article>
 
     <!-- 03 · 视觉规范 -->
@@ -289,7 +290,7 @@
         <span class="tile__name">品牌视觉规范</span><span class="tile__ver num">v3.0</span>
         <span class="pill pill--warn" id="pill-visual"><svg class="pill__ic" aria-hidden="true"><use href="#ic-warn"/></svg>审核中</span>
       </div>
-      <div class="tile-live"><div class="track"><i id="live-visual" style="width:38%"></i></div><span class="num" id="live-visual-num">视觉线 · 就绪</span></div>
+      <div class="tile-live is-warn"><div class="track"><i id="live-visual" style="width:38%"></i></div><span class="num" id="live-visual-num">视觉线 · 就绪</span></div>
     </article>
 
     <!-- 04 · 落地页 -->
@@ -341,7 +342,7 @@
         <span class="tile__name">落地页前端工程</span><span class="tile__ver num">v0.9-rc</span>
         <span class="pill pill--run" id="pill-web"><svg class="pill__ic" aria-hidden="true"><use href="#ic-clock"/></svg>联调中</span>
       </div>
-      <div class="tile-live"><div class="track"><i id="live-web" style="width:57%"></i></div><span class="num" id="live-web-num">工程线 · 就绪</span></div>
+      <div class="tile-live is-run"><div class="track"><i id="live-web" style="width:57%"></i></div><span class="num" id="live-web-num">工程线 · 就绪</span></div>
     </article>
     </main>
 
@@ -435,11 +436,25 @@
     </div>
   </section>
 
-  <!-- ============ 接力线 footer ============ -->
+  <!-- ============ 接力线 footer · AI 员工轮播 ============
+       #team 由 staff-carousel 引擎接管：3 套模板 × 3-6 名随机员工，
+       每 2 拍（6s）小轮步进，累计 4 次小轮大轮换模板；
+       员工唯一 ID / 名单去重见 src/data/staffRoster.js。 -->
   <footer class="relay band">
-    <div class="relay__track" id="team"></div>
+    <div class="relay__track staff-carousel" id="team" role="group" aria-label="AI 员工轮播"></div>
     <i class="relay__lead" aria-hidden="true"></i>
+    <div class="staff-ctrl" id="staff-ctrl">
+      <button type="button" class="staff-ctrl__btn" id="staff-prev" aria-label="上一位员工"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 5.5 8 12l6.5 6.5"/></svg></button>
+      <button type="button" class="staff-ctrl__btn" id="staff-pause" aria-label="暂停轮播" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5.5v13M15 5.5v13"/></svg></button>
+      <button type="button" class="staff-ctrl__btn" id="staff-next" aria-label="下一位员工"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9.5 5.5 16 12l-6.5 6.5"/></svg></button>
+    </div>
     <div class="relay__note reveal">
+      <span class="staff-tplrow">
+        <span id="staff-tpl">模板 1/3 · 工牌轮播</span>
+        <span class="t-muted" id="staff-note">下一班 WR-02</span>
+        <span id="staff-dots" aria-hidden="true"><i class="is-on"></i><i></i><i></i></span>
+      </span>
+      <span id="staff-kb">个人入库 · AI-00 近12h入库 +— · 累计 0</span>
       <span id="relay-n1">今日 13 项推进 · 知识库 +37 · 全员在线</span>
       <span class="t-muted" id="relay-n2">最新 11:58 · 视觉规范 v3.0 收到修订请求</span>
     </div>

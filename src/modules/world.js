@@ -105,6 +105,7 @@ function buildState() {
   return {
     v: 2,
     template: 'daily',
+    staffTemplate: 'badge',
     time: { wall: Date.now(), min: realMin(), speed: 1 },
     ledger: { ...LEDGER },
     kb: { ...KB },
@@ -141,6 +142,8 @@ function reconcileEmployees(target) {
 
 /* ---------------- 状态 / 时间 ---------------- */
 let state = buildState();
+/* 旧 v2 快照没有视觉模板字段时，按默认工牌模板兼容，不改变经营模板。 */
+if (!['badge', 'dossier', 'signal'].includes(state.staffTemplate)) state.staffTemplate = 'badge';
 let seq = 0;
 let leader = false;
 let syncOK = true;
@@ -299,6 +302,11 @@ const reducer = {
     if (!tpl || state.template === e.id) return;
     state.template = e.id;
     logEvent(`模拟模板切换 → 「${tpl.name}」：${tpl.desc}`, 'mode');
+  },
+  staffTemplate(e) {
+    if (!['badge', 'dossier', 'signal'].includes(e.id) || state.staffTemplate === e.id) return;
+    state.staffTemplate = e.id;
+    logEvent(`员工视图切换 → 「${e.id}」`, 'mode');
   },
   note() { /* 巡检台词：仅广播，不入账 */ },
   speed(e) {
@@ -507,6 +515,7 @@ function adoptSnapshot(snap) {
   seq = Math.max(seq, snap.seq || 0);
   const prevSpeed = state.time ? state.time.speed : 1;
   state = snap.state;
+  if (!['badge', 'dossier', 'signal'].includes(state.staffTemplate)) state.staffTemplate = 'badge';
   reconcileEmployees(state);
   if (!snap.time || !state.time || !state.time.wall) {
     state.time = { wall: Date.now(), min: realMin(), speed: prevSpeed };
@@ -634,6 +643,7 @@ const World = {
   get state() { return state; },
   get speed() { return state.time.speed; },
   get template() { return state.template; },
+  get staffTemplate() { return ['badge', 'dossier', 'signal'].includes(state.staffTemplate) ? state.staffTemplate : 'badge'; },
   get templates() { return TEMPLATES; },
   get isLeader() { return leader; },
   get syncOK() { return syncOK; },
@@ -667,6 +677,11 @@ const World = {
     applyBatch([{ type: 'template', id }]);
     if (!leader && syncOK) lsSet(CMD_KEY, { type: 'template', id, by: MY_ID, ts: Date.now() });
   },
+  setStaffTemplate(id) {
+    if (!['badge', 'dossier', 'signal'].includes(id)) return;
+    applyBatch([{ type: 'staffTemplate', id }]);
+    if (!leader && syncOK) lsSet(CMD_KEY, { type: 'staffTemplate', id, by: MY_ID, ts: Date.now() });
+  },
   dispatch(task) {
     applyBatch([{ type: 'dispatch', task }]);
     if (!leader && syncOK) lsSet(CMD_KEY, { type: 'dispatch', task, by: MY_ID, ts: Date.now() });
@@ -697,6 +712,7 @@ export { World };
   const snap = syncOK ? lsGet(STORE_KEY) : null;
   if (snap && snap.state && snap.state.v === 2 && snap.ts && Date.now() - snap.ts < 10 * 60 * 1000) {
     state = snap.state; seq = snap.seq || 0; appliedTs = snap.ts;
+    if (!['badge', 'dossier', 'signal'].includes(state.staffTemplate)) state.staffTemplate = 'badge';
     reconcileEmployees(state);
     if (!state.time || !state.time.wall) state.time = { wall: Date.now(), min: realMin(), speed: 1 };
   }

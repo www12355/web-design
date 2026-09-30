@@ -55,8 +55,12 @@ import { initReel } from './window2/reel.js';
     intervals.forEach(id => clearInterval(id)); intervals.clear();
     timeouts.forEach(id => clearTimeout(id)); timeouts.clear();
   }
+  function stopBadgeOrbs() {
+    Object.values(badgeAvatars).forEach(h => h && h.stop && h.stop());
+    Object.keys(badgeAvatars).forEach(k => delete badgeAvatars[k]);
+  }
   function stopOrbs() {
-    if (typeof badgeAvatars !== 'undefined') Object.values(badgeAvatars).forEach(h => h && h.stop && h.stop());
+    stopBadgeOrbs();
     if (chatOrb && chatOrb.stop) chatOrb.stop();
   }
   window.addEventListener('pagehide', () => { clearPageTimers(); stopOrbs(); });
@@ -118,8 +122,25 @@ import { initReel } from './window2/reel.js';
     if (st.pct >= 30) return `「${st.task}」正在并行推进；已完成基础拆解，继续处理${m.role}侧的核心产出与验证。`;
     return `已认领「${st.task}」；正在盘点输入、依赖与验收标准，先建立可回滚的执行路径。`;
   }
-  const badgeEls = [];
-  CAST.forEach((m, i) => {
+  function wireBadgeInteractions(el) {
+    el.tabIndex = 0;
+    el.setAttribute('role', 'button');
+    el.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); el.click(); }
+    });
+  }
+
+  function renderBadges(templateId = World.staffTemplate) {
+    const tpl = ['badge', 'dossier', 'signal'].includes(templateId) ? templateId : 'badge';
+    stopBadgeOrbs();
+    badges.innerHTML = '';
+    Object.keys(badgeRefs).forEach(k => delete badgeRefs[k]);
+    Object.keys(badgeAvatars).forEach(k => delete badgeAvatars[k]);
+    badges.className = `p2__badges badges--${tpl}`;
+    badges.dataset.template = tpl;
+    const tplLabel = document.getElementById('badge-template');
+    if (tplLabel) tplLabel.textContent = `模板 · ${tpl === 'badge' ? '工牌' : tpl === 'dossier' ? '档案' : '信号'}`;
+    CAST.forEach((m, i) => {
     const st = World.state.employees[m.key];
     if (!st) return;   /* 快照缺键兜底：跳过该项而非中断整张工牌网格 */
     const el = document.createElement('article');
@@ -156,8 +177,8 @@ import { initReel } from './window2/reel.js';
           <span class="agn__back-barcode"></span>
         </div>
       </div>`;
+    wireBadgeInteractions(el);
     badges.appendChild(el);
-    badgeEls.push(el);
     /* 拟态工牌：点击翻牌（角标显式触发；整卡轻点也翻） */
     const frontFaceEl = el.querySelector('.agn__face--front');
     if (frontFaceEl && !frontFaceEl.querySelector('.agn__flip')) {
@@ -192,7 +213,9 @@ import { initReel } from './window2/reel.js';
       pen: el.querySelector('.agn__pen'),
       seg: el.querySelector('.agn__seg')
     };
-  });
+    });
+    updateBadges();
+  }
 
 
   function updateBadges() {
@@ -221,6 +244,8 @@ import { initReel } from './window2/reel.js';
       }
     });
   }
+
+  renderBadges(World.staffTemplate);
 
   /* 聊天头部主 AI（白色小球，暖底可读）；持有句柄以便卸载时 stop（P0-1） */
   chatOrb = Bloub.mount(document.getElementById('chat-main'), {
@@ -1073,6 +1098,9 @@ import { initReel } from './window2/reel.js';
         `推演：与在产任务比对依赖，避免二次占用同一数字员工。`,
         `已登记，等待调度执行。`,
         { prio: 5 });
+    },
+    staffTemplate(e, st) {
+      renderBadges(e.id || st.staffTemplate);
     },
     speed(e) {
       thinkQuick(`节拍 · ×${e.v}`,

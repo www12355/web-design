@@ -14,7 +14,25 @@ body { text-rendering:optimizeLegibility; }
    ============================================================ */
 .p2 { display:grid; grid-template-columns:minmax(0, 80rem) 1fr; flex:1; min-height:0; }
 
-/* 智能体卡：真实拟态工牌——塑卡高光、打孔槽、照片框、全息箔、条码、微倾斜 */
+.p2__badges {
+  transition:opacity var(--duration-base) var(--ease-standard);
+}
+.p2__badges[data-template="dossier"] .agn {
+  min-height:22rem;
+}
+.p2__badges[data-template="dossier"] .agn__think,
+.p2__badges[data-template="dossier"] .agn__viz { opacity:.72; }
+.p2__badges[data-template="dossier"] .agn__head { letter-spacing:.02em; }
+.p2__badges[data-template="signal"] { gap:.7rem; }
+.p2__badges[data-template="signal"] .agn { min-height:18rem; }
+.p2__badges[data-template="signal"] .agn__think,
+.p2__badges[data-template="signal"] .agn__viz,
+.p2__badges[data-template="signal"] .agn__skills { display:none; }
+.p2__badges[data-template="signal"] .agn__face--front { grid-template-rows:auto 1fr; }
+.p2__badges[data-template="signal"] .agn__core { transform:scale(1.08); }
+.p2__badges[data-template="signal"] .agn__back-seal { opacity:.7; }
+
+
 .p2__badges { padding:1.8rem 3.6rem 1.8rem 4rem; display:flex; flex-direction:column; gap:1rem; min-height:0; max-width:84rem; }
 .agn {
   position:relative;

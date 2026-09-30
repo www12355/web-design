@@ -6,6 +6,7 @@ import { AIC } from '../modules/common.js';
 import { World } from '../modules/world.js';
 import { monthRange, monthDay, yearMonth } from '../modules/time.js';
 import { Schedule, fmtMD, AXIS, TEAMS, DAY, HOLIDAYS, BASE } from '../modules/schedule.js';
+import { initStaffCarousel } from './screen1/staff-carousel.js';
 
 /* 定时器统一登记：pagehide 时集中清理，避免长会话泄漏（P0-3） */
 const _scrIntervals = new Set();
@@ -140,9 +141,6 @@ function syncPipeZero() {
 })();
 
 // ---- 世界数据源（共享 common.js / world.js） ----
-  const CAST = AIC.CAST;
-  const STATUS_TXT = AIC.STATUS_TXT;
-  const statusText = AIC.statusText || ((status) => STATUS_TXT[status]);
   const reduceMotion = AIC.reduceMotion;
   const $ = s => document.querySelector(s);
   const st0 = World.state;
@@ -174,40 +172,11 @@ function syncPipeZero() {
     });
   }
 
-  // ---- 接力线：主 AI 领跑 + 六名员工（状态实时同步） ----
-  /* 小球「底纸」必须等于页面底色：.rider__orb 用 box-shadow 在同色上做遮线环，
-     两者不一致就会在球外露出一圈异色（v1 的浅色主题残留 #d8d0bf/#f5f2ea
-     在 v2 石墨底上就是四块亮斑）。取值直接读共享 token，不再硬编码 hex。 */
-  const cssVar = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
-  const ORB_PAPER = cssVar('--bg-base');
-  const RIDERS = [
-    { key: 'main', name: '主 AI', shape: 'cercle', ink: cssVar('--text-primary'), paper: ORB_PAPER, expr: 'attentif', status: 'busy', st: '统筹中', task: '统筹全局 · 自动接单与归档', main: true },
-    ...CAST.map(m => {
-      /* 快照缺键兜底：降级为「待命」而非抛错，保证接力线整体可渲染 */
-      const emp = st0.employees[m.key] || {};
-      const status = emp.status || 'idle';
-      return {
-        key: m.key, name: m.name, shape: m.shape, ink: m.color, expr: m.expr, paper: ORB_PAPER,
-        status, st: statusText(status), task: emp.task || `${m.name} · 待接入`
-      };
-    })
-  ];
-  const orbSize = window.innerWidth >= 1920 ? 64 : 56;
-  const team = document.getElementById('team');
-  const riderRefs = {};
-  RIDERS.forEach(r => {
-    const el = document.createElement('div');
-    el.className = 'rider reveal' + (r.main ? ' rider--main' : '');
-    el.title = r.task;
-    el.innerHTML = `
-      <div class="rider__orb">${Bloub.static({ size: orbSize, shape: r.shape, ink: r.ink, expression: r.expr, state: 'idle', paper: r.paper })}</div>
-      <i class="rider__st dot dot--${r.status}"></i>
-      <b>${r.name}</b>
-      <span>${r.st}</span>
-      <span class="tip"><b>${r.name}</b> · ${r.task}</span>`;
-    team.appendChild(el);
-    if (!r.main) riderRefs[r.key] = { el, dot: el.querySelector('.rider__st'), st: el.querySelector('span') };
-  });
+  // ---- 接力线：AI 员工轮播（3 套模板 × 随机名单，状态实时同步） ----
+  /* 卡片渲染 / 拍节调度 / 知识库读数 / 模板层文案同步全部收在
+     screen1/staff-carousel.js（见 src/data/staffRoster.js 的名单与去重口径）。
+     必须在入场时间线注册 .staff-card 之前完成首轮渲染。 */
+  initStaffCarousel();
 
   // ---- 入场动效（gsap 可选；CDN 失败或减弱动效时直接显示） ----
   if (!window.gsap) document.body.classList.add('no-anim');
@@ -223,7 +192,7 @@ function syncPipeZero() {
       .fromTo('.folio',    { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.7 }, 0.6)
       .fromTo('.sched .reveal', { autoAlpha: 0, y: 10 }, { autoAlpha: 1, y: 0, stagger: 0.06 }, 0.65)
       .fromTo('.s1-ops .reveal', { autoAlpha: 0, y: 10 }, { autoAlpha: 1, y: 0, stagger: 0.05 }, 0.55)
-      .fromTo('.rider',    { autoAlpha: 0, scale: 0.7 }, { autoAlpha: 1, scale: 1, stagger: 0.06, ease: 'back.out(1.6)' }, 0.75)
+      .fromTo('.staff-card', { autoAlpha: 0, scale: 0.92 }, { autoAlpha: 1, scale: 1, stagger: 0.06, ease: 'back.out(1.6)' }, 0.75)
       .fromTo('.relay__note', { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.5 }, 1.0);
     gsap.fromTo('.spine__step .seg > i', { scaleX: 0 }, {
       scaleX: 1, duration: 0.8, ease: 'power2.out',
@@ -324,26 +293,23 @@ function syncPipeZero() {
   }
   function updateHero() {
     const t = heroTask(); if (!t) return;
+    const heroProgress = heroTrack.closest('.hero-progress');
     heroTrack.style.width = t.pct + '%';
     heroNum.textContent = Math.round(t.pct) + '% · 已合并 ' + Math.max(3, Math.round(t.pct / 100 * 5)) + ' / 5 份源文档';
     if (t.status === 'done') {
       setPill(heroPill, '已归档', 'pill--success', 'success');
       heroVer.textContent = 'v0.' + (t.regen + 1);
+      heroProgress.classList.add('is-success'); heroProgress.classList.remove('is-run');
     } else {
       setPill(heroPill, '生成中', 'pill--run', 'running');
       heroVer.textContent = 'v0.' + t.regen;
+      heroProgress.classList.add('is-run'); heroProgress.classList.remove('is-success');
     }
     heroSub.textContent = `v0.${t.status === 'done' ? t.regen + 1 : t.regen} · 主 AI 整合生成 · 自动滚动交付`;
   }
   function updateRelay() {
     const st = World.state;
-    CAST.forEach(m => {
-      const r = riderRefs[m.key]; const emp = st.employees[m.key];
-      if (!r || !emp) return;   /* 快照缺键兜底 */
-      r.dot.className = 'dot dot--' + emp.status;
-      r.st.textContent = statusText(emp.status);
-      r.el.title = `${emp.task} · 进度 ${Math.round(emp.pct)}%`;
-    });
+    /* 员工卡片的状态 / 任务 / 进度由 staff-carousel 模块自行订阅 World 刷新 */
     relayN1.textContent = `今日 ${st.counters.todayOrders} 项推进 · 知识库 +${st.kb.today} · 全员在线`;
     const last = st.events[0];
     /* 统一脱敏出口：金额整段摘除、价格词换成中性表述（引擎内部照旧算账，只是不显示） */

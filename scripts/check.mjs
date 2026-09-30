@@ -186,6 +186,14 @@ async function worldSmoke() {
   World.setTemplate(firstTpl);
   if (World.template !== firstTpl) throw new Error('setTemplate 未生效');
 
+  const businessTpl = World.template;
+  World.setStaffTemplate('dossier');
+  if (World.staffTemplate !== 'dossier') throw new Error('staffTemplate dossier 未生效');
+  World.setStaffTemplate('signal');
+  if (World.staffTemplate !== 'signal') throw new Error('staffTemplate signal 未生效');
+  if (World.template !== businessTpl) throw new Error('staffTemplate 污染经营 template');
+  World.setStaffTemplate('badge');
+
   World.setSpeed(2);
   if (World.speed !== 2) throw new Error('setSpeed 未生效');
 
