@@ -3,248 +3,17 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>第 2 / 3 / 4 屏 · 横向卷轴 ｜ AI 自主经营中枢</title>
+<title>第 4 屏 · 知识库 ｜ AI 自主经营中枢</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='13' fill='%230A84FF'/%3E%3Ccircle cx='16' cy='15' r='6.5' fill='%230A0A0B'/%3E%3Ccircle cx='13.4' cy='13.8' r='1.5' fill='%230A84FF'/%3E%3Ccircle cx='18.6' cy='13.8' r='1.5' fill='%230A84FF'/%3E%3Cpath d='M13 18.5q3 2.4 6 0' stroke='%230A84FF' stroke-width='1.4' fill='none' stroke-linecap='round'/%3E%3C/svg%3E">
 <link rel="stylesheet" href="src/styles/components.css">
 <link rel="stylesheet" href="src/styles/pages/window2.css">
+<link rel="stylesheet" href="src/styles/pages/nav.css">
 </head>
-<body data-world-prio="2">
+<body data-world-prio="4" data-page2="screen4">
 
-<!-- 文件类型图标精灵由 src/modules/common.js 统一注入 -->
+<!-- 由 window2.html 第 4 屏拆分而来（P3-1）：单屏独立 URL，横向卷轴的兼容入口保留在 window2.html -->
 <div class="reel" id="reel">
-
-  <!-- ==================== 第 2 屏 · 员工（原设计还原） ==================== -->
-  <section class="reel__page" data-page="0">
-    <div class="screen">
-      <main class="p2">
-        <!-- 左：六张拟态工牌 -->
-        <div class="p2__badges" id="badges"></div>
-
-        <!-- 右：协作群聊 -->
-        <div class="p2__chat">
-          <div class="chat__head">
-            <span class="win-dots"><i></i><i></i><i></i></span>
-            <div class="bot bot-white" id="chat-main"></div>
-            <div>
-              <b class="chat-title">主 AI 经营群</b>
-              <div class="chat-sub">1 位主 AI · 6 名数字员工 · 无人值守</div>
-            </div>
-            <span class="pill pill--neutral pill--push"><svg class="pill__ic" aria-hidden="true"><use href="#ic-circle"/></svg>全员在线</span>
-            <span class="pill" id="chat-pool">任务池 48 · 进行 9</span>
-            <span class="pill pill--success"><svg class="pill__ic" aria-hidden="true"><use href="#ic-check"/></svg>自动运转中</span>
-            <span class="pill pill--neutral" id="badge-template">模板 · 工牌</span>
-          </div>
-
-          <div class="chat__thread">
-            <div class="chat-day">今天 09:12</div>
-
-            <div class="chat-row chat-row--ai">
-              <span class="avatar-slot" data-who="main" title="主 AI"></span>
-              <div class="bubble bubble--ai">
-                <div class="bubble__think"><b><svg viewBox="0 0 24 24"><path d="M9 18h6M10 21h4M12 3a6 6 0 00-4 10.5c.6.5 1 1.2 1 2h6c0-.8.4-1.5 1-2A6 6 0 0012 3z"/></svg>思考 · 09:10</b>重申交付窗口并点名依赖源头——整合稿的全部输入都来自规划路径，先让规划给出关键路径，再向下排子任务。</div>
-                目标重申：本周五完成发布包整合。规划协调，请先给出依赖路径。
-                <div class="bubble__time">09:12</div>
-              </div>
-            </div>
-
-            <div class="chat-row">
-              <span class="avatar-slot" data-who="planner" title="规划协调"></span>
-              <div class="bubble">
-                <div class="bubble__quote"><b>回复 主 AI</b>目标重申：本周五完成发布包整合，请先给出依赖路径。</div>
-                <div class="bubble__think"><b><svg viewBox="0 0 24 24"><path d="M9 18h6M10 21h4M12 3a6 6 0 00-4 10.5c.6.5 1 1.2 1 2h6c0-.8.4-1.5 1-2A6 6 0 0012 3z"/></svg>思考 · 09:14</b>按四段交付物梳理前后依赖，数据报告是唯一上游；估算各段工时后，给出周四 18:00 的整合输入承诺。</div>
-                收到。依赖路径已排：数据报告 → 视觉规范 → 前端联调 → 整合稿。预计周四 18:00 前可交付整合输入。
-                <div class="bubble__time">09:14</div>
-              </div>
-            </div>
-            <span class="msg-react"><svg class="msg-react__ic" aria-hidden="true"><use href="#ic-check"/></svg>3 人认可</span>
-
-            <div class="chat-row">
-              <span class="avatar-slot" data-who="analyst" title="数据分析"></span>
-              <div class="bubble">
-                <div class="bubble__think"><b><svg viewBox="0 0 24 24"><path d="M9 18h6M10 21h4M12 3a6 6 0 00-4 10.5c.6.5 1 1.2 1 2h6c0-.8.4-1.5 1-2A6 6 0 0012 3z"/></svg>思考 · 11:38</b>比对新旧两版数据集，确认 v1.8 只新增异常标注、不改动结论；把三处异常写进第 4 节，便于视觉与前端回查。</div>
-                市场数据已更新至 v1.8，转化漏斗三处异常已标注，详见报告第 4 节。
-                <div class="bubble__time">11:38</div>
-              </div>
-            </div>
-
-            <div class="chat-day">今天 11:40</div>
-
-            <div class="chat-row">
-              <span class="avatar-slot" data-who="designer" title="视觉设计"></span>
-              <div class="bubble">
-                <div class="bubble__think"><b><svg viewBox="0 0 24 24"><path d="M9 18h6M10 21h4M12 3a6 6 0 00-4 10.5c.6.5 1 1.2 1 2h6c0-.8.4-1.5 1-2A6 6 0 0012 3z"/></svg>思考 · 11:39</b>主色沿用定稿结论，把陶土橙与深松绿写进主视觉；规范第 2 节还差无障碍提级，先传初版让主 AI 把方向。</div>
-                视觉规范 v3.0 已上传，主色改为陶土橙 + 深松绿，待主 AI 审定。
-                <div class="bubble__time">11:40</div>
-              </div>
-            </div>
-
-            <div class="chat-row chat-row--ai">
-              <span class="avatar-slot" data-who="main" title="主 AI"></span>
-              <div class="bubble bubble--ai">
-                <div class="bubble__think"><b><svg viewBox="0 0 24 24"><path d="M9 18h6M10 21h4M12 3a6 6 0 00-4 10.5c.6.5 1 1.2 1 2h6c0-.8.4-1.5 1-2A6 6 0 0012 3z"/></svg>思考 · 11:52</b>抽查正文与浅底对比度实测 3.1:1，低于 AA 标准；只要求提级第 2 节，其余全部通过，避免阻塞整体节奏。</div>
-                已审：第 2 节对比度不足，请按无障碍标准提级后再入库。其余通过。
-                <div class="bubble__time">11:52</div>
-              </div>
-            </div>
-
-            <div class="chat-row">
-              <span class="avatar-slot" data-who="engineer" title="工程开发"></span>
-              <div class="bubble">
-                <div class="bubble__think"><b><svg viewBox="0 0 24 24"><path d="M9 18h6M10 21h4M12 3a6 6 0 00-4 10.5c.6.5 1 1.2 1 2h6c0-.8.4-1.5 1-2A6 6 0 0012 3z"/></svg>思考 · 11:55</b>预览环境构建通过、静态资源已挂 CDN；联调前需工程侧确认接口时序，先发清单把等待时间前置。</div>
-                落地页 v0.9-rc 已部署预览环境，联调清单发出，请工程侧确认接口时序。
-                <div class="bubble__time">11:55</div>
-              </div>
-            </div>
-
-          </div>
-
-          <div class="chat__limit">
-            <svg viewBox="0 0 24 24"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 018 0v3"/></svg>
-            已加载 <span class="num" id="chat-count">6</span> 条 · 实时同步中 · 内容仅在框内滚动
-          </div>
-        </div>
-      </main>
-    </div>
-  </section>
-
-  <!-- ==================== 第 3 屏 · 中枢（首页 DeepWell · 表情球） ==================== -->
-  <section class="reel__page" data-page="1">
-    <div class="p3">
-      <!-- 左倾斜面板：自主工作台 -->
-      <aside class="tp tp--left">
-        <div class="tp__panel">
-          <div class="seg-wrap">
-            <div class="seg" id="seg-left">
-              <button class="seg__item seg__item--on" data-pane="pane-status" type="button"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>状态</button>
-              <button class="seg__item" data-pane="pane-events" type="button"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>事件</button>
-              <button class="seg__item" data-pane="pane-set" type="button"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 11-4 0v-.09a1.65 1.65 0 00-1-1.51 1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 110-4h.09a1.65 1.65 0 001.51-1 1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06a1.65 1.65 0 001.82.33h0a1.65 1.65 0 001-1.51V3a2 2 0 114 0v.09a1.65 1.65 0 001 1.51h0a1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82v0a1.65 1.65 0 001.51 1H21a2 2 0 110 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>设置</button>
-            </div>
-          </div>
-          <div class="pane" id="pane-status">
-            <div class="eb-sec eb-sec--tight">
-              <h4><svg viewBox="0 0 24 24"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>经营指标 · 实时</h4>
-              <div class="eb-kpi"><span>在产订单</span><b id="ls-orders">5 个</b></div>
-              <div class="eb-kpi"><span>并行任务</span><b id="ls-doing">9 项</b></div>
-              <div class="eb-kpi"><span>交付完成率</span><b id="ls-completion">72.0%</b></div>
-              <div class="eb-kpi"><span>今日入库</span><b id="ls-ingested">37 项</b></div>
-              <div class="eb-kpi"><span>自动运行时长</span><b id="ls-runtime">24h 18m</b></div>
-            </div>
-            <div class="eb-sec">
-              <h4><svg viewBox="0 0 24 24"><path d="M14.7 6.3a5 5 0 10-7 7l-4 4V21h3.7l4-4a5 5 0 103.3-10.7z"/></svg>运行中的技能</h4>
-              <div class="row-wrap">
-                <span class="pill">订单接签 · auto</span>
-                <span class="pill">任务编排 · loop</span>
-                <span class="pill">依赖解析 · DAG</span>
-                <span class="pill">质量审查 · rubric</span>
-                <span class="pill">交付归档 · auto</span>
-              </div>
-            </div>
-            <div class="eb-sec">
-              <h4><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M9 4v16M4 9h16"/></svg>资源占用</h4>
-              <div class="eb-res"><span>算力</span><div class="track load-track"><i id="cpu-track" style="width:63%"></i></div><b id="cpu-val">63%</b></div>
-              <div class="eb-res eb-sec--loose"><span>内存</span><div class="track track--amber load-track"><i id="mem-track" style="width:41%"></i></div><b id="mem-val">41%</b></div>
-            </div>
-            <div class="eb-sec">
-              <h4><svg viewBox="0 0 24 24"><path d="M3 21h18M5 21V7l7-4 7 4v14"/></svg>在产订单</h4>
-              <div id="prod-orders"></div>
-            </div>
-          </div>
-          <div class="pane" id="pane-events" hidden>
-            <div class="eb-sec eb-sec--tight">
-              <h4><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>经营事件流</h4>
-              <div id="event-log"></div>
-            </div>
-          </div>
-          <div class="pane" id="pane-set" hidden>
-            <div class="eb-sec">
-              <h4><svg viewBox="0 0 24 24"><path d="M13 2L3 14h7l-1 8 10-12h-7l1-8z"/></svg>演示加速</h4>
-              <div class="set-row"><span>时间流速</span>
-                <span class="speed-seg" id="speed-seg">
-                  <button type="button" data-speed="1" class="on">1×</button>
-                  <button type="button" data-speed="4">4×</button>
-                  <button type="button" data-speed="8">8×</button>
-                </span>
-              </div>
-              <p class="set-note" id="speed-note">当前 ×1：实时节律，订单与交付按正常节奏到达。</p>
-            </div>
-            <div class="eb-sec">
-              <h4><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>自主行为</h4>
-              <div class="set-row"><span>自动巡检播报</span><input type="checkbox" class="set-switch" id="patrol-chk" checked></div>
-              <div class="set-row"><span>本页运行时长</span><b class="num num--md" id="runtime-val">0 分钟</b></div>
-            </div>
-            <div class="eb-sec">
-              <h4><svg viewBox="0 0 24 24"><path d="M9 18h6M10 21h4M12 3a6 6 0 00-4 10.5c.6.5 1 1.2 1 2h6c0-.8.4-1.5 1-2A6 6 0 0012 3z"/></svg>关于本引擎</h4>
-              <p class="set-note">本页为全自主 AI 经营体模拟：接单、生产、交付、归档全程无人力接入；「监管终端」为可选人工干预通道。两窗口数据经世界引擎实时同步。</p>
-            </div>
-          </div>
-        </div>
-      </aside>
-
-      <!-- 中央舞台：DeepWell 深井 + 表情球 + 任务入口 -->
-      <div class="stage">
-        <div class="well-halo"><div class="well-halo-glow"></div></div>
-        <div class="plain-ring"></div>
-        <div class="well">
-          <div class="well-inner-shadow"></div>
-          <div class="well__clip"><div class="well__eb"><div id="eb-main"></div></div></div>
-        </div>
-        <div class="task-chips" role="list" aria-label="快捷指令">
-          <button type="button" class="chip" data-fill="@视觉设计 修订主视觉色板对比度"><b>@视觉设计</b> 修订色板</button>
-          <button type="button" class="chip" data-fill="分析上周转化漏斗数据并出周报">漏斗分析周报</button>
-          <button type="button" class="chip" data-fill="开发落地页移动端适配">移动端适配</button>
-          <button type="button" class="chip" data-fill="写一版发布会开场文案">开场文案</button>
-          <button type="button" class="chip chip--doc" data-doc-action="generate">生成交付 Word 文档</button>
-        </div>
-        <div class="task-bar">
-          <div class="task-bar__field field">
-            <svg viewBox="0 0 24 24"><path d="M12 2a3 3 0 013 3v6a3 3 0 01-6 0V5a3 3 0 013-3z"/><path d="M19 10v1a7 7 0 01-14 0v-1M12 18v4"/></svg>
-            <input id="task-input" type="text" placeholder="向主 AI 说点什么，或下达监管指令（回车派发）…" aria-label="监管终端输入" />
-          </div>
-          <button class="task-bar__send" id="task-send" title="发送" aria-label="发送">
-            <svg viewBox="0 0 24 24"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
-            <i class="spinner spinner--sm" aria-hidden="true"></i>
-          </button>
-        </div>
-        <div class="task-hint">全自主运转中 · 打招呼主 AI 会亲自回话 · 带任务动词或 @数字员工 则派发执行</div>
-      </div>
-
-      <!-- 右倾斜面板：主 AI 思考过程 -->
-      <aside class="tp tp--right">
-        <div class="tp__panel">
-          <div class="seg-wrap">
-            <div class="seg" id="seg-right">
-              <button class="seg__item seg__item--on" data-pane="think" type="button"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>思考过程</button>
-              <button class="seg__item" data-pane="pane-log" type="button"><svg viewBox="0 0 24 24"><path d="M9 6h11M9 12h11M9 18h11"/></svg>日志</button>
-              <button class="seg__item" data-pane="pane-ctx" type="button"><svg viewBox="0 0 24 24"><path d="M4 19V5a2 2 0 012-2h13v18H6a2 2 0 01-2-2z"/></svg>上下文</button>
-            </div>
-          </div>
-          <div class="pane" id="think">
-            <!-- 思考链由 src/controllers/window2.js 动态生成：观察 → 拆解 → 推演 → 决策 → 结论 -->
-          </div>
-          <div class="pane" id="pane-log" hidden>
-            <div id="event-log2"></div>
-          </div>
-          <div class="pane" id="pane-ctx" hidden>
-            <div class="eb-sec eb-sec--tight">
-              <h4><svg viewBox="0 0 24 24"><path d="M3 21h18M5 21V7l7-4 7 4v14"/></svg>经营上下文</h4>
-              <div class="eb-kpi"><span>在产订单</span><b id="ctx-orders">5 个</b></div>
-              <div class="eb-kpi"><span>任务池</span><b id="ctx-tasks">48 项</b></div>
-              <div class="eb-kpi"><span>进行 / 排队</span><b id="ctx-doing">9 / 8</b></div>
-              <div class="eb-kpi"><span>知识库</span><b id="ctx-kb">1,284 条</b></div>
-              <div class="eb-kpi"><span>服务客户</span><b id="ctx-clients">14 家</b></div>
-            </div>
-            <div class="eb-sec">
-              <h4><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>运行模式</h4>
-              <p class="eb-note">全自主经营 · 无人力接入。接单 → 拆解 → 生产 → 交付 → 归档闭环自动运转，监管终端仅作可选干预。</p>
-            </div>
-          </div>
-        </div>
-      </aside>
-    </div>
-  </section>
-
-  <!-- ==================== 第 4 屏 · 知识（原设计还原） ==================== -->
-  <section class="reel__page" data-page="2">
+<section class="reel__page" data-page="2">
     <div class="screen">
       <main class="p4">
         <!-- 底层：自演化戴森知识球（纯球状连接，无画布文字标签，src/modules/nebula.js） -->
@@ -555,28 +324,22 @@
 
 <div class="doc-review" id="doc-review" hidden>
   <div class="doc-review__window" role="dialog" aria-modal="true" aria-labelledby="dr-title">
-    <div class="doc-review__titlebar"><span class="doc-review__name" id="dr-title">交付方案.docx - Word</span><span class="dr-workspace-label">DELIVERY REVIEW WORKSPACE</span><span class="dr-countdown" id="dr-countdown" hidden>5 秒后自动返回第 2 屏</span><button type="button" class="doc-review__close" id="dr-close" aria-label="返回第 2 屏">×</button></div>
+    <div class="doc-review__titlebar"><span class="doc-review__name" id="dr-title">交付方案.docx - Word</span><span class="dr-workspace-label">DELIVERY REVIEW WORKSPACE</span><span class="dr-countdown" id="dr-countdown" hidden>5 秒后自动返回本屏</span><button type="button" class="doc-review__close" id="dr-close" aria-label="返回本屏">×</button></div>
     <div class="doc-review__body">
       <section class="doc-review__chat-panel"><div class="dr-chat-head"><div><span class="dr-kicker">第 2 屏 · 真实讨论</span><b>主 AI 经营群</b><span>交付方案协作记录</span></div><span class="dr-live"><i></i>实时同步</span></div><div class="dr-chat" id="dr-chat"></div><div class="dr-chat-compose"><span>审阅意见会自动回写到群聊</span><span class="dr-compose-lock">仅 AI 可发言</span></div></section>
       <section class="doc-review__review-panel">
         <div class="doc-review__ribbon"><span class="dr-tab dr-tab--on">文档内容</span><span class="dr-tab">审阅思考流</span><span class="dr-spacer"></span><span class="dr-status dr-status--wait" id="dr-status">等待 AI 审阅</span></div>
         <div class="doc-review__stage"><div class="doc-review__paper" id="dr-paper"></div><div class="dr-rev-rail" id="dr-rail" aria-hidden="true"></div></div>
-        <aside class="doc-review__side" id="dr-side"><div class="dr-side__head"><b>AI 分析与评审</b><i id="dr-batch">第 1 轮</i></div><div id="dr-score"></div><div class="dr-review-stream" id="dr-review-stream"><div class="dr-stream-line">等待数据分析读取订单、任务和群聊证据…</div></div><div class="dr-side__list" id="dr-findings"><div class="dr-empty">审阅结果将在这里显示</div></div><div class="dr-side__actions"><button type="button" class="dr-btn dr-btn--prim" id="dr-audit">开始 AI 审阅</button><button type="button" class="dr-btn" id="dr-download">下载 .docx</button><button type="button" class="dr-btn" id="dr-close2">返回第 2 屏</button></div></aside>
+        <aside class="doc-review__side" id="dr-side"><div class="dr-side__head"><b>AI 分析与评审</b><i id="dr-batch">第 1 轮</i></div><div id="dr-score"></div><div class="dr-review-stream" id="dr-review-stream"><div class="dr-stream-line">等待数据分析读取订单、任务和群聊证据…</div></div><div class="dr-side__list" id="dr-findings"><div class="dr-empty">审阅结果将在这里显示</div></div><div class="dr-side__actions"><button type="button" class="dr-btn dr-btn--prim" id="dr-audit">开始 AI 审阅</button><button type="button" class="dr-btn" id="dr-download">下载 .docx</button><button type="button" class="dr-btn" id="dr-close2">返回本屏</button></div></aside>
       </section>
     </div>
   </div>
 </div>
 
-
-
-<!-- i18n 语言包已移除：5 个文件加载却无任何消费方（见 ARCHITECTURE-REVIEW.md P1-7） -->
+<nav class="wx-nav" data-nav-current="screen4"></nav>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
 <script type="module" src="src/modules/ball-core.js"></script>
 <script type="module" src="src/modules/bloub.js"></script>
-<script type="module" src="src/modules/emotionball/rings.js"></script>
-<script type="module" src="src/modules/emotionball/emotions.js"></script>
-<script type="module" src="src/modules/emotionball/ball.js"></script>
-<script type="module" src="src/modules/emotionball/engine.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
-<script type="module" src="src/controllers/window2.js"></script>
+<script type="module" src="src/controllers/screen4.js"></script>
 </body>
 </html>

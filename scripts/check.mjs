@@ -17,7 +17,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { execFileSync } from 'node:child_process';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const HTML_PAGES = ['index.html', 'screen1.html', 'window2.html'];
+const HTML_PAGES = ['index.html', 'screen1.html', 'window2.html', 'screen2.html', 'screen3.html', 'screen4.html', 'employee.html'];
 
 const failures = [];
 const warnings = [];

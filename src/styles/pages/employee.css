@@ -1,0 +1,281 @@
+/* ============================================================
+   员工展示卡（P3-2 · employee.html 独有样式）
+   双模式页面：轮播 / 独立页（?emp=uid）。
+   三套卡片模板（emp-card--badge/dossier/signal）用 grid-areas 重排同一 DOM。
+   token 全部来自 tokens.css；本层不声明 token 覆盖块。
+   ============================================================ */
+
+.emp-stage {
+  height:100dvh;
+  display:grid;
+  grid-template-rows:auto 1fr auto;
+  justify-items:stretch;
+  gap:clamp(1rem, 2vh, 2rem);
+  padding:clamp(2.4rem, 5vh, 4.8rem) var(--pad-x) clamp(1.6rem, 3vh, 3.2rem);
+  overflow:hidden;
+}
+.emp-head {
+  width:100%;
+  display:flex; align-items:baseline; justify-content:space-between; gap:1.6rem;
+}
+.emp-head__meta {
+  font-weight:var(--font-weight-semibold);
+  color:var(--text-secondary);
+  font-variant-numeric:tabular-nums;
+}
+
+/* ---- 大卡：hairline 卡片 + 角色墨色信号（--agc 只做环/信号点/多边形描边） ---- */
+.emp-card {
+  align-self:stretch;
+  width:100%;
+  height:100%;
+  min-width:0;
+  min-height:0;
+  display:grid;
+  gap:clamp(0.8rem, 1.4vh, 1.4rem) clamp(1.4rem, 2vw, 2.6rem);
+  padding:clamp(1.8rem, 3vh, 3.2rem) clamp(2rem, 2.6vw, 3.4rem) clamp(1.2rem, 2vh, 1.8rem);
+  background:var(--bg-card);
+  border:1px solid var(--border-divider);
+  border-radius:var(--radius-modal);
+  box-shadow:var(--shadow-card), var(--lit-top);
+  transition:border-color var(--duration-base) var(--ease-standard);
+}
+.emp-card:hover { border-color:var(--border-strong); }
+
+/* 左列：进度环 + 头像球（环色 = 员工墨色信号） */
+.ec-side {
+  grid-area:side;
+  position:relative; min-width:0; min-height:0;
+  display:grid; place-items:center;
+  align-self:center;
+  width:100%; max-width:min(32rem, 80%);
+  aspect-ratio:1 / 1;
+}
+.emp-ring { position:absolute; inset:0; width:100%; height:100%; transform:rotate(-90deg); }
+.emp-ring .bg { fill:none; stroke:var(--color-neutral-surface); stroke-width:5; }
+.emp-ring .fg {
+  fill:none; stroke:var(--agc, var(--color-accent)); stroke-width:5; stroke-linecap:round;
+  stroke-dasharray:464.96; stroke-dashoffset:464.96;
+  transition:stroke-dashoffset var(--duration-slow) var(--ease-standard);
+}
+.emp-card__orb {
+  position:relative;
+  width:58%; aspect-ratio:1/1;
+  display:grid; place-items:center;
+}
+.emp-card__orb svg { width:100%; height:100%; display:block; filter:drop-shadow(0 0.2rem 0.4rem var(--shade-a16)); }
+
+/* 身份行 */
+.ec-idrow { grid-area:idrow; display:flex; align-items:center; gap:0.8rem; min-width:0; }
+.emp-id {
+  flex:none; font-size:var(--fs-micro); font-weight:var(--font-weight-semibold);
+  letter-spacing:var(--letter-spacing-en-caps);
+  color:var(--text-secondary);
+  padding:0.15rem 0.7rem;
+  background:var(--color-neutral-surface);
+  border:1px solid var(--border-divider); border-radius:var(--radius-sm);
+  font-variant-numeric:tabular-nums;
+}
+.emp-sig { flex:none; width:0.8rem; height:0.8rem; border-radius:var(--radius-full); background:var(--agc, var(--color-neutral)); }
+.emp-name {
+  flex:none;
+  font-family:var(--font-display);
+  font-size:clamp(2.1rem, 2.6vw, 3.6rem);
+  font-weight:var(--font-weight-semibold);
+  color:var(--text-primary); letter-spacing:var(--letter-spacing-cn-title);
+  white-space:nowrap;
+}
+.emp-role {
+  font-style:normal; font-size:var(--fs-micro); font-weight:var(--font-weight-semibold);
+  letter-spacing:var(--letter-spacing-en-caps); color:var(--text-secondary);
+  margin-left:auto; flex:none;
+}
+
+/* 状态三重编码 + 知识贡献 */
+.ec-status { grid-area:status; display:flex; align-items:center; gap:0.6rem; font-size:var(--font-size-caption); color:var(--text-secondary); }
+.ec-status .dot { width:0.8rem; height:0.8rem; }
+.emp-status__ic { display:inline-flex; }
+.emp-status__ic .pill__ic { width:1.4rem; height:1.4rem; }
+.emp-kb { margin-left:auto; color:var(--text-secondary); font-variant-numeric:tabular-nums; }
+
+.ec-task {
+  grid-area:task;
+  margin:0; font-size:var(--font-size-h3); font-weight:var(--font-weight-medium);
+  color:var(--text-primary);
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+.ec-progress { grid-area:progress; display:flex; align-items:center; gap:1rem; }
+.ec-progress .track { flex:1; height:0.8rem; }
+.ec-progress .track > i {
+  display:block; height:100%; width:0;
+  border-radius:var(--radius-full);
+  background:linear-gradient(90deg, var(--color-accent), var(--color-accent-hover));
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.22);
+}
+.ec-progress .num { flex:none; color:var(--text-secondary); font-variant-numeric:tabular-nums; }
+
+.ec-skills { grid-area:skills; display:grid; grid-template-columns:1fr 1fr; gap:0.8rem 2rem; align-content:center; }
+.emp-skill { display:grid; grid-template-columns:auto 1fr auto; align-items:center; gap:0.8rem; font-size:var(--fs-micro); color:var(--text-secondary); }
+.emp-skill b { font-weight:var(--font-weight-medium); color:var(--text-primary); white-space:nowrap; }
+.emp-skill .track { height:0.6rem; }
+.emp-skill .track > i { display:block; height:100%; border-radius:var(--radius-full); background:var(--agc, var(--color-accent)); opacity:.85; }
+.emp-skill small { font-variant-numeric:tabular-nums; }
+
+/* ---- 八角雷达：4 技能 + 4 实时轴 ---- */
+.ec-radar { grid-area:radar; min-width:0; min-height:0; display:flex; flex-direction:column; gap:0.4rem; align-items:center; }
+.emp-radar { width:100%; height:100%; max-width:none; flex:1; min-height:0; display:block; }
+.radar-grid { fill:none; stroke:var(--border-divider); stroke-width:1; }
+.radar-axis { stroke:var(--border-divider); stroke-width:1; }
+.radar-poly {
+  fill:color-mix(in srgb, var(--agc, var(--color-accent)) 18%, transparent);
+  stroke:var(--agc, var(--color-accent)); stroke-width:1.8; stroke-linejoin:round;
+}
+.radar-label { fill:var(--text-secondary); font-size:13px; letter-spacing:0.02em; }
+.ec-radar__cap { color:var(--text-tertiary); }
+
+/* ---- 思考过程：实时推演 + 日志时间线 ---- */
+.ec-mind { grid-area:mind; min-width:0; min-height:0; overflow:auto; display:flex; flex-direction:column; gap:0.6rem; }
+.emp-think {
+  margin:0;
+  padding:clamp(0.8rem, 1.4vh, 1.2rem) clamp(1rem, 1.4vw, 1.4rem);
+  border-left:2px solid var(--agc, var(--border-strong));
+  background:var(--bg-elevated);
+  border-radius:var(--radius-sm);
+  font-size:var(--font-size-caption);
+  line-height:1.6;
+  color:var(--text-secondary);
+}
+.emp-log {
+  list-style:none; margin:0; padding:0;
+  display:flex; flex-direction:column;
+}
+.emp-log li {
+  display:flex; align-items:baseline; gap:0.7rem;
+  padding:0.45rem 0.2rem;
+  border-top:1px solid var(--border-divider);
+  font-size:var(--fs-micro); color:var(--text-secondary);
+}
+.emp-log li .dot { flex:none; width:0.7rem; height:0.7rem; align-self:center; }
+.emp-log li b { flex:none; color:var(--text-tertiary); font-weight:var(--font-weight-medium); font-variant-numeric:tabular-nums; }
+.emp-log li span { min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.emp-log li.is-empty { color:var(--text-tertiary); border-top:none; }
+
+/* 卡底：切换 + 独立页链接 */
+.emp-card__foot {
+  grid-area:foot;
+  display:flex; align-items:center; justify-content:center; gap:1.2rem;
+  padding-top:clamp(0.8rem, 1.4vh, 1.2rem);
+  border-top:1px solid var(--border-divider);
+}
+.emp-navbtn {
+  display:grid; place-items:center;
+  width:var(--size-hit); height:var(--size-hit);
+  background:var(--sf-2); border:1px solid var(--border-divider); border-radius:var(--radius-button);
+  color:var(--text-secondary); cursor:pointer;
+  box-shadow:var(--edge-1), var(--lit-top);
+  transition:border-color var(--duration-fast) var(--ease-standard), color var(--duration-fast) var(--ease-standard), background var(--duration-fast) var(--ease-standard);
+}
+.emp-navbtn:hover { color:var(--text-primary); border-color:var(--color-accent-border); background:var(--color-accent-surface); }
+.emp-navbtn:focus-visible { outline:2px solid var(--color-accent); outline-offset:2px; }
+.emp-navbtn svg { width:1.6rem; height:1.6rem; fill:none; stroke:currentColor; stroke-width:1.6; stroke-linecap:round; stroke-linejoin:round; }
+.emp-dots { display:flex; gap:0.5rem; flex-wrap:wrap; justify-content:center; }
+.emp-dot {
+  width:0.9rem; height:0.9rem; border-radius:var(--radius-full);
+  background:var(--border-strong); opacity:.5;
+  border:0; padding:0; cursor:pointer;
+  transition:background var(--duration-fast) var(--ease-standard), opacity var(--duration-fast) var(--ease-standard), transform var(--duration-fast) var(--ease-standard);
+}
+.emp-dot:hover { opacity:.85; }
+.emp-dot:focus-visible { outline:2px solid var(--color-accent); outline-offset:2px; }
+.emp-dot.is-on { background:var(--color-accent); opacity:1; transform:scale(1.2); }
+.emp-link {
+  flex:none; font-size:var(--fs-micro); color:var(--text-secondary); text-decoration:none;
+  padding:0.45rem 0.9rem; border-radius:var(--radius-button);
+  border:1px solid var(--border-divider);
+  transition:color var(--duration-fast) var(--ease-standard), border-color var(--duration-fast) var(--ease-standard), background var(--duration-fast) var(--ease-standard);
+}
+.emp-link:hover { color:var(--text-primary); border-color:var(--color-accent-border); background:var(--color-accent-surface); }
+.emp-link:focus-visible { outline:2px solid var(--color-accent); outline-offset:2px; }
+.emp-link[hidden] { display:none; }
+
+.emp-hint { font-size:var(--fs-micro); color:var(--text-tertiary); letter-spacing:0.02em; text-align:center; margin:0; }
+
+/* ============================================================
+   三套卡片模板：grid-areas 重排同一 DOM（跟随 World.staffTemplate）
+   ============================================================ */
+
+/* 模板一 · 工牌（badge）：左球右档 + 技能/雷达双翼 */
+.emp-card--badge {
+  grid-template-columns:minmax(13rem, 0.85fr) minmax(0, 1.3fr) minmax(16rem, 1.05fr);
+  grid-template-areas:
+    "side idrow radar"
+    "side status radar"
+    "side task radar"
+    "side progress radar"
+    "side skills radar"
+    "side mind mind"
+    "foot foot foot";
+}
+
+/* 模板二 · 档案（dossier）：档案行紧凑，八角雷达全宽收底 */
+.emp-card--dossier {
+  grid-template-columns:minmax(12rem, 0.8fr) minmax(0, 1.2fr);
+  grid-template-areas:
+    "side idrow"
+    "side status"
+    "side task"
+    "side progress"
+    "side mind"
+    "radar radar"
+    "foot foot";
+}
+.emp-card--dossier .ec-skills { display:none; }
+.emp-card--dossier .emp-radar { max-width:none; }
+
+/* 模板三 · 信号（signal）：大球居中 + 极简身份，迷你雷达 */
+.emp-card--signal {
+  grid-template-columns:minmax(0, 1fr);
+  grid-template-areas:
+    "side"
+    "idrow"
+    "status"
+    "radar"
+    "foot";
+  justify-items:center;
+  text-align:center;
+  width:100%; max-width:100%;
+}
+.emp-card--signal .ec-side { max-width:min(30rem, 60vh); }
+.emp-card--signal .emp-name { font-size:clamp(2.6rem, 3vw, 4rem); }
+.emp-card--signal .ec-idrow { justify-content:center; }
+.emp-card--signal .ec-status { justify-content:center; }
+.emp-card--signal .ec-kb { margin-left:0.6rem; }
+.emp-card--signal .ec-task,
+.emp-card--signal .ec-progress,
+.emp-card--signal .ec-skills,
+.emp-card--signal .ec-mind { display:none; }
+.emp-card--signal .emp-radar { max-width:none; }
+.emp-card--signal .emp-card__foot { width:100%; }
+
+/* 窄屏：单列重排（不压扁） */
+@media (max-width: 900px) {
+  .emp-card--badge,
+  .emp-card--dossier,
+  .emp-card--signal {
+    grid-template-columns:minmax(0, 1fr);
+    grid-template-areas:
+      "side" "idrow" "status" "task" "progress" "skills" "radar" "mind" "foot";
+  }
+  .emp-card--dossier .ec-skills { display:grid; }
+  .emp-card--signal .ec-task,
+  .emp-card--signal .ec-progress,
+  .emp-card--signal .ec-mind { display:none; }
+  .ec-side { max-width:15rem; margin:0 auto; }
+}
+
+/* ============================================================
+   prefers-reduced-motion 降级（本文件最末段）
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  .emp-ring .fg, .emp-navbtn, .emp-dot, .emp-link, .emp-card { transition:none; }
+}

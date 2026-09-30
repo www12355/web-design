@@ -46,6 +46,10 @@ body { text-rendering:optimizeLegibility; }
   box-shadow:none;
 }
 .agn::after { display:none; }
+/* 未编入本轮值班名单的槽位（staffRoster 名单制）：整卡翻面 + 降透明，关闭指针交互 */
+.agn--absent { opacity:.5; pointer-events:none; cursor:default; }
+.agn--absent .agn__face--front { background:var(--paper-2); }
+.agn--absent .agn__back-seal { color:var(--ink-soft); opacity:1; }
 .agn__inner {
   position:relative; width:100%; height:100%;
   transform-style:preserve-3d;
@@ -235,6 +239,12 @@ body { text-rendering:optimizeLegibility; }
   border-radius:var(--r-pill); padding:0.2rem 0.8rem;
   font-size:var(--fs-micro); color:var(--ink-soft);
   box-shadow:var(--shadow-soft);
+}
+/* 确认图标显式尺寸：SVG 无宽高时会按默认尺寸撑爆药丸（实测药丸被撑成巨比例） */
+.msg-react__ic {
+  flex:none; width:1.3rem; height:1.3rem;
+  stroke:currentColor; fill:none; stroke-width:1.8;
+  stroke-linecap:round; stroke-linejoin:round;
 }
 /* 正在输入指示器 */
 .typing { display:flex; align-items:center; gap:0.8rem; font-size:var(--fs-micro); font-weight:500; color:var(--muted); }
@@ -1264,6 +1274,25 @@ body { text-rendering:optimizeLegibility; }
 .eb-jump[hidden] { display:none; }
 
 /* 日志降噪合并徽标：已随事件流统一移交 components.css 的 .ev-row__n（P1-4） */
+
+/* ---- 第 4 屏模板变换（staffTemplate 联动，P3-2）：芯片 + 信号形状标记 ---- */
+.atlas-tpl {
+  display:inline-flex; align-items:center; gap:0.5rem;
+  font-size:var(--fs-micro); font-weight:var(--font-weight-semibold);
+  letter-spacing:var(--letter-spacing-en-caps);
+  color:var(--text-secondary);
+  padding:0.2rem 0.7rem;
+  border:1px solid var(--line-strong); border-radius:var(--r-pill);
+}
+.atlas-tpl::before {
+  content:""; width:0.8rem; height:0.8rem; flex:none;
+  background:var(--color-accent); border-radius:2px;
+}
+/* 变体信号色 = 员工墨色身份（档案紫 / 信号青），小面积标记用途（DESIGN.md §2） */
+.p4[data-tpl="dossier"] .atlas-tpl { border-color:rgba(192,132,252,.45); }
+.p4[data-tpl="dossier"] .atlas-tpl::before { background:#c084fc; border-radius:50%; }
+.p4[data-tpl="signal"] .atlas-tpl { border-color:rgba(45,212,191,.45); }
+.p4[data-tpl="signal"] .atlas-tpl::before { background:#2dd4bf; border-radius:0; clip-path:polygon(50% 0,100% 100%,0 100%); }
 
 @media (min-width: 1920px) { .eb-step { font-size:1.4rem; } }
 

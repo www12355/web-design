@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 2 屏 · 数字员工 ｜ AI 自主经营中枢</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='13' fill='%230A84FF'/%3E%3Ccircle cx='16' cy='15' r='6.5' fill='%230A0A0B'/%3E%3Ccircle cx='13.4' cy='13.8' r='1.5' fill='%230A84FF'/%3E%3Ccircle cx='18.6' cy='13.8' r='1.5' fill='%230A84FF'/%3E%3Cpath d='M13 18.5q3 2.4 6 0' stroke='%230A84FF' stroke-width='1.4' fill='none' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="src/styles/components.css">
+<link rel="stylesheet" href="src/styles/pages/window2.css">
+<link rel="stylesheet" href="src/styles/pages/nav.css">
+</head>
+<body data-world-prio="3" data-page2="screen2">
+
+<!-- 由 window2.html 第 2 屏拆分而来（P3-1）：单屏独立 URL，横向卷轴的兼容入口保留在 window2.html -->
+<div class="reel" id="reel">
+<section class="reel__page" data-page="0">
+    <div class="screen">
+      <main class="p2">
+        <!-- 左：六张拟态工牌 -->
+        <div class="p2__badges" id="badges"></div>
+
+        <!-- 右：协作群聊 -->
+        <div class="p2__chat">
+          <div class="chat__head">
+            <span class="win-dots"><i></i><i></i><i></i></span>
+            <div class="bot bot-white" id="chat-main"></div>
+            <div>
+              <b class="chat-title">主 AI 经营群</b>
+              <div class="chat-sub">1 位主 AI · 6 名数字员工 · 无人值守</div>
+            </div>
+            <span class="pill pill--neutral pill--push"><svg class="pill__ic" aria-hidden="true"><use href="#ic-circle"/></svg>全员在线</span>
+            <span class="pill" id="chat-pool">任务池 48 · 进行 9</span>
+            <span class="pill pill--success"><svg class="pill__ic" aria-hidden="true"><use href="#ic-check"/></svg>自动运转中</span>
+            <span class="pill pill--neutral" id="badge-template">模板 · 工牌</span>
+          </div>
+
+          <div class="chat__thread">
+            <div class="chat-day">今天 09:12</div>
+
+            <div class="chat-row chat-row--ai">
+              <span class="avatar-slot" data-who="main" title="主 AI"></span>
+              <div class="bubble bubble--ai">
+                <div class="bubble__think"><b><svg viewBox="0 0 24 24"><path d="M9 18h6M10 21h4M12 3a6 6 0 00-4 10.5c.6.5 1 1.2 1 2h6c0-.8.4-1.5 1-2A6 6 0 0012 3z"/></svg>思考 · 09:10</b>重申交付窗口并点名依赖源头——整合稿的全部输入都来自规划路径，先让规划给出关键路径，再向下排子任务。</div>
+                目标重申：本周五完成发布包整合。规划协调，请先给出依赖路径。
+                <div class="bubble__time">09:12</div>
+              </div>
+            </div>
+
+            <div class="chat-row">
+              <span class="avatar-slot" data-who="planner" title="规划协调"></span>
+              <div class="bubble">
+                <div class="bubble__quote"><b>回复 主 AI</b>目标重申：本周五完成发布包整合，请先给出依赖路径。</div>
+                <div class="bubble__think"><b><svg viewBox="0 0 24 24"><path d="M9 18h6M10 21h4M12 3a6 6 0 00-4 10.5c.6.5 1 1.2 1 2h6c0-.8.4-1.5 1-2A6 6 0 0012 3z"/></svg>思考 · 09:14</b>按四段交付物梳理前后依赖，数据报告是唯一上游；估算各段工时后，给出周四 18:00 的整合输入承诺。</div>
+                收到。依赖路径已排：数据报告 → 视觉规范 → 前端联调 → 整合稿。预计周四 18:00 前可交付整合输入。
+                <div class="bubble__time">09:14</div>
+              </div>
+            </div>
+            <span class="msg-react"><svg class="msg-react__ic" aria-hidden="true"><use href="#ic-check"/></svg>3 人认可</span>
+
+            <div class="chat-row">
+              <span class="avatar-slot" data-who="analyst" title="数据分析"></span>
+              <div class="bubble">
+                <div class="bubble__think"><b><svg viewBox="0 0 24 24"><path d="M9 18h6M10 21h4M12 3a6 6 0 00-4 10.5c.6.5 1 1.2 1 2h6c0-.8.4-1.5 1-2A6 6 0 0012 3z"/></svg>思考 · 11:38</b>比对新旧两版数据集，确认 v1.8 只新增异常标注、不改动结论；把三处异常写进第 4 节，便于视觉与前端回查。</div>
+                市场数据已更新至 v1.8，转化漏斗三处异常已标注，详见报告第 4 节。
+                <div class="bubble__time">11:38</div>
+              </div>
+            </div>
+
+            <div class="chat-day">今天 11:40</div>
+
+            <div class="chat-row">
+              <span class="avatar-slot" data-who="designer" title="视觉设计"></span>
+              <div class="bubble">
+                <div class="bubble__think"><b><svg viewBox="0 0 24 24"><path d="M9 18h6M10 21h4M12 3a6 6 0 00-4 10.5c.6.5 1 1.2 1 2h6c0-.8.4-1.5 1-2A6 6 0 0012 3z"/></svg>思考 · 11:39</b>主色沿用定稿结论，把陶土橙与深松绿写进主视觉；规范第 2 节还差无障碍提级，先传初版让主 AI 把方向。</div>
+                视觉规范 v3.0 已上传，主色改为陶土橙 + 深松绿，待主 AI 审定。
+                <div class="bubble__time">11:40</div>
+              </div>
+            </div>
+
+            <div class="chat-row chat-row--ai">
+              <span class="avatar-slot" data-who="main" title="主 AI"></span>
+              <div class="bubble bubble--ai">
+                <div class="bubble__think"><b><svg viewBox="0 0 24 24"><path d="M9 18h6M10 21h4M12 3a6 6 0 00-4 10.5c.6.5 1 1.2 1 2h6c0-.8.4-1.5 1-2A6 6 0 0012 3z"/></svg>思考 · 11:52</b>抽查正文与浅底对比度实测 3.1:1，低于 AA 标准；只要求提级第 2 节，其余全部通过，避免阻塞整体节奏。</div>
+                已审：第 2 节对比度不足，请按无障碍标准提级后再入库。其余通过。
+                <div class="bubble__time">11:52</div>
+              </div>
+            </div>
+
+            <div class="chat-row">
+              <span class="avatar-slot" data-who="engineer" title="工程开发"></span>
+              <div class="bubble">
+                <div class="bubble__think"><b><svg viewBox="0 0 24 24"><path d="M9 18h6M10 21h4M12 3a6 6 0 00-4 10.5c.6.5 1 1.2 1 2h6c0-.8.4-1.5 1-2A6 6 0 0012 3z"/></svg>思考 · 11:55</b>预览环境构建通过、静态资源已挂 CDN；联调前需工程侧确认接口时序，先发清单把等待时间前置。</div>
+                落地页 v0.9-rc 已部署预览环境，联调清单发出，请工程侧确认接口时序。
+                <div class="bubble__time">11:55</div>
+              </div>
+            </div>
+
+          </div>
+
+          <div class="chat__limit">
+            <svg viewBox="0 0 24 24"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 018 0v3"/></svg>
+            已加载 <span class="num" id="chat-count">6</span> 条 · 实时同步中 · 内容仅在框内滚动
+          </div>
+        </div>
+      </main>
+    </div>
+  </section>
+</div>
+
+<div class="doc-review" id="doc-review" hidden>
+  <div class="doc-review__window" role="dialog" aria-modal="true" aria-labelledby="dr-title">
+    <div class="doc-review__titlebar"><span class="doc-review__name" id="dr-title">交付方案.docx - Word</span><span class="dr-workspace-label">DELIVERY REVIEW WORKSPACE</span><span class="dr-countdown" id="dr-countdown" hidden>5 秒后自动返回本屏</span><button type="button" class="doc-review__close" id="dr-close" aria-label="返回本屏">×</button></div>
+    <div class="doc-review__body">
+      <section class="doc-review__chat-panel"><div class="dr-chat-head"><div><span class="dr-kicker">第 2 屏 · 真实讨论</span><b>主 AI 经营群</b><span>交付方案协作记录</span></div><span class="dr-live"><i></i>实时同步</span></div><div class="dr-chat" id="dr-chat"></div><div class="dr-chat-compose"><span>审阅意见会自动回写到群聊</span><span class="dr-compose-lock">仅 AI 可发言</span></div></section>
+      <section class="doc-review__review-panel">
+        <div class="doc-review__ribbon"><span class="dr-tab dr-tab--on">文档内容</span><span class="dr-tab">审阅思考流</span><span class="dr-spacer"></span><span class="dr-status dr-status--wait" id="dr-status">等待 AI 审阅</span></div>
+        <div class="doc-review__stage"><div class="doc-review__paper" id="dr-paper"></div><div class="dr-rev-rail" id="dr-rail" aria-hidden="true"></div></div>
+        <aside class="doc-review__side" id="dr-side"><div class="dr-side__head"><b>AI 分析与评审</b><i id="dr-batch">第 1 轮</i></div><div id="dr-score"></div><div class="dr-review-stream" id="dr-review-stream"><div class="dr-stream-line">等待数据分析读取订单、任务和群聊证据…</div></div><div class="dr-side__list" id="dr-findings"><div class="dr-empty">审阅结果将在这里显示</div></div><div class="dr-side__actions"><button type="button" class="dr-btn dr-btn--prim" id="dr-audit">开始 AI 审阅</button><button type="button" class="dr-btn" id="dr-download">下载 .docx</button><button type="button" class="dr-btn" id="dr-close2">返回本屏</button></div></aside>
+      </section>
+    </div>
+  </div>
+</div>
+
+<nav class="wx-nav" data-nav-current="screen2"></nav>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+<script type="module" src="src/modules/ball-core.js"></script>
+<script type="module" src="src/modules/bloub.js"></script>
+<script type="module" src="src/controllers/screen2.js"></script>
+</body>
+</html>

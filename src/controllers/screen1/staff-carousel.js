@@ -179,7 +179,13 @@ function focusCard(idx, countStep) {
   }
 }
 
-/* 大轮：下一套模板 ＋ 重新随机名单（buildRoster 内含形状/墨色/ID 去重） */
+/* 大轮：下一套模板 ＋ 换该模板的随机名单（buildRoster 内含形状/墨色/ID 去重） */
+const rosterCache = {};   /* 模板 → 名单（会话内稳定：同一模板对应同一批随机员工） */
+function rosterFor(tplId) {
+  if (!rosterCache[tplId]) rosterCache[tplId] = buildRoster(tplId);
+  return rosterCache[tplId];
+}
+
 function rotateTemplate() {
   tplIdx = (tplIdx + 1) % STAFF_TEMPLATES.length;
   render();
@@ -187,7 +193,7 @@ function rotateTemplate() {
 }
 
 function render() {
-  roster = buildRoster(STAFF_TEMPLATES[tplIdx].id);
+  roster = rosterFor(STAFF_TEMPLATES[tplIdx].id);
   stopOrbs();
   team.innerHTML = '';
   cards = roster.members.map(m => buildCard(m, roster.tpl.layout));

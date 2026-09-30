@@ -12,11 +12,18 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write \"scripts/**/*.{mjs,js}\" \"eslint.config.js\" \".prettierrc.json\"",
-    "format:check": "prettier --check \"scripts/**/*.{mjs,js}\" \"eslint.config.js\" \".prettierrc.json\""
+    "format:check": "prettier --check \"scripts/**/*.{mjs,js}\" \"eslint.config.js\" \".prettierrc.json\"",
+    "dev": "webpack serve --mode development --open --port 4188",
+    "build": "webpack --mode production"
   },
   "devDependencies": {
+    "copy-webpack-plugin": "^14.0.0",
     "eslint": "^9.15.0",
-    "prettier": "^3.3.3"
+    "html-webpack-plugin": "^5.6.8",
+    "prettier": "^3.3.3",
+    "webpack": "^5.111.1",
+    "webpack-cli": "^7.2.3",
+    "webpack-dev-server": "^6.0.0"
   },
   "license": "UNLICENSED"
 }

@@ -80,6 +80,7 @@ export default [
   {
     ignores: [
       'node_modules/**',
+      'dist/**',
       'tools/visual/out/**',
       '*.md',
       '.zcode/**',
