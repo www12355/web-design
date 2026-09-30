@@ -12,9 +12,10 @@ import { AIC } from '../modules/common.js';
 import { World } from '../modules/world.js';
 import { initNav, empParam } from '../modules/nav.js';
 import {
-  getRegistry, getMember, buildRoster, staffIdFor, liveAxesFor, orderByRuntime, STAFF_TEMPLATES
+  getRegistry, getMember, buildRoster, staffIdFor, liveAxesFor, orderByRuntime, SKILL_TOOL
 } from '../data/staffRoster.js';
 import { thoughtFor } from './window2/sections/badges.js';
+import { injectSoftwareSprite } from '../data/softwareIcons.js';
 
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 const statusText = AIC.statusText || (s => s);
@@ -36,18 +37,14 @@ window.addEventListener('pagehide', () => {
 });
 
 /* ---- 轮播模式状态 ---- */
-const tplInit = Math.max(0, STAFF_TEMPLATES.findIndex(t => t.id === World.staffTemplate));
-let tplIdx = tplInit;
 const rosterCache = {};
-function rosterFor(i) {
-  const id = STAFF_TEMPLATES[i].id;
-  if (!rosterCache[id]) rosterCache[id] = buildRoster(id);
-  return rosterCache[id];
+function rosterFor() {
+  if (!rosterCache.__c) rosterCache.__c = buildRoster();
+  return rosterCache.__c;
 }
 let roster = null;
 let idx = 0;
 let beat = 0;
-let smallSteps = 0;
 /* 遍历顺序：运行中靠前（run→busy→idle→wait→档案垫底），同级随机抖动 ——
    每次大轮 / World 刷新都重算，员工位置不固定 */
 let walkOrder = [];
@@ -155,11 +152,13 @@ function render() {
   el.pct.textContent = pct + '%';
   el.ring.style.strokeDashoffset = (RING_C * (1 - pct / 100)).toFixed(1);
 
-  /* 技能 4 条（八角雷达的技能轴同源） */
+  /* 技能 4 条（八角雷达的技能轴同源），每项配真实软件 Logo 图标 */
   const skills = (m.skills || []).slice(0, 4);
   while (skills.length < 4) skills.push(['—', 0]);
-  el.skills.innerHTML = skills.map(([name, v]) =>
-    `<span class="emp-skill"><b>${name}</b><span class="track"><i style="width:${v}%"></i></span><small>${v}</small></span>`).join('');
+  el.skills.innerHTML = skills.map(([name, v]) => {
+    const tool = SKILL_TOOL[name] || 'tool';
+    return `<span class="emp-skill"><svg class="emp-skill__ic" aria-hidden="true"><use href="#sw-${tool}"/></svg><b>${name}</b><span class="track"><i style="width:${v}%"></i></span><small>${v}</small></span>`;
+  }).join('');
 
   /* 思考过程：实时推演 + 日志时间线（真实员工取 World 日志，档案员工给既定思考） */
   el.think.textContent = live ? thoughtFor(m, emp) : m.think0;
@@ -186,7 +185,7 @@ function mountOrb() {
   const live = !m.virtual && !!(World.state.employees[m.uid]);
   const status = live ? (World.state.employees[m.uid].status || 'idle') : 'idle';
   orbHandle = Bloub.mount(el.orb, {
-    size: 160, shape: m.shape, ink: m.ink, expression: m.expr,
+    size: 240, shape: m.shape, ink: m.ink, expression: m.expr,
     state: avatarState(status), paper: '#101012',
     cycle: [
       { state: 'idle', duration: 2.6, expression: m.expr },
@@ -196,31 +195,14 @@ function mountOrb() {
   });
 }
 
-/* ---------------- 卡片模板变体（跟随 World.staffTemplate，三屏同拍） ---------------- */
-function applyTemplate(tplId) {
-  const tpl = STAFF_TEMPLATES.find(t => t.id === tplId) || STAFF_TEMPLATES[0];
-  el.card.className = `emp-card emp-card--${tpl.layout}`;
-  el.card.style.setProperty('--agc', (currentMember() || {}).ink || '');
-}
-function currentTplId() { return STAFF_TEMPLATES[tplIdx].id; }
-
-/* ---------------- 模式二 · 轮播调度（2 拍小轮 / 4 小轮大轮） ---------------- */
+/* ---------------- 模式二 · 轮播调度（2 拍小轮步进一位，运行中靠前） ---------------- */
 function tick() {
   if (document.hidden || !roster) return;
   beat++;
   if (beat % 2 === 0) {
     idx = (idx + 1) % roster.members.length;
     render(); mountOrb(); syncFooter();
-    smallSteps++;
-    if (smallSteps >= 4) { smallSteps = 0; rotateTemplate(); }
   }
-}
-function rotateTemplate() {
-  tplIdx = (tplIdx + 1) % STAFF_TEMPLATES.length;
-  World.setStaffTemplate(currentTplId());
-  roster = rosterFor(tplIdx);
-  idx = 0;
-  render(); mountOrb(); syncFooter();
 }
 function syncFooter() {
   const m = currentMember();
@@ -237,6 +219,7 @@ function syncFooter() {
 
 /* ---------------- 初始化 ---------------- */
 initNav('employee');
+injectSoftwareSprite();
 
 if (FIXED_UID) {
   /* 独立页模式：注册表全员可遍历（运行中靠前），prev/next 真实跳转相邻员工 URL */
@@ -263,7 +246,7 @@ if (FIXED_UID) {
   el.hint.textContent = '← → 跳转相邻员工独立页（运行中靠前） · 本页为该员工的稳定唯一 URL · 可直接分享';
 } else {
   /* 轮播模式：名单内步进（页内切换，不跳转），顺序运行中靠前且随刷新重排 */
-  roster = rosterFor(tplIdx);
+  roster = rosterFor();
   const rebuildOrder = () => { walkOrder = orderByRuntime(roster.members, World.state.employees); };
   rebuildOrder();
   el.dots.innerHTML = walkOrder.map(m =>
@@ -281,24 +264,16 @@ if (FIXED_UID) {
     if (e.key === 'ArrowLeft') { e.preventDefault(); step(-1); }
     if (e.key === 'ArrowRight') { e.preventDefault(); step(1); }
   });
-  el.hint.textContent = `轮播中 · 每 ${2 * 3}s 步进一位（运行中靠前）· 每 4 位换模板（第一/二/四屏同拍变换）· 点「独立页 →」查看该员工唯一 URL`;
+  el.hint.textContent = `轮播中 · 每 ${2 * 3}s 步进一位（运行中靠前）· 点「独立页 →」查看该员工唯一 URL`;
   every(tick, 3000);
 }
 
-applyTemplate(World.staffTemplate);
 render();
 mountOrb();
 syncFooter();
+el.link.hidden = !!FIXED_UID;
 
 World.on(evts => {
-  const tplEvt = evts.find(e => e.type === 'staffTemplate');
-  if (tplEvt) {
-    applyTemplate(tplEvt.id);
-    if (!FIXED_UID) {
-      const next = STAFF_TEMPLATES.findIndex(t => t.id === tplEvt.id);
-      if (next >= 0 && next !== tplIdx) { tplIdx = next; roster = rosterFor(tplIdx); idx = 0; }
-    }
-  }
   render();
   if (orbHandle && orbHandle.engine) {
     const m = currentMember();

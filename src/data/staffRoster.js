@@ -201,6 +201,35 @@ export function liveAxesFor(uid, employees, counters, done12h) {
   ];
 }
 
+/* 技能 → 真实软件工具（softwareIcons.js 的 sw-* 符号 key）。
+   命中则用对应品牌图标，未命中回退 'tool'（通用齿轮）。
+   仅用于员工展示卡技能行的图标，不改变头像/雷达的 --agc 配色纪律。 */
+export const SKILL_TOOL = {
+  // 规划 / 协调
+  '统筹调度': 'notion', '依赖编排': 'github', '风险预判': 'grafana', '报价测算': 'trello',
+  '需求拆解': 'linear', '缺口管理': 'notion',
+  // 内容 / 文案
+  '文案写作': 'notion', '口径管理': 'notion', '灰度校对': 'browserstack', '排版张力': 'figma',
+  // 数据
+  '漏斗诊断': 'amplitude', '埋点治理': 'segment', '归因分析': 'amplitude', '周报沉淀': 'notion',
+  // 设计
+  '视觉系统': 'figma', '无障碍校验': 'browserstack', '版式张力': 'figma', '规范沉淀': 'figma',
+  // 工程
+  '前端工程': 'vscode', '接口联调': 'postman', '自动重试': 'node', '压测护航': 'grafana',
+  // 质量
+  '验收核查': 'jira', '缺陷定位': 'sentry', '回归验证': 'playwright', '标准沉淀': 'notion',
+  // 本地化 / 合规 / 客户
+  '术语对齐': 'weblate', '语序本地化': 'deepl', '截断排查': 'browserstack', '口径统一': 'notion',
+  '漏洞巡检': 'snyk', '合规审计': 'vault', '权限巡检': 'okta', '出域复核': 'vault',
+  '客户回访': 'hubspot', '反馈沉淀': 'notion', '满意度分析': 'hubspot', '续约预警': 'hubspot',
+  // 自动化 / 运维 / 标注
+  '流程编排': 'n8n', '脚本生成': 'vscode', '异常回归': 'playwright', '效率核算': 'trello',
+  '监控值守': 'grafana', '故障定位': 'sentry', '备份演练': 'aws', '容量评估': 'kubernetes',
+  '抽检仲裁': 'tool', '批量回流': 'python', '边界判定': 'tool',
+  // 主 AI 元能力
+  '质量决断': 'linear', '归档治理': 'notion'
+};
+
 /* 运行状态排序：run → busy → idle → wait → 无实时档案（垫底）。
    同级叠加随机抖动 —— 每次调用顺序不固定（「数字员工的位置不要固定」），
    「在运行的 AI 员工靠前」。members 需带 uid；employees 为 World.state.employees。 */

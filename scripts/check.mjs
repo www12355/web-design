@@ -307,7 +307,8 @@ function colorEquivalence() {
   const RUNTIME_CREATED = new Set([
     'aic-toasts', // AIC.toast：首次调用时 createElement 并 append
     'aic-miniscreen', // AIC.smallScreenNotice：窄屏时创建
-    'aic-ft-sprite' // AIC.injectSprite：图标精灵注入后即存在
+    'aic-ft-sprite', // AIC.injectSprite：图标精灵注入后即存在
+    'aic-sw-sprite' // injectSoftwareSprite：员工展示卡软件图标精灵注入后即存在
   ]);
 
   const badIds = [];
