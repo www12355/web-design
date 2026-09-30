@@ -5,7 +5,7 @@
 ## 启动方式
 
 ```bash
-node serve.js          # 默认 http://localhost:4173
+node serve.js          # 默认 http://localhost:4173（被保留/占用时自动回退，以启动日志为准）
 # 或
 启动.bat / 启动.sh
 ```

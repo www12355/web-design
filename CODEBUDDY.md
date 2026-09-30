@@ -6,7 +6,7 @@
 
 ## 常用命令
 
-**本地预览**：`npm run serve`（等价 `npm start` / `node serve.js`），默认 `http://localhost:4173`，用 `PORT` 环境变量覆盖端口。也可双击 `启动.bat` / 执行 `启动.sh`。原生 ES 模块必须经 HTTP 访问，直接 `file://` 打开会失败。
+**本地预览**：`npm run serve`（等价 `npm start` / `node serve.js`），默认 `http://localhost:4173`，用 `PORT` 环境变量覆盖端口；端口被 Windows 保留段（EACCES）或占用（EADDRINUSE）时自动回退到候选端口，以启动日志为准。也可双击 `启动.bat` / 执行 `启动.sh`。原生 ES 模块必须经 HTTP 访问，直接 `file://` 打开会失败。
 
 **质量门禁（唯一测试入口）**：`npm run check`（等价 `npm test`），即 `node scripts/check.mjs`。它是**单一脚本、六道检查串行**，没有"跑单个测试"的能力——要看某一项是否通过，只能读它打印的 `PASS/FAIL` 行。当前基线必须 **6/6 通过、失败 0**，否则 `exit 1`。六项为：引用完整性（HTML `src/href`、JS `import`、CSS `@import`）、语法检查、未用导出、DOM 契约、颜色等价、World 冒烟。
 
