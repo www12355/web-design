@@ -21,51 +21,60 @@
 
   <section class="emp-hero" id="emp-card" data-emp="" tabindex="0">
     <!-- 左：放大的数字员工（进度环 + 头像球） -->
-    <div class="emp-figure">
-      <div class="ec-side">
-        <svg class="emp-ring" viewBox="0 0 160 160" aria-hidden="true">
-          <circle class="bg" cx="80" cy="80" r="74"></circle>
-          <circle class="fg" id="emp-ring-fg" cx="80" cy="80" r="74"></circle>
-        </svg>
-        <div class="emp-card__orb" id="emp-orb"></div>
-      </div>
-      <div class="emp-figure__status">
-        <i class="dot" id="emp-dot"></i>
-        <span id="emp-status-txt">—</span>
-      </div>
-    </div>
-
-    <!-- 右：介绍 / 技能 / 雷达 / 思考 -->
-    <div class="emp-detail">
-      <div class="ec-idrow">
-        <span class="emp-id num" id="emp-id">—</span>
-        <i class="emp-sig" id="emp-sig" aria-hidden="true"></i>
-        <b class="emp-name" id="emp-name">—</b>
-        <em class="emp-role" id="emp-role">—</em>
+      <div class="emp-figure">
+        <div class="ec-side">
+          <svg class="emp-ring" viewBox="0 0 160 160" aria-hidden="true">
+            <circle class="bg" cx="80" cy="80" r="74"></circle>
+            <circle class="fg" id="emp-ring-fg" cx="80" cy="80" r="74"></circle>
+          </svg>
+          <div class="emp-card__orb" id="emp-orb"></div>
+        </div>
       </div>
 
-      <div class="emp-status">
-        <span class="emp-status__ic" id="emp-ic" aria-hidden="true"></span>
-        <span class="emp-kb num" id="emp-kb">知识库 +0</span>
-      </div>
+      <!-- 右：档案列 —— 身份头 / 数据带（知识库 + 当前任务）/ 能力构成 / 雷达+思考 -->
+      <div class="emp-detail">
+        <header class="ec-head">
+          <span class="emp-id num" id="emp-id">—</span>
+          <i class="emp-sig" id="emp-sig" aria-hidden="true"></i>
+          <b class="emp-name" id="emp-name">—</b>
+          <em class="emp-role" id="emp-role">—</em>
+          <span class="emp-status">
+            <span class="emp-status__ic" id="emp-ic" aria-hidden="true"></span>
+            <i class="dot" id="emp-dot"></i>
+            <span id="emp-status-txt">—</span>
+          </span>
+        </header>
 
-      <p class="ec-task" id="emp-task">—</p>
-      <div class="ec-progress">
-        <div class="track"><i id="emp-track"></i></div>
-        <span class="num" id="emp-pct">0%</span>
-      </div>
+        <div class="ec-band">
+          <div class="ec-stat">
+            <span class="ec-label">知识库 · 近12h入库</span>
+            <b class="ec-stat__num num" id="emp-kb">—</b>
+          </div>
+          <div class="ec-taskwrap">
+            <span class="ec-label">当前任务</span>
+            <p class="ec-task" id="emp-task">—</p>
+            <div class="ec-progress">
+              <div class="track"><i id="emp-track"></i></div>
+              <b class="ec-progress__num num" id="emp-pct">0%</b>
+            </div>
+          </div>
+        </div>
 
-      <div class="ec-skills" id="emp-skills"></div>
+        <section class="ec-skills-block">
+          <span class="ec-label">能力构成<i class="ec-label__en" lang="en">SKILLS</i></span>
+          <div class="emp-skills" id="emp-skills"></div>
+        </section>
 
-      <div class="ec-radar">
-        <svg class="emp-radar" id="emp-radar" viewBox="0 0 240 200" role="img" aria-label="技能八角雷达图"></svg>
+        <div class="ec-bottom">
+          <figure class="ec-radar">
+            <svg class="emp-radar" id="emp-radar" viewBox="0 0 240 200" role="img" aria-label="技能八角雷达图"></svg>
+          </figure>
+          <div class="ec-mind">
+            <p class="emp-think" id="emp-think">—</p>
+            <ol class="emp-log" id="emp-log"></ol>
+          </div>
+        </div>
       </div>
-
-      <div class="ec-mind">
-        <p class="emp-think" id="emp-think">—</p>
-        <ol class="emp-log" id="emp-log"></ol>
-      </div>
-    </div>
   </section>
 
   <footer class="emp-card__foot">

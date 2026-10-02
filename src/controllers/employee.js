@@ -1,7 +1,8 @@
 // ============================================================
 // employee.html 控制器：员工展示卡（P3-2 双模式）
 // 模式一 · 独立页（?emp=<uid>）：注册表成员的稳定唯一 URL ——
-//          固定展示该员工，上一张/下一张真实跳转相邻员工 URL；
+//          以该员工为轮播起点，12 名全员自动轮播（运行中靠前），
+//          URL 随轮播实时跟随（replaceState 无刷新，地址栏任何时刻可分享）；
 // 模式二 · 轮播（无参数）：3 套模板 × 3-6 名随机名单（本地缓存，各屏独立随机），
 //          1 拍 3s：每 2 拍小轮步进一位；4 次小轮大轮 World.setStaffTemplate
 //          切换模板 —— 第一/二/四屏同拍变换（staffTemplate 事件驱动）。
@@ -10,7 +11,7 @@
 // ============================================================
 import { AIC } from '../modules/common.js';
 import { World } from '../modules/world.js';
-import { empParam } from '../modules/nav.js';
+import { empParam, setEmpParam } from '../modules/nav.js';
 import {
   getRegistry, getMember, buildRoster, staffIdFor, liveAxesFor, orderByRuntime, SKILL_TOOL
 } from '../data/staffRoster.js';
@@ -46,7 +47,7 @@ let roster = null;
 let idx = 0;
 let beat = 0;
 /* 遍历顺序：运行中靠前（run→busy→idle→wait→档案垫底），同级随机抖动 ——
-   每次大轮 / World 刷新都重算，员工位置不固定 */
+   初始化时装配一次，本会话内稳定（独立页与轮播页同口径） */
 let walkOrder = [];
 
 const el = {
@@ -76,10 +77,9 @@ const el = {
   hint: document.getElementById('emp-hint')
 };
 
-/* 当前展示的成员对象 */
+/* 当前展示的成员对象（两模式统一走 walkOrder[idx]：独立页初始化时定位到 ?emp= 成员） */
 function currentMember() {
-  if (FIXED_UID) return getMember(FIXED_UID);
-  return walkOrder.length ? walkOrder[idx] : (roster && roster.members[idx]) || null;
+  return walkOrder.length ? walkOrder[idx] : null;
 }
 
 /* 近 12 小时入库数：与第一屏轮播同口径（doneAt 按小时分箱），只用 World 真实任务 */
@@ -145,11 +145,12 @@ function render() {
   el.role.textContent = m.role;
   el.dot.className = 'dot dot--' + status;
   el.ic.innerHTML = AIC.stateIcon(kindOf(status));
+  el.ic.className = 'emp-status__ic is-' + kindOf(status);
   el.statusTxt.textContent = live ? statusText(status) : '档案 · 待接入';
-  el.kb.textContent = live ? `知识库 +${done12h(m.uid)}` : '知识库 —';
+  el.kb.textContent = live ? `+${done12h(m.uid)}` : '—';
   el.task.textContent = live ? (emp.task || `${m.name} · 待接入`) : '档案 · 待接入';
-  el.track.style.width = pct + '%';
-  el.pct.textContent = pct + '%';
+  el.track.style.width = (live ? pct : 0) + '%';
+  el.pct.textContent = live ? pct + '%' : '—';
   el.ring.style.strokeDashoffset = (RING_C * (1 - pct / 100)).toFixed(1);
 
   /* 技能 4 条（八角雷达的技能轴同源），每项配真实软件 Logo 图标 */
@@ -186,7 +187,7 @@ function mountOrb() {
   const status = live ? (World.state.employees[m.uid].status || 'idle') : 'idle';
   orbHandle = Bloub.mount(el.orb, {
     size: 240, shape: m.shape, ink: m.ink, expression: m.expr,
-    state: avatarState(status), paper: '#101012',
+    state: avatarState(status), paper: '#2C2C2E',
     cycle: [
       { state: 'idle', duration: 2.6, expression: m.expr },
       { state: 'thinking', duration: 2.9, expression: avatarExpr(m, 'busy') }
@@ -195,14 +196,25 @@ function mountOrb() {
   });
 }
 
-/* ---------------- 模式二 · 轮播调度（2 拍小轮步进一位，运行中靠前） ---------------- */
+/* ---------------- 轮播调度（两模式共用：2 拍小轮步进一位，运行中靠前） ---------------- */
 function tick() {
-  if (document.hidden || !roster) return;
+  if (document.hidden || !walkOrder.length) return;
   beat++;
-  if (beat % 2 === 0) {
-    idx = (idx + 1) % roster.members.length;
-    render(); mountOrb(); syncFooter();
-  }
+  if (beat % 2 === 0) stepTo(idx + 1);
+}
+/* 页内切换（prev/next/圆点/自动轮播同一出口），独立页模式同步 URL */
+function stepTo(i) {
+  if (!walkOrder.length) return;
+  idx = ((i % walkOrder.length) + walkOrder.length) % walkOrder.length;
+  render(); mountOrb(); syncFooter(); syncUrl();
+}
+function step(delta) { stepTo(idx + delta); }
+/* 独立页模式：URL 实时跟随当前员工（replaceState 无刷新，地址栏任何时刻可分享） */
+function syncUrl() {
+  if (!FIXED_UID) return;
+  const m = currentMember();
+  if (!m) return;
+  try { setEmpParam(m.uid); } catch (e) { /* file:// 等环境不支持 replaceState：展示不受影响 */ }
 }
 function syncFooter() {
   const m = currentMember();
@@ -221,51 +233,30 @@ function syncFooter() {
 injectSoftwareSprite();
 
 if (FIXED_UID) {
-  /* 独立页模式：注册表全员可遍历（运行中靠前），prev/next 真实跳转相邻员工 URL */
-  const rebuildOrder = () => { walkOrder = orderByRuntime(REGISTRY, World.state.employees); };
-  rebuildOrder();
-  el.dots.innerHTML = walkOrder.map(m =>
-    `<button type="button" class="emp-dot" role="tab" aria-label="${m.name}" title="${staffIdFor(m.uid)} ${m.name}"></button>`).join('');
-  [...el.dots.children].forEach((d, i) => d.addEventListener('click', () => {
-    location.href = `employee.html?emp=${walkOrder[i].uid}`;
-  }));
-  const jump = delta => {
-    rebuildOrder();   /* 状态已变 → 运行中靠前重排 */
-    const m = getMember(FIXED_UID);
-    const pos = Math.max(0, walkOrder.indexOf(m));
-    const t = walkOrder[((pos + delta) % walkOrder.length + walkOrder.length) % walkOrder.length];
-    location.href = `employee.html?emp=${t.uid}`;
-  };
-  el.prev.addEventListener('click', () => jump(-1));
-  el.next.addEventListener('click', () => jump(1));
-  el.card.addEventListener('keydown', e => {
-    if (e.key === 'ArrowLeft') { e.preventDefault(); jump(-1); }
-    if (e.key === 'ArrowRight') { e.preventDefault(); jump(1); }
-  });
-  el.hint.textContent = '← → 跳转相邻员工独立页（运行中靠前） · 本页为该员工的稳定唯一 URL · 可直接分享';
+  /* 独立页模式：注册表 12 名全员自动轮播（运行中靠前），
+     初始定位到 ?emp= 成员 —— 分享链接打开先见该员工，URL 随轮播实时跟随 */
+  walkOrder = orderByRuntime(REGISTRY, World.state.employees);
+  idx = Math.max(0, walkOrder.indexOf(getMember(FIXED_UID)));
+  el.hint.textContent = '每 6s 自动轮播（运行中靠前）· ← → 或点圆点切换 · URL 实时跟随当前员工 · 可直接分享';
 } else {
-  /* 轮播模式：名单内步进（页内切换，不跳转），顺序运行中靠前且随刷新重排 */
+  /* 轮播模式：名单内步进（页内切换），顺序运行中靠前 */
   roster = rosterFor();
-  const rebuildOrder = () => { walkOrder = orderByRuntime(roster.members, World.state.employees); };
-  rebuildOrder();
-  el.dots.innerHTML = walkOrder.map(m =>
-    `<button type="button" class="emp-dot" role="tab" aria-label="${m.name}" title="${staffIdFor(m.uid)} ${m.name}"></button>`).join('');
-  [...el.dots.children].forEach((d, i) => d.addEventListener('click', () => {
-    idx = i; render(); mountOrb(); syncFooter();
-  }));
-  const step = d => {
-    idx = ((idx + d) % walkOrder.length + walkOrder.length) % walkOrder.length;
-    render(); mountOrb(); syncFooter();
-  };
-  el.prev.addEventListener('click', () => step(-1));
-  el.next.addEventListener('click', () => step(1));
-  el.card.addEventListener('keydown', e => {
-    if (e.key === 'ArrowLeft') { e.preventDefault(); step(-1); }
-    if (e.key === 'ArrowRight') { e.preventDefault(); step(1); }
-  });
+  walkOrder = orderByRuntime(roster.members, World.state.employees);
   el.hint.textContent = `轮播中 · 每 ${2 * 3}s 步进一位（运行中靠前）· 点「独立页 →」查看该员工唯一 URL`;
-  every(tick, 3000);
 }
+
+/* 公共：圆点索引 + 页内导航（prev/next/键盘）+ 自动轮播节拍 */
+el.dots.innerHTML = walkOrder.map(m =>
+  `<button type="button" class="emp-dot" role="tab" aria-label="${m.name}" title="${staffIdFor(m.uid)} ${m.name}"></button>`).join('');
+[...el.dots.children].forEach((d, i) => d.addEventListener('click', () => stepTo(i)));
+el.prev.addEventListener('click', () => step(-1));
+el.next.addEventListener('click', () => step(1));
+/* 方向键挂 window：页面加载后焦点常在 body 上，挂卡片上永远收不到（本页无输入框，无劫持风险） */
+window.addEventListener('keydown', e => {
+  if (e.key === 'ArrowLeft') { e.preventDefault(); step(-1); }
+  if (e.key === 'ArrowRight') { e.preventDefault(); step(1); }
+});
+every(tick, 3000);
 
 render();
 mountOrb();

@@ -47,7 +47,8 @@
   animation: emp-fade var(--duration-base) var(--ease-standard);
 }
 
-/* 左：放大的数字员工（进度环 + 头像球） */
+/* 左：放大的数字员工（进度环 + 头像球）
+   v2 纪律：不做径向辉光光场，分离感交给球体本身的接触影与环形描边。 */
 .emp-figure {
   position: relative;
   display: flex;
@@ -58,17 +59,6 @@
   min-width: 0;
   min-height: 0;
   height: 100%;
-}
-.emp-figure::before {
-  content: '';
-  position: absolute;
-  width: 62%;
-  aspect-ratio: 1 / 1;
-  border-radius: 50%;
-  background: radial-gradient(circle, color-mix(in srgb, var(--agc, var(--color-accent)) 32%, transparent), transparent 70%);
-  filter: blur(44px);
-  opacity: .85;
-  z-index: 0;
 }
 .ec-side {
   position: relative;
@@ -82,7 +72,7 @@
 .emp-ring .bg { fill: none; stroke: var(--border-divider); stroke-width: 5; }
 .emp-ring .fg {
   fill: none;
-  stroke: var(--agc, var(--color-accent));
+  stroke: var(--color-accent);
   stroke-width: 6;
   stroke-linecap: round;
   stroke-dasharray: 465;
@@ -90,32 +80,33 @@
   transition: stroke-dashoffset var(--duration-slow) var(--ease-standard);
 }
 .emp-card__orb { width: 62%; aspect-ratio: 1 / 1; }
-.emp-card__orb svg { width: 100% !important; height: 100% !important; display: block; filter: drop-shadow(0 0 26px color-mix(in srgb, var(--agc, var(--color-accent)) 45%, transparent)); }
-.emp-figure__status {
-  display: flex;
-  align-items: center;
-  gap: .7rem;
-  color: var(--text-secondary);
-  font-size: 1.5rem;
-}
-.emp-figure__status .dot {
-  width: 1.1rem; height: 1.1rem; border-radius: 50%;
-  background: var(--agc, var(--color-accent));
-  box-shadow: 0 0 0 .3rem color-mix(in srgb, var(--agc, var(--color-accent)) 22%, transparent);
-}
+.emp-card__orb svg { width: 100% !important; height: 100% !important; display: block; filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.42)); }
 
-/* 右：介绍 / 技能 / 雷达 / 思考 */
+/* 右：档案列（身份头 / 数据带 / 能力构成 / 雷达+思考）
+   内容定宽 72rem 保住可读测宽；分组靠 hairline + 间距，不再引入嵌套卡片。
+   内容不足一屏时整体安全居中（safe center：溢出时自动退回顶部对齐）。 */
 .emp-detail {
   display: flex;
   flex-direction: column;
-  gap: clamp(1rem, 1.6vh, 1.8rem);
+  max-width: 72rem;
   min-width: 0;
   min-height: 0;
   height: 100%;
   overflow: auto;
   padding-right: .4rem;
+  justify-content: safe center;
+  animation: emp-fade var(--duration-base) var(--ease-standard);
 }
-.ec-idrow { display: flex; align-items: baseline; gap: .8rem; flex-wrap: wrap; }
+
+/* ---- 档案头：ID · 信号点 · 姓名 · 职能 · 状态徽章（右锚定） ---- */
+.ec-head {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding-bottom: 2rem;
+  border-bottom: 1px solid var(--border-divider);
+}
 .emp-id {
   font-size: 1.3rem; color: var(--text-tertiary);
   padding: .2rem .7rem; border: 1px solid var(--border-divider); border-radius: 999px;
@@ -124,7 +115,6 @@
 .emp-sig {
   width: 1.1rem; height: 1.1rem; border-radius: 50%;
   background: var(--agc, var(--color-accent)); flex: none; align-self: center;
-  box-shadow: 0 0 0 .25rem color-mix(in srgb, var(--agc, var(--color-accent)) 20%, transparent);
 }
 .emp-name {
   font-family: var(--font-display);
@@ -134,45 +124,86 @@
 }
 .emp-role { font-style: normal; font-size: 1.5rem; color: var(--text-secondary); align-self: center; }
 
-.emp-status { display: flex; align-items: center; gap: .6rem; color: var(--text-secondary); font-size: 1.4rem; }
+.emp-status {
+  display: flex; align-items: center; gap: .6rem;
+  margin-left: auto; align-self: center;
+  color: var(--text-secondary); font-size: 1.4rem;
+}
+/* 状态图标：中性凹陷面承载，描边由状态类上色（running / warning / neutral） */
 .emp-status__ic {
-  width: 1.4rem; height: 1.4rem; border-radius: 50%;
-  background: color-mix(in srgb, var(--agc, var(--color-accent)) 22%, transparent);
-  border: 1px solid color-mix(in srgb, var(--agc, var(--color-accent)) 50%, transparent);
+  width: 2rem; height: 2rem; flex: none;
+  display: grid; place-items: center;
+  border-radius: 50%;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-divider);
 }
-.emp-kb { font-variant-numeric: tabular-nums; }
+.emp-status__ic svg { width: 1.2rem; height: 1.2rem; fill: none; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; stroke: var(--text-secondary); }
+.emp-status__ic.is-running svg { stroke: var(--color-running); }
+.emp-status__ic.is-warning svg { stroke: var(--color-warning); }
+.emp-status__ic.is-neutral svg  { stroke: var(--color-neutral); }
 
-.ec-task { margin: 0; color: var(--text-secondary); font-size: 1.5rem; line-height: 1.5; }
-.ec-progress { display: flex; align-items: center; gap: .8rem; }
-.ec-progress .track { flex: 1; height: .8rem; border-radius: 999px; background: var(--border-divider); overflow: hidden; }
-.ec-progress .track i {
-  display: block; height: 100%; width: 0; border-radius: 999px;
-  background: linear-gradient(90deg, color-mix(in srgb, var(--agc, var(--color-accent)) 70%, #fff), var(--agc, var(--color-accent)));
-  transition: width var(--duration-base) var(--ease-standard);
+/* ---- 数据带：知识库读数 + 当前任务（hairline 上承头、下启技能） ---- */
+.ec-band {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  gap: 3.2rem;
+  align-items: start;
+  padding: 2rem 0;
+  border-bottom: 1px solid var(--border-divider);
 }
-.ec-progress .num { font-size: 1.4rem; color: var(--text-secondary); font-variant-numeric: tabular-nums; }
+.ec-label { display: block; font-size: 1.2rem; color: var(--text-secondary); margin-bottom: .8rem; }
+.ec-label__en {
+  font-style: normal; font-size: 1.2rem; color: var(--text-tertiary);
+  letter-spacing: var(--letter-spacing-en-caps); margin-left: .8rem;
+}
+.ec-stat__num {
+  font-size: 2.4rem; font-weight: var(--font-weight-semibold);
+  color: var(--text-primary); line-height: 3.2rem;
+  font-variant-numeric: tabular-nums;
+}
+.ec-task { margin: 0 0 1.2rem; color: var(--text-primary); font-size: 1.5rem; font-weight: 500; line-height: 1.5; }
+.ec-progress { display: flex; align-items: center; gap: 1.2rem; }
+.ec-progress .track { flex: 1; }
+.ec-progress .track i { transition: width var(--duration-base) var(--ease-standard); }
+.ec-progress__num {
+  font-size: 2.4rem; font-weight: var(--font-weight-semibold);
+  color: var(--text-primary); font-variant-numeric: tabular-nums;
+  min-width: 5.6rem; text-align: right;
+}
 
-/* 技能清单（每项 = 真实软件 Logo 图标 + 技能名 + 细进度条 + 数值） */
-.emp-skills { display: flex; flex-direction: column; gap: .7rem; }
+/* ---- 能力构成：真实软件 Logo 入牌 + 固定栏网格（名 / 刻度 / 数值三列对齐） ---- */
+.ec-skills-block { padding-top: 2rem; }
+.ec-skills-block .ec-label { margin-bottom: 1.2rem; }
+.emp-skills { display: flex; flex-direction: column; gap: 1rem; }
 .emp-skill {
   display: grid;
-  grid-template-columns: 2.6rem max-content 1fr auto;
+  grid-template-columns: 2.8rem 9.6rem minmax(0, 1fr) 3.2rem;
   align-items: center;
-  gap: .9rem;
+  gap: 1.2rem;
+  min-height: 2.8rem;
 }
-.emp-skill__ic { width: 2.6rem; height: 2.6rem; flex: none; }
-.emp-skill b { font-weight: 500; font-size: 1.5rem; color: var(--text-primary); white-space: nowrap; }
-.emp-skill .track { height: .6rem; border-radius: 999px; background: var(--border-divider); overflow: hidden; }
-.emp-skill .track i {
-  display: block; height: 100%; border-radius: 999px;
-  background: var(--agc, var(--color-accent));
-  transition: width var(--duration-base) var(--ease-standard);
+.emp-skill__ic {
+  width: 2.8rem; height: 2.8rem; padding: .55rem;
+  background: var(--bg-elevated);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--edge-1);
 }
-.emp-skill small { font-size: 1.3rem; color: var(--text-tertiary); font-variant-numeric: tabular-nums; min-width: 2.4rem; text-align: right; }
+.emp-skill b { font-weight: 500; font-size: 1.4rem; color: var(--text-primary); white-space: nowrap; }
+.emp-skill .track { height: .6rem; }
+.emp-skill .track i { transition: width var(--duration-base) var(--ease-standard); }
+.emp-skill small { font-size: 1.3rem; color: var(--text-secondary); font-variant-numeric: tabular-nums; text-align: right; }
 
-/* 八边形雷达（4 技能 + 4 实时轴） */
-.ec-radar { min-width: 0; min-height: 0; display: flex; flex-direction: column; align-items: center; gap: .4rem; }
-.emp-radar { width: 100%; max-width: 28rem; aspect-ratio: 240 / 200; display: block; }
+/* ---- 雷达 + 思考过程：并排收底，填满档案列底部横带 ---- */
+.ec-bottom {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 3.2rem;
+  align-items: center;
+  padding-top: 3.2rem;
+  min-height: 0;
+}
+.ec-radar { min-width: 0; min-height: 0; margin: 0; }
+.emp-radar { width: 100%; max-width: 26rem; aspect-ratio: 240 / 200; display: block; }
 .radar-grid { fill: none; stroke: var(--border-divider); stroke-width: 1; }
 .radar-axis { stroke: var(--border-divider); stroke-width: 1; }
 .radar-poly {
@@ -181,16 +212,15 @@
 }
 .radar-label { fill: var(--text-secondary); font-size: 13px; letter-spacing: .02em; }
 
-/* 思考过程：实时推演 + 日志时间线 */
-.ec-mind { min-width: 0; min-height: 0; display: flex; flex-direction: column; gap: .6rem; }
+.ec-mind { min-width: 0; min-height: 0; display: flex; flex-direction: column; gap: .8rem; }
 .emp-think {
-  margin: 0; padding-left: 1rem;
-  border-left: 2px solid var(--agc, var(--color-accent));
-  color: var(--text-primary); font-size: 1.4rem; line-height: 1.5;
+  margin: 0; padding-left: 1.2rem;
+  border-left: 1px solid var(--border-strong);
+  color: var(--text-primary); font-size: 1.4rem; line-height: 1.6;
 }
 .emp-log { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: .4rem; color: var(--text-tertiary); font-size: 1.25rem; }
 .emp-log li { display: flex; gap: .6rem; }
-.emp-log time { font-variant-numeric: tabular-nums; color: #6b7280; flex: none; }
+.emp-log b { font-variant-numeric: tabular-nums; color: var(--text-tertiary); flex: none; }
 
 /* ---- 底栏 ---- */
 .emp-card__foot { width: 100%; display: flex; align-items: center; gap: 1.2rem; }
@@ -218,14 +248,19 @@
 
 .emp-hint { text-align: center; color: var(--text-tertiary); font-size: 1.3rem; }
 
-/* ---- 窄屏（≤900px）回退：单列堆叠 ---- */
+/* ---- 窄屏（≤900px）回退：单列堆叠，档案列各带重排为纵向 ---- */
 @media (max-width: 900px) {
   .emp-hero { grid-template-columns: 1fr; gap: 2rem; align-content: center; }
   .emp-figure { height: auto; }
   .ec-side { width: min(46vh, 26rem); }
-  .emp-detail { overflow: visible; }
-  .emp-skill { grid-template-columns: 2.4rem 1fr auto; }
-  .emp-skill b { grid-column: 2 / 4; }
+  .emp-detail { overflow: visible; max-width: none; }
+  .ec-band { grid-template-columns: 1fr; gap: 1.6rem; }
+  .ec-bottom { grid-template-columns: 1fr; gap: 2rem; }
+  .ec-radar { max-width: 26rem; }
+  .emp-skill { grid-template-columns: 2.8rem minmax(0, 1fr) 3.2rem; row-gap: .5rem; }
+  .emp-skill b { grid-column: 2; }
+  .emp-skill .track { grid-column: 2; grid-row: 2; }
+  .emp-skill small { grid-column: 3; grid-row: 1; }
 }
 
 /* ---- 减弱动画（必须保留于文件最末，否则会被后段规则覆盖失效） ---- */
