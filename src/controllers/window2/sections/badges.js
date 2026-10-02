@@ -149,7 +149,7 @@ export function renderBadges(templateId = World.staffTemplate) {
             <div class="bot"></div>
           </div>
           <div class="agn__body">
-            <div class="agn__head"><b>${AIC.castLabel(m.key, m.name)}</b><i class="dot dot--${st.status}"></i><em>${m.role} · ${statusText(st.status)}</em></div>
+            <div class="agn__head"><i class="agn__roledot" style="background:${m.color}"></i><b>${AIC.castLabel(m.key, m.name)}</b><i class="dot dot--${st.status}"></i><em>${m.role} · ${statusText(st.status)}</em></div>
             <p class="agn__think">${thoughtFor(m, st)}</p>
             <div class="agn__viz">${VIZ[m.key](m)}</div>
             <div class="agn__skills">${m.skills.slice(0, 2).map(([name, pct]) => `<span class="agn__skill"><b>${name}</b><i><em style="width:${pct}%"></em></i><small>${pct}</small></span>`).join('')}</div>
@@ -186,7 +186,7 @@ export function renderBadges(templateId = World.staffTemplate) {
     if (botEl && Bloub.mount) {
       badgeAvatars[m.key] = Bloub.mount(botEl, {
         size: 56, shape: m.shape, ink: m.color, expression: avatarExpression(m, st.status),
-        state: avatarState(st.status), cycle: AVATAR_CYCLES[m.key], paper: '#263046', speed: 0.92 + i * 0.06
+        state: avatarState(st.status), cycle: AVATAR_CYCLES[m.key], paper: '#2C2C2E', speed: 0.92 + i * 0.06
       });
     }
     badgeRefs[m.key] = {

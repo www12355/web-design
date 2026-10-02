@@ -12,8 +12,8 @@ import { AGENTS, DOCS, TOPICS } from '../data/documents.js';
   const reduced = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
   const TAU = Math.PI * 2;
   const GOLDEN = Math.PI * (3 - Math.sqrt(5));
-  const PAPER = '#070b14';
-  const INK = '#aebcd2';
+  const PAPER = '#0A0A0B';
+  const INK = '#8B8F9A';
   const rgba = (hex, a) => { const v = parseInt(hex.slice(1), 16); return `rgba(${v >> 16 & 255},${v >> 8 & 255},${v & 255},${a})`; };
   const norm = p => { const m = Math.hypot(p.x, p.y, p.z) || 1; return { x:p.x/m, y:p.y/m, z:p.z/m }; };
   const dot = (a,b) => a.x*b.x + a.y*b.y + a.z*b.z;
@@ -76,9 +76,9 @@ import { AGENTS, DOCS, TOPICS } from '../data/documents.js';
   function resize(){ const r=cv.parentElement.getBoundingClientRect(); const dpr=Math.min(devicePixelRatio||1,3); W=Math.max(2,r.width);H=Math.max(2,r.height);cv.width=W*dpr;cv.height=H*dpr;ctx.setTransform(dpr,0,0,dpr,0,0); const pad=Math.max(28,Math.min(84,W*.032)); const cat=W>=1920?Math.min(320,W*.22):Math.min(258,W*.215); const fig=W>=1920?Math.min(430,W*.30):Math.min(318,W*.245); const left=pad+cat+46,right=W-pad-fig-40,top=138,bottom=H-88;CX=(left+right)/2;CY=(top+bottom)/2;R=Math.max(150,Math.min((right-left)/2,(bottom-top)/2));kick();}
   function rotate(p){const cy=Math.cos(rotY),sy=Math.sin(rotY);let x=p.x*cy-p.z*sy,z=p.x*sy+p.z*cy;const cx=Math.cos(rotX),sx=Math.sin(rotX);return{x,y:p.y*cx-z*sx,z:p.y*sx+z*cx};}
   function project(p){const q=rotate(p),s=1/(1+q.z*.28);return{x:CX+q.x*R*s,y:CY+q.y*R*s,z:q.z,s};}
-  function render(ms){ctx.clearRect(0,0,W,H);ctx.fillStyle=PAPER;ctx.fillRect(0,0,W,H);const grad=ctx.createRadialGradient(CX-R*.2,CY-R*.3,R*.05,CX,CY,R*1.12);grad.addColorStop(0,'rgba(64,132,220,.12)');grad.addColorStop(.62,'rgba(13,28,55,.05)');grad.addColorStop(1,'rgba(0,0,0,0)');ctx.fillStyle=grad;ctx.beginPath();ctx.arc(CX,CY,R*1.08,0,TAU);ctx.fill();
+  function render(ms){ctx.clearRect(0,0,W,H);ctx.fillStyle=PAPER;ctx.fillRect(0,0,W,H);const grad=ctx.createRadialGradient(CX-R*.2,CY-R*.3,R*.05,CX,CY,R*1.12);grad.addColorStop(0,'rgba(255,255,255,.05)');grad.addColorStop(.62,'rgba(255,255,255,.02)');grad.addColorStop(1,'rgba(0,0,0,0)');ctx.fillStyle=grad;ctx.beginPath();ctx.arc(CX,CY,R*1.08,0,TAU);ctx.fill();
     const P=new Map();anchors.forEach(a=>P.set(a.id,project(a.p)));points.forEach(p=>P.set(p.id,project(p.p)));
-    ctx.save();ctx.strokeStyle='rgba(127,181,255,.10)';ctx.lineWidth=.55;for(let k=-2;k<=2;k++){ctx.beginPath();ctx.ellipse(CX,CY,R,Math.abs(k)*R*.26+R*.12,0,0,TAU);ctx.stroke();ctx.beginPath();ctx.ellipse(CX,CY,Math.abs(k)*R*.26+R*.12,R,0,0,TAU);ctx.stroke();}ctx.restore();
+    ctx.save();ctx.strokeStyle='rgba(255,255,255,.07)';ctx.lineWidth=.55;for(let k=-2;k<=2;k++){ctx.beginPath();ctx.ellipse(CX,CY,R,Math.abs(k)*R*.26+R*.12,0,0,TAU);ctx.stroke();ctx.beginPath();ctx.ellipse(CX,CY,Math.abs(k)*R*.26+R*.12,R,0,0,TAU);ctx.stroke();}ctx.restore();
     links.forEach(l=>{const a=P.get(l.a.id),b=P.get(l.b.id);if(!a||!b)return;const active=inspecting&&(l.a===inspecting||l.b===inspecting);ctx.strokeStyle=l.family==='agent'?rgba(anchorByKey.get(l.a.agentKey||l.a.key)?.color||INK,active?.62:.22):rgba(INK,active?.42:.12);ctx.lineWidth=active?1.15:.65;ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke();});
     const items=anchors.map(a=>({o:a,s:P.get(a.id),anchor:true})).concat(points.map(p=>({o:p,s:P.get(p.id),anchor:false}))).sort((a,b)=>a.s.z-b.s.z);items.forEach(({o,s,anchor})=>{const color=anchor?o.color:anchorByKey.get(o.agentKey).color;const depth=.5+(s.z+1)*.25;ctx.globalAlpha=.3+depth*.65;if(anchor){const rr=7*s.s;ctx.fillStyle=color;ctx.beginPath();ctx.arc(s.x,s.y,rr,0,TAU);ctx.fill();ctx.strokeStyle=rgba(color,.8);ctx.lineWidth=1.3;ctx.beginPath();ctx.arc(s.x,s.y,rr+4,0,TAU);ctx.stroke();if(o.pulse){ctx.strokeStyle=rgba(color,o.pulse*.7);ctx.beginPath();ctx.arc(s.x,s.y,rr+(1-o.pulse)*24,0,TAU);ctx.stroke();}}else{const rr=(2.1+depth*2.3)*s.s;ctx.fillStyle=color;ctx.beginPath();ctx.arc(s.x,s.y,rr,0,TAU);ctx.fill();if(o.id===hoverId||o===inspecting){ctx.strokeStyle=rgba(color,.95);ctx.lineWidth=1.2;ctx.beginPath();ctx.arc(s.x,s.y,rr+5,0,TAU);ctx.stroke();}}});
     ripples.splice(0,ripples.length,...ripples.filter(x=>ms-x.born<1100));ripples.forEach(x=>{const s=project(x.p),age=(ms-x.born)/1100;ctx.strokeStyle=rgba(x.color,1-age);ctx.lineWidth=1;ctx.beginPath();ctx.arc(s.x,s.y,5+age*25,0,TAU);ctx.stroke();});ctx.globalAlpha=1;refreshPop();updateReadout();

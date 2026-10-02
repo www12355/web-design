@@ -16,7 +16,7 @@ export function initChat() {
 
   /* 聊天头部主 AI（白色小球，暖底可读）；持有句柄以便卸载时 stop（P0-1） */
   chatOrb = Bloub.mount(document.getElementById('chat-main'), {
-    size: 40, shape: 'cercle', ink: '#ffffff', expression: 'attentif', state: 'idle', paper: '#0d1524'
+    size: 40, shape: 'cercle', ink: '#ffffff', expression: 'attentif', state: 'idle', paper: '#2C2C2E'
   });
   onPageHide(() => { if (chatOrb && chatOrb.stop) chatOrb.stop(); });
 

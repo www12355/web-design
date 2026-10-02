@@ -7,10 +7,10 @@ import { year } from '../modules/time.js';
 // 两颗示例球：白色主 AI + 靛蓝员工（持有 mount 返回值，卸载/隐藏时 stop 以取消 rAF，P0-1）
 const demoOrbs = [
   Bloub.mount(document.getElementById('bot-demo-main'), {
-    size: 88, shape: 'cercle', ink: '#ffffff', expression: 'attentif', state: 'idle', paper: '#0d1524'
+    size: 88, shape: 'cercle', ink: '#ffffff', expression: 'attentif', state: 'idle', paper: '#2C2C2E'
   }),
   Bloub.mount(document.getElementById('bot-demo-reel'), {
-    size: 88, shape: 'hexagone', color: 'bleu', expression: 'neutre', state: 'idle', paper: '#0d1524'
+    size: 88, shape: 'hexagone', color: 'bleu', expression: 'neutre', state: 'idle', paper: '#2C2C2E'
   })
 ];
 function stopDemoOrbs() { demoOrbs.forEach(h => h && h.stop && h.stop()); }

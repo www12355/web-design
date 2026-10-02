@@ -136,7 +136,7 @@ function mountOrb(c) {
     ink: m.ink,
     expression: m.expr,
     state: avatarState(p.status),
-    paper: cssVar('--bg-base'),
+    paper: '#2C2C2E',
     cycle: [
       { state: 'idle', duration: 2.6, expression: m.expr },
       { state: 'thinking', duration: 2.9, expression: avatarExpr(m, 'busy') }

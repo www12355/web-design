@@ -3,14 +3,16 @@
  * 纯数据模块：文档入库时间用 minutesAgo 表达，由 time 模块转真实时钟
  * ============================================================ */
 
+/* color / ball.ink 与 tokens.css 的 --c-* 角色色一致（同 cast.js）；
+   ball.paper 全站统一中性石墨 #2C2C2E。 */
 export const AGENTS = [
-  { key: 'main',     name: '主 AI', color: '#34f0e6', rel: '统筹', ball: { shape: 'cercle',   ink: '#eafdff', paper: '#0d1524' }, expr: 'attentif' },
-  { key: 'planner',  name: '规划',  color: '#5ec8ff', rel: '规划', ball: { shape: 'hexagone', ink: '#5ec8ff', paper: '#0d1524' }, expr: 'neutre'   },
-  { key: 'writer',   name: '内容',  color: '#2dd4bf', rel: '撰写', ball: { shape: 'nuage',    ink: '#2dd4bf', paper: '#0d1524' }, expr: 'heureux'  },
-  { key: 'analyst',  name: '数据',  color: '#ffd23f', rel: '分析', ball: { shape: 'galet',    ink: '#ffd23f', paper: '#0d1524' }, expr: 'attentif' },
-  { key: 'designer', name: '设计',  color: '#c084fc', rel: '设计', ball: { shape: 'goutte',   ink: '#c084fc', paper: '#0d1524' }, expr: 'curieux'  },
-  { key: 'engineer', name: '工程',  color: '#818cf8', rel: '开发', ball: { shape: 'capsule',  ink: '#818cf8', paper: '#0d1524' }, expr: 'neutre'   },
-  { key: 'qc',       name: '质检',  color: '#34d399', rel: '审查', ball: { shape: 'carre',    ink: '#34d399', paper: '#0d1524' }, expr: 'attentif' }
+  { key: 'main',     name: '主 AI', color: '#F5F5F7', rel: '统筹', ball: { shape: 'cercle',   ink: '#F5F5F7', paper: '#2C2C2E' }, expr: 'attentif' },
+  { key: 'planner',  name: '规划',  color: '#0A84FF', rel: '规划', ball: { shape: 'hexagone', ink: '#0A84FF', paper: '#2C2C2E' }, expr: 'neutre'   },
+  { key: 'writer',   name: '内容',  color: '#5AC8FA', rel: '撰写', ball: { shape: 'nuage',    ink: '#5AC8FA', paper: '#2C2C2E' }, expr: 'heureux'  },
+  { key: 'analyst',  name: '数据',  color: '#FFD60A', rel: '分析', ball: { shape: 'galet',    ink: '#FFD60A', paper: '#2C2C2E' }, expr: 'attentif' },
+  { key: 'designer', name: '设计',  color: '#BF5AF2', rel: '设计', ball: { shape: 'goutte',   ink: '#BF5AF2', paper: '#2C2C2E' }, expr: 'curieux'  },
+  { key: 'engineer', name: '工程',  color: '#5E5CE6', rel: '开发', ball: { shape: 'capsule',  ink: '#5E5CE6', paper: '#2C2C2E' }, expr: 'neutre'   },
+  { key: 'qc',       name: '质检',  color: '#30D158', rel: '审查', ball: { shape: 'carre',    ink: '#30D158', paper: '#2C2C2E' }, expr: 'attentif' }
 ];
 
 /* DOCS：time 字段为「入库分钟前」，由 nebula 按真实时钟换算展示 */

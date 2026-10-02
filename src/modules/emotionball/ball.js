@@ -27,7 +27,7 @@
   var EYE_HALF = RD.EYE_HALF;      /* 21 */
   var EXPR = RD.EXPRESSIONS;
   var STAR_GOLD = RD.STAR_GOLD;
-  var CONFETTI_COLORS = ['#ff5a4d', '#38bdf8', '#2dd4bf', '#fbbf24', '#a78bfa', '#22d3ee'];
+  var CONFETTI_COLORS = ['#0A84FF', '#F5F5F7', '#3FB950', '#8B7FE8'];
   /* 五角星 path（内径比 0.42） */
   var STAR_PATH = (function () {
     var pts = [];
@@ -143,7 +143,7 @@
     bodyG.appendChild(head);
 
     function buildEye(k) {
-      var node = el('path', { fill: '#cfe7ff', stroke: 'none', 'stroke-width': '1.6' });
+      var node = el('path', { fill: '#F5F5F7', stroke: 'none', 'stroke-width': '1.6' });
       node.setAttribute('d', ringPath(EXPR[0][k]));
       return { node: node, ring: EXPR[0][k], c: centroid(EXPR[0][k]) };
     }
@@ -165,7 +165,7 @@
       zzzNodes = [];
       for (var zi = 0; zi < 3; zi++) {
         var zn = el('text', {
-          x: 0, y: 0, fill: '#aebcd2', opacity: '0',
+          x: 0, y: 0, fill: '#8B8F9A', opacity: '0',
           'font-family': "'Space Grotesk', 'Noto Sans SC', sans-serif",
           'font-weight': '700', 'font-style': 'italic', 'text-anchor': 'middle'
         });

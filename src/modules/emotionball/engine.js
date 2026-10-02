@@ -60,12 +60,12 @@
   /* ---------------- Pose：默认值 / 合并 / 插值 ---------------- */
 
   var DEFAULT_BODY = {
-    x: 0, y: 0, scale: 1, rotate: 0, color: '#0e1a2c', breathe: 0.01,
+    x: 0, y: 0, scale: 1, rotate: 0, color: '#1C1C1E', breathe: 0.01,
     ribbons: 0, confetti: 0, sketch: 0,
     zzz: 0,      /* 睡眠字母粒子（0~1） */
     orbit: 0     /* 常驻水平环带（0~1） */
   };
-  var DEFAULT_EYE = { x: 0, y: 0, scaleX: 1, scaleY: 1, rotate: 0, open: 1, color: '#cfe7ff', lookX: 0, lookY: 0 };
+  var DEFAULT_EYE = { x: 0, y: 0, scaleX: 1, scaleY: 1, rotate: 0, open: 1, color: '#F5F5F7', lookX: 0, lookY: 0 };
 
   /* 眼环数据自带左右不对称，默认姿态不叠加高低差 */
   function defaultPose() {

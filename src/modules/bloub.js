@@ -1598,7 +1598,7 @@
   function mount(container, opts = {}) {
     if (!container) return null;
     const size = opts.size || 160;
-    const paper = opts.paper || '#0d1524';
+    const paper = opts.paper || '#2C2C2E';
     const ink = inkOf(opts);
     const uid = 'b' + Math.random().toString(36).slice(2, 9);
 
@@ -1655,7 +1655,7 @@
    */
   function staticSvg(opts = {}) {
     const size = opts.size || 80;
-    const paper = opts.paper || '#0d1524';
+    const paper = opts.paper || '#2C2C2E';
     const ink = inkOf(opts);
     const uid = 's' + Math.random().toString(36).slice(2, 9);
     const eng = makeEngine(opts);

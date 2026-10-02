@@ -887,16 +887,23 @@ function syncPipeZero() {
         const bar = document.querySelector(cfg.bar), num = document.querySelector(cfg.num), pill = document.querySelector(cfg.pill);
         if (!bar || !num || !pill) return;
         const t = roleTask(cfg.role);
-        if (!t) { bar.style.width = '0%'; num.textContent = '等待派单'; setPill(pill, '待命中', 'pill--neutral', 'neutral'); return; }
+        /* 进度条填充色与徽章同源：容器状态类决定 --rc，避免静态类与实时状态脱节 */
+        const live = bar.closest('.tile-live');
+        const setLive = cls => {
+          if (!live) return;
+          live.classList.remove('is-success', 'is-run', 'is-warn', 'is-blocked', 'is-neutral');
+          live.classList.add(cls);
+        };
+        if (!t) { bar.style.width = '0%'; num.textContent = '等待派单'; setPill(pill, '待命中', 'pill--neutral', 'neutral'); setLive('is-neutral'); return; }
         if (t.status === 'blocked') {
           bar.style.width = t.pct + '%'; num.textContent = Math.round(t.pct) + '% · 自动重试中';
-          setPill(pill, '阻塞', 'pill--bad', 'blocked');
+          setPill(pill, '阻塞', 'pill--bad', 'blocked'); setLive('is-blocked');
         } else if (t.status === 'doing') {
           bar.style.width = t.pct + '%'; num.textContent = Math.round(t.pct) + '% · ' + t.title;
-          setPill(pill, '生成中', 'pill--run', 'running');
+          setPill(pill, '生成中', 'pill--run', 'running'); setLive('is-run');
         } else {
           bar.style.width = '100%'; num.textContent = '已交付 · ' + t.title;
-          setPill(pill, '已交付', 'pill--success', 'success');
+          setPill(pill, '已交付', 'pill--success', 'success'); setLive('is-success');
         }
       });
       /* 漏斗转化率随今日接单缓慢漂移（2.5–4.6% 合理带内） */
