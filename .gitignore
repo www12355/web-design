@@ -23,3 +23,7 @@ tools/baseline/
 
 # webpack 构建产物
 dist/
+
+# 根目录改版对照截图（同 tools/baseline 约定：本地留存可查，不入库）
+/*.png
+/tools/redesign/
